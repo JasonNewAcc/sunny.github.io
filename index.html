@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Holostats</title>
+    <style>
+        /* === Allgemeiner Seitenstil === */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e; /* Dunkler Hintergrund */
+            color: #f0f0f0; /* Helle Textfarbe */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Zentriert vertikal */
+        }
+        
+        /* === LOGIN FORM STYLES === */
+        #login-form-container {
+            background-color: #2d2d30;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            text-align: center;
+            width: 90%;
+            max-width: 350px;
+        }
+
+        #login-form-container h2 {
+            color: #4CAF50; /* Akzentfarbe Grün */
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        #login-form-container p {
+            color: #aaa;
+        }
+
+        #login-username, #login-password {
+            width: calc(100% - 30px);
+            padding: 12px 15px;
+            margin: 10px 0;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background-color: #3a3a3d;
+            color: #f0f0f0;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        #login-username:focus, #login-password:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        #login-form-container button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.2s;
+        }
+
+        #login-form-container button:hover {
+            background-color: #43A047;
+        }
+        #login-message {
+            color: #d9534f;
+            margin-top: 10px;
+            display: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div id="login-form-container">
+    <h2>Zugriff erforderlich</h2>
+    <p>Bitte melden Sie sich an, um die Holostats-Daten einzusehen.</p>
+    <input type="text" id="login-username" placeholder="Benutzername">
+    <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()"> 
+    <button onclick="checkLogin()">Anmelden</button>
+    <p id="login-message"></p>
+</div>
+
+
+<script>
+    // --- AUTHENTIFIZIERUNGSDATEN ---
+    let validAccounts = [
+        {
+            "username": "JasonNewAcc",
+            "password": "1234"
+        },
+        {
+            "username": "Admin",
+            "password": "passwort_sicher"
+        },
+        {
+            "username": "TestUser",
+            "password": "test"
+        }
+    ]; 
+    const LOGIN_KEY = 'holostats_logged_in';
+    const TARGET_PAGE = 'app.html'; // ZIELSEITE NACH ERFOLGREICHEM LOGIN
+
+    /**
+     * Führt die Login-Prüfung durch.
+     */
+    function checkLogin() {
+        const usernameInput = document.getElementById('login-username').value;
+        const passwordInput = document.getElementById('login-password').value;
+        const loginMessage = document.getElementById('login-message');
+
+        loginMessage.style.display = 'none';
+        
+        // Findet ein passendes Konto in der Liste
+        const accountFound = validAccounts.find(account => 
+            account.username === usernameInput && account.password === passwordInput
+        );
+
+        if (accountFound) {
+            // Erfolg: Session-Schlüssel setzen und weiterleiten
+            sessionStorage.setItem(LOGIN_KEY, 'true');
+            window.location.href = TARGET_PAGE; 
+            
+        } else {
+            // Fehler: Nachricht anzeigen
+            loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
+            loginMessage.style.display = 'block';
+        }
+    }
+
+    // Beim Laden prüfen, ob man nicht schon eingeloggt ist (und wenn ja, direkt weiterleiten)
+    document.addEventListener('DOMContentLoaded', () => {
+        const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true';
+        if (isLoggedIn) {
+             // Vermeidet, dass der Benutzer die Login-Seite sieht, wenn er schon eingeloggt ist
+             window.location.href = TARGET_PAGE;
+        }
+        // Setzt den Fokus auf das Benutzernamen-Feld
+        document.getElementById('login-username').focus();
+    });
+</script>
+</body>
+</html>
