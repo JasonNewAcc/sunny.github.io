@@ -93,22 +93,39 @@
 
 <script>
     // --- AUTHENTIFIZIERUNGSDATEN ---
-    let validAccounts = [
-        {
-            "username": "JasonNewAcc",
-            "password": "1234"
-        },
-        {
-            "username": "Admin",
-            "password": "passwort_sicher"
-        },
-        {
-            "username": "TestUser",
-            "password": "test"
-        }
-    ]; 
+    // HINWEIS: Passwörter werden nun aus accounts.json geladen.
+    let validAccounts = []; 
     const LOGIN_KEY = 'holostats_logged_in';
     const TARGET_PAGE = 'app.html'; // ZIELSEITE NACH ERFOLGREICHEM LOGIN
+
+    /**
+     * Lädt die Zugangsdaten aus der externen accounts.json Datei.
+     */
+    async function loadAccounts() {
+        try {
+            // Führt eine Anfrage an die accounts.json-Datei im selben Ordner aus
+            const response = await fetch('accounts.json'); 
+            
+            if (!response.ok) {
+                // Zeigt einen Fehler an, wenn die Datei nicht gefunden wird
+                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
+                document.getElementById('login-message').style.display = 'block';
+                return;
+            }
+            
+            const data = await response.json();
+            // Erwartet, dass die Liste unter dem Schlüssel 'accounts' liegt
+            validAccounts = data.accounts || []; 
+            console.log(`Daten für ${validAccounts.length} Konten geladen.`);
+            
+        } catch (error) {
+            // Zeigt einen Fehler an, wenn ein Netzwerkproblem auftritt
+            document.getElementById('login-message').textContent = 'Netzwerkfehler beim Laden der Kontodaten.';
+            document.getElementById('login-message').style.display = 'block';
+            console.error(error);
+        }
+    }
+
 
     /**
      * Führt die Login-Prüfung durch.
@@ -119,6 +136,13 @@
         const loginMessage = document.getElementById('login-message');
 
         loginMessage.style.display = 'none';
+        
+        // Prüft, ob die Konten geladen wurden
+        if (validAccounts.length === 0) {
+            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte warten oder Seite neu laden.';
+            loginMessage.style.display = 'block';
+            return;
+        }
         
         // Findet ein passendes Konto in der Liste
         const accountFound = validAccounts.find(account => 
@@ -137,8 +161,15 @@
         }
     }
 
-    // Beim Laden prüfen, ob man nicht schon eingeloggt ist (und wenn ja, direkt weiterleiten)
-    document.addEventListener('DOMContentLoaded', () => {
+    // Beim Laden zuerst die Konten laden und dann auf den Login-Status prüfen
+    document.addEventListener('DOMContentLoaded', async () => {
+        document.getElementById('login-message').textContent = 'Lade Kontodaten...';
+        document.getElementById('login-message').style.display = 'block';
+        
+        await loadAccounts(); // Warten, bis die Daten geladen sind
+
+        document.getElementById('login-message').style.display = 'none'; // Nachricht verstecken
+        
         const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true';
         if (isLoggedIn) {
              // Vermeidet, dass der Benutzer die Login-Seite sieht, wenn er schon eingeloggt ist
