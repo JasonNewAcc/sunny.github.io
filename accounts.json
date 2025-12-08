@@ -1,0 +1,16 @@
+{
+  "accounts": [
+    {
+      "username": "JasonNewAcc",
+      "password": "1234"
+    },
+    {
+      "username": "Admin",
+      "password": "passwort_sicher"
+    },
+    {
+      "username": "TestUser",
+      "password": "test"
+    }
+  ]
+}
