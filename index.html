@@ -153,87 +153,90 @@
 </footer>
 
 <script>
-    // ⚠️ WICHTIGER HINWEIS: Passwörter sind im Klartext in accounts.json gespeichert und UNSICHER.
-    // --- AUTHENTIFIZIERUNGSDATEN ---
-    let validAccounts = []; 
-    const LOGIN_KEY = 'holostats_logged_in';
-    const TARGET_PAGE = 'app.html'; 
-    
-    /**
-     * Lädt die Zugangsdaten aus der externen accounts.json Datei.
-     */
-    async function loadAccounts() {
-        try {
-            // Führt eine Anfrage an die accounts.json-Datei aus
-            const response = await fetch('accounts.json'); 
-            if (!response.ok) {
-                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
-                document.getElementById('login-message').style.display = 'block';
-                return;
-            }
-            
-            const data = await response.json();
-            // Erwartet, dass die Liste unter dem Schlüssel 'accounts' liegt
-            validAccounts = data.accounts || []; 
-        } catch (error) {
-            document.getElementById('login-message').textContent = 'Netzwerkfehler oder Fehler beim Parsen der Kontodaten.';
-            document.getElementById('login-message').style.display = 'block';
-            console.error(error);
-        }
-    }
+    // ⚠️ WICHTIGER HINWEIS: Passwörter sind im Klartext in accounts.json gespeichert und UNSICHER.
+    // --- AUTHENTIFIZIERUNGSDATEN ---
+    let validAccounts = []; 
+    const LOGIN_KEY = 'holostats_logged_in';
+    const TARGET_PAGE = 'app.html'; 
+    
+    /**
+     * Lädt die Zugangsdaten aus der externen accounts.json Datei.
+     */
+    async function loadAccounts() {
+        try {
+            // Führt eine Anfrage an die accounts.json-Datei aus
+            const response = await fetch('accounts.json'); 
+            if (!response.ok) {
+                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
+                document.getElementById('login-message').style.display = 'block';
+                return;
+            }
+            
+            const data = await response.json();
+            // Erwartet, dass die Liste unter dem Schlüssel 'accounts' liegt
+            validAccounts = data.accounts || []; 
+        } catch (error) {
+            // Fehlerbehebung für das Laden oder Parsen der JSON-Datei
+            document.getElementById('login-message').textContent = 'Netzwerkfehler oder Fehler beim Parsen der Kontodaten.';
+            document.getElementById('login-message').style.display = 'block';
+            console.error('Fehler beim Laden der Accounts:', error);
+        }
+    }
 
-    /**
-     * Führt die Login-Prüfung durch.
-     */
-    function checkLogin() {
-        const usernameInput = document.getElementById('login-username').value;
-        const passwordInput = document.getElementById('login-password').value;
-        const loginMessage = document.getElementById('login-message');
-        loginMessage.style.display = 'none';
+    /**
+     * Führt die Login-Prüfung durch.
+     */
+    function checkLogin() {
+        const usernameInput = document.getElementById('login-username').value;
+        const passwordInput = document.getElementById('login-password').value;
+        const loginMessage = document.getElementById('login-message');
+        loginMessage.style.display = 'none';
 
-        // Prüft, ob die Konten geladen wurden
-        if (validAccounts.length === 0) {
-            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte warten oder Seite neu laden.';
-            loadAccounts(); // Versucht, erneut zu laden
-            loginMessage.style.display = 'block';
-            return;
-        }
+        // Prüft, ob die Konten geladen wurden
+        if (validAccounts.length === 0) {
+            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte warten oder Seite neu laden.';
+            loadAccounts(); // Versucht, erneut zu laden
+            loginMessage.style.display = 'block';
+            return;
+        }
 
-        // Findet ein passendes Konto in der Liste (Klartext-Vergleich)
-        const accountFound = validAccounts.find(account => 
-            account.username === usernameInput && account.password === passwordInput
-        );
+        // Findet ein passendes Konto in der Liste (Klartext-Vergleich)
+        const accountFound = validAccounts.find(account => 
+            account.username === usernameInput && account.password === passwordInput
+        );
 
-        if (accountFound) {
-            // Erfolg: Session-Schlüssel setzen und weiterleiten
-            sessionStorage.setItem(LOGIN_KEY, 'true');
-            window.location.href = TARGET_PAGE; 
-        } else {
-            // Fehler: Nachricht anzeigen
-            loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
-            loginMessage.style.display = 'block';
-        }
-    }
+        if (accountFound) {
+            // Erfolg: Session-Schlüssel setzen und weiterleiten
+            sessionStorage.setItem(LOGIN_KEY, 'true');
+            window.location.href = TARGET_PAGE; 
+        } else {
+            // Fehler: Nachricht anzeigen
+            loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
+            loginMessage.style.display = 'block';
+        }
+    }
 
+    // Beim Laden zuerst die Konten laden und dann auf den Login-Status prüfen
+    document.addEventListener('DOMContentLoaded', async () => {
+        document.getElementById('login-message').textContent = 'Lade Kontodaten...';
+        document.getElementById('login-message').style.display = 'block';
 
-    // Beim Laden zuerst die Konten laden und dann auf den Login-Status prüfen
-    document.addEventListener('DOMContentLoaded', async () => {
-        document.getElementById('login-message').textContent = 'Lade Kontodaten...';
-        document.getElementById('login-message').style.display = 'block';
+        await loadAccounts(); // Warten, bis die Daten geladen sind
+        
+        // Wenn Konten erfolgreich geladen wurden, Nachricht verstecken
+        if (validAccounts.length > 0) {
+            document.getElementById('login-message').style.display = 'none'; 
+        }
 
-        await loadAccounts(); // Warten, bis die Daten geladen sind
-        // Wenn Konten erfolgreich geladen wurden, Nachricht verstecken
-        if (validAccounts.length > 0) {
-            document.getElementById('login-message').style.display = 'none'; 
-        }
+        const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true';
+        if (isLoggedIn) {
+             window.location.href = TARGET_PAGE;
+        }
+        document.getElementById('login-username').focus();
 
-        const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true';
-        if (isLoggedIn) {
-             window.location.href = TARGET_PAGE;
-        }
-        document.getElementById('login-username').focus();
-
-    });
+    });
 </script>
+        
 </body>
 </html>
+
