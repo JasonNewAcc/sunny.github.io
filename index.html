@@ -81,12 +81,20 @@
 </head>
 <body>
 
+<body>
+
 <div id="login-form-container">
-    <h2>Zugriff erforderlich</h2>
-    <p>Bitte melden Sie sich an, um die Holostats-Daten einzusehen.</p>
+    <h2 id="form-title">Zugriff erforderlich</h2>
+    <p id="form-message">Bitte melden Sie sich mit Benutzername und Passwort an.</p>
+    
     <input type="text" id="login-username" placeholder="Benutzername">
-    <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()"> 
-    <button onclick="checkLogin()">Anmelden</button>
+    <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin(event)"> 
+    
+    <input type="text" id="security-code" placeholder="Security Code" style="display: none;" onkeyup="if(event.key === 'Enter') checkSecurityCode()"> 
+    
+    <button id="login-button" onclick="checkLogin(event)">Anmelden</button>
+    <button id="verify-button" style="display: none;" onclick="checkSecurityCode()">Code prüfen</button>
+
     <p id="login-message"></p>
 </div>
 
@@ -123,6 +131,111 @@
             console.error(error);
         }
     }
+
+    // ... (Ihre bestehenden Variablen, loadAccounts, etc.) ...
+
+const SECURITY_CODE_KEY = 'holostats_temp_code'; // Für die Simulation
+
+// Der Benutzer, der gerade versucht, sich anzumelden
+let currentAttemptUser = null; 
+
+/**
+ * Generiert einen einfachen, unsicheren Code für die Client-Simulation.
+ * Im echten 2FA MUSS dies auf dem Server passieren und dort gespeichert werden!
+ * @returns {string} Ein 6-stelliger Code.
+ */
+function generateSecurityCode() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+/**
+ * Führt die Login-Prüfung (Faktor 1) durch.
+ */
+function checkLogin() {
+    const usernameInput = document.getElementById('login-username').value;
+    const passwordInput = document.getElementById('login-password').value;
+    const loginMessage = document.getElementById('login-message');
+
+    loginMessage.style.display = 'none';
+
+    if (validAccounts.length === 0) {
+        // ... (Fehlerbehandlung) ...
+        return;
+    }
+    
+    const accountFound = validAccounts.find(account => 
+        account.username === usernameInput && account.password === passwordInput
+    );
+
+    if (accountFound) {
+        currentAttemptUser = accountFound; // Speichere den gefundenen Benutzer
+
+        // **SCHRITT 1: FÜR 2FA UMSTELLEN**
+        if (accountFound.discordId) {
+            // Verstecke die Anmeldefelder
+            document.getElementById('login-username').style.display = 'none';
+            document.getElementById('login-password').style.display = 'none';
+            document.getElementById('login-button').style.display = 'none';
+
+            // Zeige das Code-Feld und den Code-Button
+            document.getElementById('security-code').value = ''; // Eingabefeld leeren
+            document.getElementById('security-code').style.display = 'block';
+            document.getElementById('verify-button').style.display = 'block';
+            document.getElementById('security-code').focus();
+
+            document.getElementById('form-title').textContent = 'Security Code erforderlich';
+            document.getElementById('form-message').textContent = 'Wir haben einen Code an Ihren Discord gesendet.';
+            
+            // 🔥 WICHTIG: Serverseitige Aktion wird hier simuliert!
+            const generatedCode = generateSecurityCode();
+            sessionStorage.setItem(SECURITY_CODE_KEY, generatedCode); 
+            
+            // Hier MÜSSTE Ihr Backend (sicher) den Discord-Bot anweisen, 
+            // die DM mit dem 'generatedCode' an 'accountFound.discordId' zu senden.
+            console.log(`[SIMULATION] Code für ${usernameInput}: ${generatedCode} (Muss per Backend an Discord gesendet werden!)`);
+            
+        } else {
+            // Kein 2FA (keine Discord ID) - Direkter Login (sehr unsicher)
+            handleSuccessfulLogin();
+        }
+
+    } else {
+        loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
+        loginMessage.style.display = 'block';
+    }
+}
+
+
+/**
+ * Führt die Prüfung des Security Codes (Faktor 2) durch.
+ */
+function checkSecurityCode() {
+    const codeInput = document.getElementById('security-code').value;
+    const loginMessage = document.getElementById('login-message');
+    loginMessage.style.display = 'none';
+
+    // Holt den simulierten Code (der eigentlich vom Server kommen müsste)
+    const expectedCode = sessionStorage.getItem(SECURITY_CODE_KEY);
+
+    if (codeInput === expectedCode) {
+        // Erfolg: 2FA war erfolgreich
+        sessionStorage.removeItem(SECURITY_CODE_KEY); // Code löschen
+        handleSuccessfulLogin();
+    } else {
+        loginMessage.textContent = 'Fehler: Ungültiger Security Code.';
+        loginMessage.style.display = 'block';
+    }
+}
+
+/**
+ * Behandelt den erfolgreichen Abschluss des Logins.
+ */
+function handleSuccessfulLogin() {
+    sessionStorage.setItem(LOGIN_KEY, 'true');
+    window.location.href = TARGET_PAGE;
+}
+
+// ... (DOM Content Loaded Listener muss checkLogin durch checkSecurityCode ersetzen, wenn 2FA aktiv ist) ...
 
 
     /**
@@ -181,3 +294,4 @@
 </script>
 </body>
 </html>
+
