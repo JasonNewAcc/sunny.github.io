@@ -92,9 +92,8 @@
 
 
 <script>
-    // ⚠️ WICHTIGER HINWEIS: Die Entschlüsselung ist im Browser sichtbar und bietet KEINE echte Sicherheit.
+    // ⚠️ HINWEIS: Dies ist die maximale Verschleierung ohne Server, bietet aber keine echte Sicherheit!
     
-    // --- AUTHENTIFIZIERUNGSDATEN ---
     let validAccounts = []; 
     const LOGIN_KEY = 'holostats_logged_in';
     const TARGET_PAGE = 'app.html'; 
@@ -107,32 +106,31 @@
         const data = encoder.encode(password);
         const hashBuffer = await crypto.subtle.digest('SHA-256', data); 
         
-        // Konvertiere den Buffer in einen Hex-String
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
 
     /**
-     * Lädt die Base64-kodierten Zugangsdaten und entschlüsselt sie.
+     * Lädt und entschlüsselt die Base64-kodierten Zugangsdaten.
+     * ACHTUNG: Die geladenen Benutzernamen sind ebenfalls Base64-kodiert!
      */
     async function loadAccounts() {
         try {
-            // 1. Datei als reinen Text laden (enthält den Base64-String)
-const response = await fetch('accounts.json');
+            const response = await fetch('accounts.json'); 
             
             if (!response.ok) {
-                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
+                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (404).';
                 document.getElementById('login-message').style.display = 'block';
                 return;
             }
             
-const encodedData = await response.text(); // Wichtig: Als reiner Text laden
-const jsonString = atob(encodedData); // Base64 dekodieren
-const data = JSON.parse(jsonString); // JSON parsen
+            const encodedData = await response.text(); 
+            const jsonString = atob(encodedData); 
+            const data = JSON.parse(jsonString); 
             
-            // 4. Speichere die Liste der gehashten Konten
-            validAccounts = data.accounts || []; 
+            // Korrigierte Groß-/Kleinschreibung (Accounts) verwenden
+            validAccounts = data.Accounts || []; 
             
         } catch (error) {
             document.getElementById('login-message').textContent = 'Netzwerkfehler oder Entschlüsselungsfehler beim Laden der Kontodaten.';
@@ -143,7 +141,7 @@ const data = JSON.parse(jsonString); // JSON parsen
 
 
     /**
-     * Führt die Login-Prüfung durch (Hash-Vergleich).
+     * Führt die Login-Prüfung durch (Hash-Vergleich und Base64-Dekodierung des Benutzernamens).
      */
     async function checkLogin() {
         const usernameInput = document.getElementById('login-username').value;
@@ -164,18 +162,29 @@ const data = JSON.parse(jsonString); // JSON parsen
         // 1. Hash des eingegebenen Passworts berechnen
         const hashedInput = await hashPassword(passwordInput); 
         
-        // 2. Findet ein passendes Konto und vergleicht den Hash
-        const accountFound = validAccounts.find(account => 
-            account.username === usernameInput && account.hash === hashedInput
-        );
+        // 2. Base64-Kodierung des eingegebenen Benutzernamens (zum Vergleich)
+        // const encodedUsernameInput = btoa(usernameInput); // Alternative, falls der Klartext im JSON gespeichert wäre
+
+        // 3. Finde ein passendes Konto und vergleiche den Hash
+        const accountFound = validAccounts.find(account => {
+            // WICHTIG: Hier dekodieren wir den gespeicherten Base64-Benutzernamen,
+            // um ihn mit dem Klartext-Input des Benutzers zu vergleichen.
+            try {
+                const storedUsernameClear = atob(account.username);
+                return storedUsernameClear === usernameInput && account.hash === hashedInput;
+            } catch (e) {
+                // Fehler beim Dekodieren (z.B. wenn der gespeicherte Username kein gültiges Base64 war)
+                return false; 
+            }
+        });
 
         if (accountFound) {
-            // Erfolg: Session-Schlüssel setzen und weiterleiten
+            // Erfolg
             sessionStorage.setItem(LOGIN_KEY, 'true');
             window.location.href = TARGET_PAGE; 
             
         } else {
-            // Fehler: Nachricht anzeigen
+            // Fehler
             loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
             loginMessage.style.display = 'block';
         }
@@ -186,9 +195,8 @@ const data = JSON.parse(jsonString); // JSON parsen
         document.getElementById('login-message').textContent = 'Lade und entschlüssele Kontodaten...';
         document.getElementById('login-message').style.display = 'block';
         
-        await loadAccounts(); // Warten, bis die Daten geladen und entschlüsselt sind
+        await loadAccounts(); 
 
-        // Wenn Konten erfolgreich geladen wurden, Nachricht verstecken
         if (validAccounts.length > 0) {
             document.getElementById('login-message').style.display = 'none'; 
         }
@@ -200,6 +208,8 @@ const data = JSON.parse(jsonString); // JSON parsen
         document.getElementById('login-username').focus();
     });
 </script>
+    
 </body>
 </html>
+
 
