@@ -1,16 +1,16 @@
 {
   "accounts": [
     {
-      "username": "6a804791e8473a251e605d53c306d158e9992f025e1a388b394f6f70d04c538a",
-      "password": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"
+      "username": "JasonNewAcc",
+      "password": "1234"
     },
     {
-      "username": "730a916327b9c922572b8d4e738b555811c75dd9c1221b0d2d2c18d867c427f2",
-      "password": "9e5c43d34f0e5c94f1c4293f06c117b2af232470776b297b47e5b128549926c4"
+      "username": "Admin",
+      "password": "passwort_sicher"
     },
     {
-      "username": "295a09b4783387b32669e776e27303c735d46535560868f764a78734f5908b8b",
-      "password": "9f86d081884c7d659a2feaa0c55ad015a3c6130fd2e707e7b61183049a633727"
+      "username": "TestUser",
+      "password": "test"
     }
   ]
 }
