@@ -1,3 +1,5 @@
+{
+  "wagers": [
     {
       "uuid": "2143da9f-503b-4e4a-835a-d1d7f37a0af1",
       "playername": "JasonNewAcc",
@@ -3858,3 +3860,4 @@
       "playername": "ManLionsCity",
       "wager": 5
     }
+  ]
