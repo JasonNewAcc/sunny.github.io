@@ -3,17 +3,14 @@
     {
       "username": "JasonNewAcc",
       "password": "1234",
-      "discordId": "1208510542986219641" 
     },
     {
       "username": "Admin",
       "password": "passwort_sicher",
-      "discordId": null
     },
     {
       "username": "TestUser",
       "password": "test",
-      "discordId": null
     }
   ]
 }
