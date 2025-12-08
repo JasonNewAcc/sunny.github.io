@@ -1,297 +1,251 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Holostats</title>
-    <style>
-        /* === Allgemeiner Seitenstil === */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #1e1e1e;
-            color: #f0f0f0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        /* === LOGIN FORM STYLES === */
-        #login-form-container {
-            background-color: #2d2d30;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-            text-align: center;
-            width: 90%;
-            max-width: 350px;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Holostats</title>
+    <style>
+        /* === Allgemeiner Seitenstil === */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* === LOGIN FORM STYLES === */
+        #login-form-container {
+            background-color: #2d2d30;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            text-align: center;
+            width: 90%;
+            max-width: 350px;
+        }
 
-        #login-form-container h2 {
-            color: #4CAF50;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
+        #login-form-container h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
 
-        #login-form-container p {
-            color: #aaa;
-        }
+        #login-form-container p {
+            color: #aaa;
+        }
 
-        #login-username, #login-password {
-            width: calc(100% - 30px);
-            padding: 12px 15px;
-            margin: 10px 0;
-            border: 1px solid #555;
-            border-radius: 6px;
-            background-color: #3a3a3d;
-            color: #f0f0f0;
-            font-size: 1em;
-            box-sizing: border-box;
-        }
-        #login-username:focus, #login-password:focus {
-            border-color: #4CAF50;
-            outline: none;
-        }
+        #login-username, #login-password, #security-code { /* Security Code hinzugefügt */
+            width: calc(100% - 30px);
+            padding: 12px 15px;
+            margin: 10px 0;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background-color: #3a3a3d;
+            color: #f0f0f0;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        #login-username:focus, #login-password:focus, #security-code:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
 
-        #login-form-container button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1.1em;
-            transition: background-color 0.2s;
-        }
+        #login-form-container button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.2s;
+        }
 
-        #login-form-container button:hover {
-            background-color: #43A047;
-        }
-        #login-message {
-            color: #d9534f;
-            margin-top: 10px;
-            display: none;
-            font-weight: bold;
-        }
-    </style>
+        #login-form-container button:hover {
+            background-color: #43A047;
+        }
+        #login-message {
+            color: #d9534f;
+            margin-top: 10px;
+            display: none;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
-<body>
-
 <div id="login-form-container">
-    <h2 id="form-title">Zugriff erforderlich</h2>
-    <p id="form-message">Bitte melden Sie sich mit Benutzername und Passwort an.</p>
-    
-    <input type="text" id="login-username" placeholder="Benutzername">
-    <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin(event)"> 
-    
-    <input type="text" id="security-code" placeholder="Security Code" style="display: none;" onkeyup="if(event.key === 'Enter') checkSecurityCode()"> 
-    
-    <button id="login-button" onclick="checkLogin(event)">Anmelden</button>
-    <button id="verify-button" style="display: none;" onclick="checkSecurityCode()">Code prüfen</button>
+    <h2 id="form-title">Zugriff erforderlich</h2>
+    <p id="form-message">Bitte melden Sie sich mit Benutzername und Passwort an.</p>
+    
+        <input type="text" id="login-username" placeholder="Benutzername">
+    <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()"> 
+    
+        <input type="text" id="security-code" placeholder="Security Code" style="display: none;" onkeyup="if(event.key === 'Enter') checkSecurityCode()"> 
+    
+    <button id="login-button" onclick="checkLogin()">Anmelden</button>
+    <button id="verify-button" style="display: none;" onclick="checkSecurityCode()">Code prüfen</button>
 
-    <p id="login-message"></p>
+    <p id="login-message"></p>
 </div>
 
 
 <script>
-    // ⚠️ WICHTIGER HINWEIS: Passwörter sind im Klartext in accounts.json gespeichert und UNSICHER.
-    
-    // --- AUTHENTIFIZIERUNGSDATEN ---
-    let validAccounts = []; 
-    const LOGIN_KEY = 'holostats_logged_in';
-    const TARGET_PAGE = 'app.html'; 
+    // ⚠️ WICHTIGER HINWEIS: Passwörter sind im Klartext in accounts.json gespeichert und UNSICHER.
+    
+    // --- AUTHENTIFIZIERUNGSDATEN ---
+    let validAccounts = []; 
+    const LOGIN_KEY = 'holostats_logged_in';
+    const TARGET_PAGE = 'app.html'; 
+    const SECURITY_CODE_KEY = 'holostats_temp_code'; // Für die Simulation
+    let currentAttemptUser = null; // Speichert den Benutzer, der sich gerade anmeldet
 
-    /**
-     * Lädt die Zugangsdaten aus der externen accounts.json Datei.
-     */
-    async function loadAccounts() {
-        try {
-            // Führt eine Anfrage an die accounts.json-Datei aus
-            const response = await fetch('accounts.json'); 
-            
-            if (!response.ok) {
-                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
-                document.getElementById('login-message').style.display = 'block';
-                return;
-            }
-            
-            const data = await response.json();
-            // Erwartet, dass die Liste unter dem Schlüssel 'accounts' liegt
-            validAccounts = data.accounts || []; 
-            
-        } catch (error) {
-            document.getElementById('login-message').textContent = 'Netzwerkfehler oder Fehler beim Parsen der Kontodaten.';
-            document.getElementById('login-message').style.display = 'block';
-            console.error(error);
-        }
-    }
+    /**
+     * Lädt die Zugangsdaten aus der externen accounts.json Datei.
+     */
+    async function loadAccounts() {
+        try {
+            const response = await fetch('accounts.json'); 
+            
+            if (!response.ok) {
+                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
+                document.getElementById('login-message').style.display = 'block';
+                return;
+            }
+            
+            const data = await response.json();
+            validAccounts = data.accounts || []; 
+            
+        } catch (error) {
+            document.getElementById('login-message').textContent = 'Netzwerkfehler oder Fehler beim Parsen der Kontodaten.';
+            document.getElementById('login-message').style.display = 'block';
+            console.error(error);
+        }
+    }
 
-    // ... (Ihre bestehenden Variablen, loadAccounts, etc.) ...
+    /**
+     * Generiert einen einfachen 6-stelligen Code für die Client-Simulation.
+     */
+    function generateSecurityCode() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+    }
 
-const SECURITY_CODE_KEY = 'holostats_temp_code'; // Für die Simulation
+    /**
+     * Führt die Login-Prüfung (Faktor 1: Username/Passwort) durch.
+     */
+    function checkLogin() {
+        const usernameInput = document.getElementById('login-username').value;
+        const passwordInput = document.getElementById('login-password').value;
+        const loginMessage = document.getElementById('login-message');
 
-// Der Benutzer, der gerade versucht, sich anzumelden
-let currentAttemptUser = null; 
+        loginMessage.style.display = 'none';
 
-/**
- * Generiert einen einfachen, unsicheren Code für die Client-Simulation.
- * Im echten 2FA MUSS dies auf dem Server passieren und dort gespeichert werden!
- * @returns {string} Ein 6-stelliger Code.
- */
-function generateSecurityCode() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-}
+        if (validAccounts.length === 0) {
+            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte warten oder Seite neu laden.';
+            loginMessage.style.display = 'block';
+            return;
+        }
+        
+        const accountFound = validAccounts.find(account => 
+            account.username === usernameInput && account.password === passwordInput
+        );
 
-/**
- * Führt die Login-Prüfung (Faktor 1) durch.
- */
-function checkLogin() {
-    const usernameInput = document.getElementById('login-username').value;
-    const passwordInput = document.getElementById('login-password').value;
-    const loginMessage = document.getElementById('login-message');
+        if (accountFound) {
+            currentAttemptUser = accountFound;
 
-    loginMessage.style.display = 'none';
+            if (accountFound.discordId) {
+                // Benutzer hat 2FA (Discord ID)
+                switchToSecurityCodeStep(usernameInput);
+            } else {
+                // Benutzer hat kein 2FA - Direkter Login
+                handleSuccessfulLogin();
+            }
+        } else {
+            loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
+            loginMessage.style.display = 'block';
+        }
+    }
+       
+    /**
+     * Wechselt die Formularansicht zum Eingabeschritt des Security Codes.
+     * @param {string} username - Der Benutzername für die Konsolenausgabe.
+     */
+    function switchToSecurityCodeStep(username) {
+        // Verstecke die Anmeldefelder
+        document.getElementById('login-username').style.display = 'none';
+        document.getElementById('login-password').style.display = 'none';
+        document.getElementById('login-button').style.display = 'none';
 
-    if (validAccounts.length === 0) {
-        // ... (Fehlerbehandlung) ...
-        return;
-    }
-    
-    const accountFound = validAccounts.find(account => 
-        account.username === usernameInput && account.password === passwordInput
-    );
+        // Zeige das Code-Feld und den Code-Button
+        document.getElementById('security-code').value = ''; 
+        document.getElementById('security-code').style.display = 'block';
+        document.getElementById('verify-button').style.display = 'block';
+        document.getElementById('security-code').focus();
 
-    if (accountFound) {
-        currentAttemptUser = accountFound; // Speichere den gefundenen Benutzer
+        document.getElementById('form-title').textContent = 'Security Code erforderlich';
+        document.getElementById('form-message').textContent = 'Wir haben einen Code an Ihren Discord gesendet. Bitte geben Sie ihn ein.';
+        
+        // 🔥 WICHTIGE SIMULATION: Code generieren und speichern
+        const generatedCode = generateSecurityCode();
+        sessionStorage.setItem(SECURITY_CODE_KEY, generatedCode); 
+        console.log(`[SICHERHEITSWARNUNG: SIMULATION] Der zu verwendende Code für ${username} ist: ${generatedCode}`);
+        console.log(`Im Produktionsbetrieb MUSS dieser Code vom Server per Discord gesendet werden!`);
 
-        // **SCHRITT 1: FÜR 2FA UMSTELLEN**
-        if (accountFound.discordId) {
-            // Verstecke die Anmeldefelder
-            document.getElementById('login-username').style.display = 'none';
-            document.getElementById('login-password').style.display = 'none';
-            document.getElementById('login-button').style.display = 'none';
+    }
+       
+    /**
+     * Führt die Prüfung des Security Codes (Faktor 2) durch.
+     */
+    function checkSecurityCode() {
+        const codeInput = document.getElementById('security-code').value;
+        const loginMessage = document.getElementById('login-message');
+        loginMessage.style.display = 'none';
 
-            // Zeige das Code-Feld und den Code-Button
-            document.getElementById('security-code').value = ''; // Eingabefeld leeren
-            document.getElementById('security-code').style.display = 'block';
-            document.getElementById('verify-button').style.display = 'block';
-            document.getElementById('security-code').focus();
+        // Holt den simulierten Code (der eigentlich vom Server kommen müsste)
+        const expectedCode = sessionStorage.getItem(SECURITY_CODE_KEY);
 
-            document.getElementById('form-title').textContent = 'Security Code erforderlich';
-            document.getElementById('form-message').textContent = 'Wir haben einen Code an Ihren Discord gesendet.';
-            
-            // 🔥 WICHTIG: Serverseitige Aktion wird hier simuliert!
-            const generatedCode = generateSecurityCode();
-            sessionStorage.setItem(SECURITY_CODE_KEY, generatedCode); 
-            
-            // Hier MÜSSTE Ihr Backend (sicher) den Discord-Bot anweisen, 
-            // die DM mit dem 'generatedCode' an 'accountFound.discordId' zu senden.
-            console.log(`[SIMULATION] Code für ${usernameInput}: ${generatedCode} (Muss per Backend an Discord gesendet werden!)`);
-            
-        } else {
-            // Kein 2FA (keine Discord ID) - Direkter Login (sehr unsicher)
-            handleSuccessfulLogin();
-        }
+        if (codeInput === expectedCode) {
+            // Erfolg: 2FA war erfolgreich
+            sessionStorage.removeItem(SECURITY_CODE_KEY); // Code löschen
+            handleSuccessfulLogin();
+        } else {
+            loginMessage.textContent = 'Fehler: Ungültiger Security Code.';
+            loginMessage.style.display = 'block';
+        }
+    }
 
-    } else {
-        loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
-        loginMessage.style.display = 'block';
-    }
-}
+    /**
+     * Behandelt den erfolgreichen Abschluss des Logins.
+     */
+    function handleSuccessfulLogin() {
+        sessionStorage.setItem(LOGIN_KEY, 'true');
+        window.location.href = TARGET_PAGE;
+    }
 
+    // Beim Laden zuerst die Konten laden und dann auf den Login-Status prüfen
+    document.addEventListener('DOMContentLoaded', async () => {
+        document.getElementById('login-message').textContent = 'Lade Kontodaten...';
+        document.getElementById('login-message').style.display = 'block';
+        
+        await loadAccounts(); 
 
-/**
- * Führt die Prüfung des Security Codes (Faktor 2) durch.
- */
-function checkSecurityCode() {
-    const codeInput = document.getElementById('security-code').value;
-    const loginMessage = document.getElementById('login-message');
-    loginMessage.style.display = 'none';
-
-    // Holt den simulierten Code (der eigentlich vom Server kommen müsste)
-    const expectedCode = sessionStorage.getItem(SECURITY_CODE_KEY);
-
-    if (codeInput === expectedCode) {
-        // Erfolg: 2FA war erfolgreich
-        sessionStorage.removeItem(SECURITY_CODE_KEY); // Code löschen
-        handleSuccessfulLogin();
-    } else {
-        loginMessage.textContent = 'Fehler: Ungültiger Security Code.';
-        loginMessage.style.display = 'block';
-    }
-}
-
-/**
- * Behandelt den erfolgreichen Abschluss des Logins.
- */
-function handleSuccessfulLogin() {
-    sessionStorage.setItem(LOGIN_KEY, 'true');
-    window.location.href = TARGET_PAGE;
-}
-
-// ... (DOM Content Loaded Listener muss checkLogin durch checkSecurityCode ersetzen, wenn 2FA aktiv ist) ...
-
-
-    /**
-     * Führt die Login-Prüfung durch.
-     */
-    function checkLogin() {
-        const usernameInput = document.getElementById('login-username').value;
-        const passwordInput = document.getElementById('login-password').value;
-        const loginMessage = document.getElementById('login-message');
-
-        loginMessage.style.display = 'none';
-        
-        // Prüft, ob die Konten geladen wurden
-        if (validAccounts.length === 0) {
-            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte warten oder Seite neu laden.';
-            loadAccounts(); // Versucht, erneut zu laden
-            loginMessage.style.display = 'block';
-            return;
-        }
-        
-        // Findet ein passendes Konto in der Liste (Klartext-Vergleich)
-        const accountFound = validAccounts.find(account => 
-            account.username === usernameInput && account.password === passwordInput
-        );
-
-        if (accountFound) {
-            // Erfolg: Session-Schlüssel setzen und weiterleiten
-            sessionStorage.setItem(LOGIN_KEY, 'true');
-            window.location.href = TARGET_PAGE; 
-            
-        } else {
-            // Fehler: Nachricht anzeigen
-            loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
-            loginMessage.style.display = 'block';
-        }
-    }
-
-    // Beim Laden zuerst die Konten laden und dann auf den Login-Status prüfen
-    document.addEventListener('DOMContentLoaded', async () => {
-        document.getElementById('login-message').textContent = 'Lade Kontodaten...';
-        document.getElementById('login-message').style.display = 'block';
-        
-        await loadAccounts(); // Warten, bis die Daten geladen sind
-
-        // Wenn Konten erfolgreich geladen wurden, Nachricht verstecken
-        if (validAccounts.length > 0) {
-            document.getElementById('login-message').style.display = 'none'; 
-        }
-        
-        const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true';
-        if (isLoggedIn) {
-             window.location.href = TARGET_PAGE;
-        }
-        document.getElementById('login-username').focus();
-    });
+        // Wenn Konten erfolgreich geladen wurden, Nachricht verstecken
+        if (validAccounts.length > 0) {
+            document.getElementById('login-message').style.display = 'none'; 
+        }
+        
+        const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true';
+        if (isLoggedIn) {
+             window.location.href = TARGET_PAGE;
+        }
+        document.getElementById('login-username').focus();
+    });
 </script>
 </body>
 </html>
-
