@@ -33,24 +33,6 @@
             margin-bottom: 5px;
             font-size: 2em;
         }
-        
-        /* === LOGOUT BUTTON STYLE === */
-        #logout-button {
-            float: right; /* Nach rechts verschieben */
-            padding: 8px 15px;
-            margin-top: -50px; /* Hoch zur Überschrift schieben */
-            background-color: #d9534f; /* Rote Akzentfarbe */
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.2s;
-        }
-        #logout-button:hover {
-            background-color: #c9302c;
-        }
-
         #current-date {
             text-align: right;
             font-size: 0.8em;
@@ -58,7 +40,6 @@
             margin-bottom: 25px;
             border-bottom: 1px solid #3a3a3d;
             padding-bottom: 10px;
-            clear: both; /* Stellt sicher, dass es unter dem Button beginnt */
         }
         
         /* === Suchfeld-Design (Suchfenster) === */
@@ -279,9 +260,8 @@
 <body>
 
 <div class="container">
-    <h1><span style="color: white;">Sunny_Casino</span> - Umsatz Suchen</h1>
+    <h1><span style="color: white;">HOLOST★TS</span> Spieler suchen</h1>
     
-    <button id="logout-button" onclick="logout()">Abmelden</button>
     <p id="current-date">Daten-Stand: 07.12.2025</p>
 
     <div id="search-container">
@@ -785,7 +765,7 @@
     
     // --- AUTHENTIFIZIERUNGSEINSTELLUNGEN ---
     const LOGIN_KEY = 'holostats_logged_in';
-    const LOGIN_PAGE = 'index.html'; // Weiterleitung bei fehlendem Login
+    const LOGIN_PAGE = 'login.html'; // Weiterleitung bei fehlendem Login
     
     // --- ENDE AUTHENTIFIZIERUNGSEINSTELLUNGEN ---
 
@@ -1059,17 +1039,6 @@
     }
 
 
-    /**
-     * Meldet den Benutzer ab und leitet zur Login-Seite um.
-     */
-    function logout() {
-        // Löscht den gespeicherten Login-Schlüssel
-        sessionStorage.removeItem(LOGIN_KEY);
-        // Leitet zur Login-Seite um
-        window.location.href = LOGIN_PAGE;
-    }
-
-
     // --- INITIALISIERUNG ---
     
     /**
@@ -1106,11 +1075,11 @@
         const container = document.querySelector('.container');
 
         if (isLoggedIn) {
-            // 1. Wenn eingeloggt, zeige Container und initialisiere App
+            // Wenn eingeloggt, zeige Container und initialisiere App
             container.style.display = 'block'; 
             initializeApp();
         } else {
-            // 2. Wenn NICHT eingeloggt, leite zur Login-Seite um
+            // Wenn NICHT eingeloggt, leite zur Login-Seite um
             window.location.href = LOGIN_PAGE;
         }
     });
@@ -1118,4 +1087,3 @@
 </script>
 </body>
 </html>
-
