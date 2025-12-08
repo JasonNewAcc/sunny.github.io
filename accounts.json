@@ -1,16 +1,1 @@
-{
-  "accounts": [
-    {
-      "username": "JasonNewAcc",
-      "password": "1234"
-    },
-    {
-      "username": "Admin",
-      "password": "passwort_sicher"
-    },
-    {
-      "username": "TestUser",
-      "password": "test"
-    }
-  ]
-}
+ewogICJhY2NvdW50cyI6IFsKICAgIHsKICAgICAgInVzZXJuYW1lIjogIkphc29uTmV3QWNjIiwKICAgICAgImhhc2giOiAiMDNhYzY3NDIxNmYzZTE1Yzc2MWVlMWE1ZTI1NWYwNjc5NTM2MjNjOGIzODhiNDQ1OWUxM2Y5NzhkN2M4NDZmNCIKICAgIH0sCiAgICB7CiAgICAgICJ1c2VybmFtZSI6ICJBZG1pbiIsCiAgICAgICJoYXNoIjogIjllNWM0M2QzNGYwZTVjOTRmMWM0MjkzZjA2YzExN2IyYWYyMzI0NzA3NzZiMjk3YjQ3ZTViMTI4NTQ5OTI2YzQiCiAgICB9LAogICAgewogICAgICAidXNlcm5hbWUiOiAiVGVzdFVzZXIiLAogICAgICAiaGFzaCI6ICI5ZjgyZDg1ODg0YzdkNjVhMmZlYWEwYzU1YWQwMTVhzMmM2MTMwZmQyZTcwN2U3YjYxMTgzMDRhNjMzNzI3IgogICAgfQogIF0KfQ
