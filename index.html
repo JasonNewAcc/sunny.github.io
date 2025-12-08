@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-
 <html lang="de">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Holostats</title>
     <style>
-
         /* === Allgemeiner Seitenstil === */
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -21,11 +17,8 @@
             justify-content: center;
             align-items: center;
         }
-
         
-
         /* === LOGIN FORM STYLES === */
-
         #login-form-container {
             background-color: #2d2d30;
             padding: 40px;
@@ -37,7 +30,7 @@
         }
 
         #login-form-container h2 {
-            color: #4CAF50;
+            color: #4CAF50; /* Grüner Akzent */
             margin-top: 0;
             margin-bottom: 20px;
         }
@@ -57,9 +50,8 @@
             font-size: 1em;
             box-sizing: border-box;
         }
-
         #login-username:focus, #login-password:focus {
-            border-color: #4CAF50;
+            border-color: #4CAF50; /* Grüner Akzent beim Fokus */
             outline: none;
         }
 
@@ -79,9 +71,8 @@
         #login-form-container button:hover {
             background-color: #43A047;
         }
-
         #login-message {
-            color: #d9534f;
+            color: #d9534f; /* Roter Akzent für Fehler */
             margin-top: 10px;
             display: none;
             font-weight: bold;
@@ -89,7 +80,6 @@
     </style>
 </head>
 <body>
-
 
 <div id="login-form-container">
     <h2>Zugriff erforderlich</h2>
@@ -100,75 +90,68 @@
     <p id="login-message"></p>
 </div>
 
-  <footer>
-    <a href="kontakt.html">Kontakt</a>
-    <p class="website-info">Website by JasonNewAcc</p>
-    <p class="hosting-info">Made with Github Pages</p>
-</footer>
-
-
-
-
 
 <script>
-    // ⚠️ WICHTIGER HINWEIS: Passwörter sind im Klartext in accounts.json gespeichert und UNSICHER.
-    // --- AUTHENTIFIZIERUNGSDATEN ---
     let validAccounts = []; 
     const LOGIN_KEY = 'holostats_logged_in';
-    const TARGET_PAGE = 'app.html'; 
-    
+    const TARGET_PAGE = 'app.html'; // ZIELSEITE
+
     /**
-     * Lädt die Zugangsdaten aus der externen accounts.json Datei.
+     * Lädt die Zugangsdaten aus der accounts.json Datei.
      */
     async function loadAccounts() {
         try {
-            // Führt eine Anfrage an die accounts.json-Datei aus
             const response = await fetch('accounts.json'); 
+            
             if (!response.ok) {
-                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
+                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (404).';
                 document.getElementById('login-message').style.display = 'block';
                 return;
             }
             
-            const data = await response.json();
-            // Erwartet, dass die Liste unter dem Schlüssel 'accounts' liegt
+            // Führt das Parsen des korrekten JSON-Formats durch
+            const data = await response.json(); 
             validAccounts = data.accounts || []; 
+            
         } catch (error) {
-            // Fehlerbehebung für das Laden oder Parsen der JSON-Datei
             document.getElementById('login-message').textContent = 'Netzwerkfehler oder Fehler beim Parsen der Kontodaten.';
             document.getElementById('login-message').style.display = 'block';
-            console.error('Fehler beim Laden der Accounts:', error);
+            console.error(error);
         }
     }
 
+
     /**
-     * Führt die Login-Prüfung durch.
+     * Führt die Login-Prüfung durch und speichert die Rolle des Benutzers.
      */
     function checkLogin() {
         const usernameInput = document.getElementById('login-username').value;
         const passwordInput = document.getElementById('login-password').value;
         const loginMessage = document.getElementById('login-message');
-        loginMessage.style.display = 'none';
 
-        // Prüft, ob die Konten geladen wurden
+        loginMessage.style.display = 'none';
+        
         if (validAccounts.length === 0) {
-            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte warten oder Seite neu laden.';
-            loadAccounts(); // Versucht, erneut zu laden
+            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen.';
+            loadAccounts(); 
             loginMessage.style.display = 'block';
             return;
         }
-
-        // Findet ein passendes Konto in der Liste (Klartext-Vergleich)
+        
         const accountFound = validAccounts.find(account => 
             account.username === usernameInput && account.password === passwordInput
         );
 
         if (accountFound) {
-            // Erfolg: Session-Schlüssel setzen und weiterleiten
+            // Erfolg: Session-Schlüssel und Benutzerdaten speichern
             sessionStorage.setItem(LOGIN_KEY, 'true');
+            sessionStorage.setItem('userRole', accountFound.role);
+            sessionStorage.setItem('playerNameFilter', accountFound.playername || ''); 
+            
             window.location.href = TARGET_PAGE; 
+            
         } else {
-            // Fehler: Nachricht anzeigen
+            // Fehler
             loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
             loginMessage.style.display = 'block';
         }
@@ -178,24 +161,19 @@
     document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('login-message').textContent = 'Lade Kontodaten...';
         document.getElementById('login-message').style.display = 'block';
-
-        await loadAccounts(); // Warten, bis die Daten geladen sind
         
-        // Wenn Konten erfolgreich geladen wurden, Nachricht verstecken
+        await loadAccounts(); 
+
         if (validAccounts.length > 0) {
             document.getElementById('login-message').style.display = 'none'; 
         }
-
+        
         const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true';
         if (isLoggedIn) {
              window.location.href = TARGET_PAGE;
         }
         document.getElementById('login-username').focus();
-
     });
 </script>
-
 </body>
-
 </html>
-
