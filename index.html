@@ -162,6 +162,9 @@
         
         // 2. Hash des eingegebenen Passworts berechnen
         const hashedPasswordInput = await hashInput(passwordInput); 
+
+        console.log("Eingegebener Benutzername Hash:", hashedUsernameInput);
+console.log("Eingegebenes Passwort Hash:", hashedPasswordInput);
         
         // 3. Finde ein passendes Konto und vergleiche die Hashes
         const accountFound = validAccounts.find(account => 
@@ -204,6 +207,7 @@
     
 </body>
 </html>
+
 
 
 
