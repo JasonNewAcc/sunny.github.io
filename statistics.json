@@ -3003,7 +3003,7 @@
     {
       "uuid": "8e89d01c-0c01-3f48-94e7-4db379a3a6e9",
       "playername": "!Freaky8741",
-      "wager": 140
+      "wager": 145
     },
     {
       "uuid": "dce4b840-b794-414b-9056-be507c791947",
@@ -3859,5 +3859,11 @@
       "uuid": "28d18a8d-3096-4e7c-a295-19fce61d8bbd",
       "playername": "ManLionsCity",
       "wager": 5
+    },
+    {
+      "uuid": "22999cb3-b797-424c-957c-40308f5285a7",
+      "playername": "LuisDev",
+      "wager": 10005
     }
   ]
+}
