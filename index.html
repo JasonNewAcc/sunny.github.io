@@ -30,7 +30,7 @@
         }
 
         #login-form-container h2 {
-            color: #00BCD4; /* Cyan-Akzent */
+            color: #4CAF50; /* Grüner Akzent */
             margin-top: 0;
             margin-bottom: 20px;
         }
@@ -51,7 +51,7 @@
             box-sizing: border-box;
         }
         #login-username:focus, #login-password:focus {
-            border-color: #00BCD4; /* Cyan-Akzent beim Fokus */
+            border-color: #4CAF50; /* Grüner Akzent beim Fokus */
             outline: none;
         }
 
@@ -59,7 +59,7 @@
             width: 100%;
             padding: 12px;
             margin-top: 20px;
-            background-color: #00BCD4;
+            background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 6px;
@@ -69,10 +69,10 @@
         }
 
         #login-form-container button:hover {
-            background-color: #00ACC1;
+            background-color: #43A047;
         }
         #login-message {
-            color: #ff5757; /* Etwas weicheres Rot für Fehler */
+            color: #d9534f; /* Roter Akzent für Fehler */
             margin-top: 10px;
             display: none;
             font-weight: bold;
@@ -92,14 +92,12 @@
 
 
 <script>
-    // ⚠️ UNSICHERE KLARTEXT-PASSWÖRTER FÜR FUNKTIONALITÄT
-    
     let validAccounts = []; 
     const LOGIN_KEY = 'holostats_logged_in';
     const TARGET_PAGE = 'app.html'; // ZIELSEITE
 
     /**
-     * Lädt die Zugangsdaten aus der externen accounts.json Datei.
+     * Lädt die Zugangsdaten aus der accounts.json Datei.
      */
     async function loadAccounts() {
         try {
@@ -111,7 +109,8 @@
                 return;
             }
             
-            const data = await response.json();
+            // Führt das Parsen des korrekten JSON-Formats durch
+            const data = await response.json(); 
             validAccounts = data.accounts || []; 
             
         } catch (error) {
