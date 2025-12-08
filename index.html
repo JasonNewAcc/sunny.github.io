@@ -92,46 +92,33 @@
 
 
 <script>
-    // WICHTIG: Die Passwörter/Benutzernamen sind gehasht, die Datei ist aber öffentlich einsehbar!
+    // ⚠️ WICHTIGER HINWEIS: Passwörter sind im Klartext in accounts.json gespeichert und UNSICHER.
     
+    // --- AUTHENTIFIZIERUNGSDATEN ---
     let validAccounts = []; 
     const LOGIN_KEY = 'holostats_logged_in';
     const TARGET_PAGE = 'app.html'; 
 
     /**
-     * Hilfsfunktion zum Generieren des SHA-256 Hashs
-     */
-    async function hashInput(input) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(input);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data); 
-        
-        // Konvertiere den Buffer in einen Hex-String
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-
-    /**
-     * Lädt die gehashten Zugangsdaten aus der accounts.json Datei.
+     * Lädt die Zugangsdaten aus der externen accounts.json Datei.
      */
     async function loadAccounts() {
         try {
-            // Die accounts.json liegt nun im Klartext (nur die Werte sind Hashes)
+            // Führt eine Anfrage an die accounts.json-Datei aus
             const response = await fetch('accounts.json'); 
             
             if (!response.ok) {
-                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (404).';
+                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
                 document.getElementById('login-message').style.display = 'block';
                 return;
             }
             
             const data = await response.json();
-            // Wir erwarten die Kontenliste unter dem Schlüssel 'accounts'
+            // Erwartet, dass die Liste unter dem Schlüssel 'accounts' liegt
             validAccounts = data.accounts || []; 
             
         } catch (error) {
-            document.getElementById('login-message').textContent = 'Fehler beim Laden oder Parsen der Kontodaten.';
+            document.getElementById('login-message').textContent = 'Netzwerkfehler oder Fehler beim Parsen der Kontodaten.';
             document.getElementById('login-message').style.display = 'block';
             console.error(error);
         }
@@ -139,48 +126,35 @@
 
 
     /**
-     * Führt die Login-Prüfung durch (Hash-Vergleich für Benutzername UND Passwort).
+     * Führt die Login-Prüfung durch.
      */
-    async function checkLogin() {
+    function checkLogin() {
         const usernameInput = document.getElementById('login-username').value;
         const passwordInput = document.getElementById('login-password').value;
         const loginMessage = document.getElementById('login-message');
 
         loginMessage.style.display = 'none';
         
+        // Prüft, ob die Konten geladen wurden
         if (validAccounts.length === 0) {
             loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte warten oder Seite neu laden.';
+            loadAccounts(); // Versucht, erneut zu laden
             loginMessage.style.display = 'block';
             return;
         }
-
-        loginMessage.textContent = 'Prüfe Anmeldedaten...';
-        loginMessage.style.display = 'block';
         
-        // 1. Hash des eingegebenen Benutzernamens berechnen
-        const hashedUsernameInput = await hashInput(usernameInput);
-        
-        // 2. Hash des eingegebenen Passworts berechnen
-        const hashedPasswordInput = await hashInput(passwordInput); 
-
-        console.log("Eingegebener Benutzername Hash:", hashedUsernameInput);
-console.log("Eingegebenes Passwort Hash:", hashedPasswordInput);
-        
-        // 3. Finde ein passendes Konto und vergleiche die Hashes
+        // Findet ein passendes Konto in der Liste (Klartext-Vergleich)
         const accountFound = validAccounts.find(account => 
-            // Der gespeicherte Hash des Benutzernamens muss mit dem Hash der Eingabe übereinstimmen
-            account.username === hashedUsernameInput && 
-            // Und der gespeicherte Hash des Passworts muss mit dem Hash der Eingabe übereinstimmen
-            account.password === hashedPasswordInput
+            account.username === usernameInput && account.password === passwordInput
         );
 
         if (accountFound) {
-            // Erfolg
+            // Erfolg: Session-Schlüssel setzen und weiterleiten
             sessionStorage.setItem(LOGIN_KEY, 'true');
             window.location.href = TARGET_PAGE; 
             
         } else {
-            // Fehler
+            // Fehler: Nachricht anzeigen
             loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
             loginMessage.style.display = 'block';
         }
@@ -191,8 +165,9 @@ console.log("Eingegebenes Passwort Hash:", hashedPasswordInput);
         document.getElementById('login-message').textContent = 'Lade Kontodaten...';
         document.getElementById('login-message').style.display = 'block';
         
-        await loadAccounts(); 
+        await loadAccounts(); // Warten, bis die Daten geladen sind
 
+        // Wenn Konten erfolgreich geladen wurden, Nachricht verstecken
         if (validAccounts.length > 0) {
             document.getElementById('login-message').style.display = 'none'; 
         }
@@ -204,10 +179,5 @@ console.log("Eingegebenes Passwort Hash:", hashedPasswordInput);
         document.getElementById('login-username').focus();
     });
 </script>
-    
 </body>
 </html>
-
-
-
-
