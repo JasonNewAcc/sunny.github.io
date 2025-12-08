@@ -101,6 +101,7 @@
      */
     async function loadAccounts() {
         try {
+            // Die accounts.json muss korrektes JSON sein!
             const response = await fetch('accounts.json'); 
             
             if (!response.ok) {
@@ -109,7 +110,6 @@
                 return;
             }
             
-            // Führt das Parsen des korrekten JSON-Formats durch
             const data = await response.json(); 
             validAccounts = data.accounts || []; 
             
@@ -132,7 +132,7 @@
         loginMessage.style.display = 'none';
         
         if (validAccounts.length === 0) {
-            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen.';
+            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte prüfen Sie die accounts.json.';
             loadAccounts(); 
             loginMessage.style.display = 'block';
             return;
