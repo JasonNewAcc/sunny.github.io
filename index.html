@@ -92,6 +92,53 @@
             display: none;
             font-weight: bold;
         }
+
+        footer {
+    /* Setzt den Footer oft an den unteren Rand, falls benötigt */
+    /* position: fixed; 
+    bottom: 0;
+    width: 100%; */
+    
+    background-color: #2d2d30; /* Dunkler Hintergrund, passend zum Login-Formular */
+    padding: 20px;
+    text-align: center;
+    color: #f0f0f0; /* Helle Textfarbe */
+    border-top: 1px solid #3a3a3d; /* Leichte Trennlinie */
+    font-size: 0.9em;
+}
+
+/* Stile für alle Absätze und Links im Footer */
+footer a, 
+footer p {
+    margin: 5px 0; /* Abstand zwischen den Textzeilen */
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Stil für den "Kontakt" Link */
+footer a {
+    color: #4CAF50; /* Grüne Akzentfarbe */
+    text-decoration: none; /* Unterstreichung entfernen */
+    font-weight: bold;
+    display: block; /* Jeder Link in einer eigenen Zeile */
+    margin-bottom: 10px;
+}
+
+footer a:hover {
+    text-decoration: underline;
+    color: #43A047;
+}
+
+/* Gezieltes Styling für die Infotexte */
+.website-info {
+    color: #aaa; /* Etwas dezenter */
+    font-style: italic;
+}
+
+.hosting-info {
+    color: #777; /* Noch dezenter, für weniger wichtige Infos */
+    font-size: 0.8em;
+}
     </style>
 
 </head>
@@ -106,17 +153,15 @@
     <p id="login-message"></p>
 </div>
 
-<header>
-    <img src="logo.svg" alt="logo">
-    <p5>Test</p5>
-  </header>
+<footer>
+    <a href="kontakt.html">Kontakt</a>
+    
+    <p class="website-info">Website by JasonNewAcc</p>
+    <p class="hosting-info">Made with Github Pages</p>
+</footer>
 
-  <h1>Überschrift der Seite</h1>
 
-  <footer>
-     <a href="kontakt.html">Kontakt</a>
-     <p>© 2014 by selfHTML</p>
-  </footer>
+    
 <script>
     // ⚠️ WICHTIGER HINWEIS: Passwörter sind im Klartext in accounts.json gespeichert und UNSICHER.
     // --- AUTHENTIFIZIERUNGSDATEN ---
@@ -206,5 +251,6 @@
 </script>
 
 </html>
+
 
 
