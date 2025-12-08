@@ -77,6 +77,40 @@
             display: none;
             font-weight: bold;
         }
+
+        .site-footer {
+  background: #111;
+  color: #ddd;
+  padding: 40px 20px;
+  text-align: center;
+  font-family: "Inter", sans-serif;
+}
+
+.site-footer a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.site-footer a:hover {
+  opacity: 0.7;
+}
+
+.footer-links {
+  margin-bottom: 12px;
+}
+
+.footer-meta p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+
+.footer-meta span {
+  color: #fff;
+  font-weight: 600;
+}
+
     </style>
 </head>
 <body>
@@ -90,6 +124,16 @@
     <p id="login-message"></p>
 </div>
 
+<footer class="site-footer">
+  <div class="footer-links">
+    <a href="kontakt.html">Kontakt</a>
+  </div>
+
+  <div class="footer-meta">
+    <p>Website by <span>JasonNewAcc</span></p>
+    <p>Made with GitHub Pages</p>
+  </div>
+</footer>
 
 <script>
     // ⚠️ WICHTIGER HINWEIS: Passwörter sind im Klartext in accounts.json gespeichert und UNSICHER.
@@ -181,3 +225,4 @@
 </script>
 </body>
 </html>
+
