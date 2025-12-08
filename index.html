@@ -92,7 +92,7 @@
 
 
 <script>
-    // ⚠️ HINWEIS: Dies ist die maximale Verschleierung ohne Server, bietet aber keine echte Sicherheit!
+    // WICHTIG: Die Passwörter/Benutzernamen sind gehasht, die Datei ist aber öffentlich einsehbar!
     
     let validAccounts = []; 
     const LOGIN_KEY = 'holostats_logged_in';
@@ -101,22 +101,23 @@
     /**
      * Hilfsfunktion zum Generieren des SHA-256 Hashs
      */
-    async function hashPassword(password) {
+    async function hashInput(input) {
         const encoder = new TextEncoder();
-        const data = encoder.encode(password);
+        const data = encoder.encode(input);
         const hashBuffer = await crypto.subtle.digest('SHA-256', data); 
         
+        // Konvertiere den Buffer in einen Hex-String
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
 
     /**
-     * Lädt und entschlüsselt die Base64-kodierten Zugangsdaten.
-     * ACHTUNG: Die geladenen Benutzernamen sind ebenfalls Base64-kodiert!
+     * Lädt die gehashten Zugangsdaten aus der accounts.json Datei.
      */
     async function loadAccounts() {
         try {
+            // Die accounts.json liegt nun im Klartext (nur die Werte sind Hashes)
             const response = await fetch('accounts.json'); 
             
             if (!response.ok) {
@@ -125,15 +126,12 @@
                 return;
             }
             
-            const encodedData = await response.text(); 
-            const jsonString = atob(encodedData); 
-            const data = JSON.parse(jsonString); 
-            
-            // Korrigierte Groß-/Kleinschreibung (Accounts) verwenden
-            validAccounts = data.Accounts || []; 
+            const data = await response.json();
+            // Wir erwarten die Kontenliste unter dem Schlüssel 'accounts'
+            validAccounts = data.accounts || []; 
             
         } catch (error) {
-            document.getElementById('login-message').textContent = 'Netzwerkfehler oder Entschlüsselungsfehler beim Laden der Kontodaten.';
+            document.getElementById('login-message').textContent = 'Fehler beim Laden oder Parsen der Kontodaten.';
             document.getElementById('login-message').style.display = 'block';
             console.error(error);
         }
@@ -141,7 +139,7 @@
 
 
     /**
-     * Führt die Login-Prüfung durch (Hash-Vergleich und Base64-Dekodierung des Benutzernamens).
+     * Führt die Login-Prüfung durch (Hash-Vergleich für Benutzername UND Passwort).
      */
     async function checkLogin() {
         const usernameInput = document.getElementById('login-username').value;
@@ -159,24 +157,19 @@
         loginMessage.textContent = 'Prüfe Anmeldedaten...';
         loginMessage.style.display = 'block';
         
-        // 1. Hash des eingegebenen Passworts berechnen
-        const hashedInput = await hashPassword(passwordInput); 
+        // 1. Hash des eingegebenen Benutzernamens berechnen
+        const hashedUsernameInput = await hashInput(usernameInput);
         
-        // 2. Base64-Kodierung des eingegebenen Benutzernamens (zum Vergleich)
-        // const encodedUsernameInput = btoa(usernameInput); // Alternative, falls der Klartext im JSON gespeichert wäre
-
-        // 3. Finde ein passendes Konto und vergleiche den Hash
-        const accountFound = validAccounts.find(account => {
-            // WICHTIG: Hier dekodieren wir den gespeicherten Base64-Benutzernamen,
-            // um ihn mit dem Klartext-Input des Benutzers zu vergleichen.
-            try {
-                const storedUsernameClear = atob(account.username);
-                return storedUsernameClear === usernameInput && account.hash === hashedInput;
-            } catch (e) {
-                // Fehler beim Dekodieren (z.B. wenn der gespeicherte Username kein gültiges Base64 war)
-                return false; 
-            }
-        });
+        // 2. Hash des eingegebenen Passworts berechnen
+        const hashedPasswordInput = await hashInput(passwordInput); 
+        
+        // 3. Finde ein passendes Konto und vergleiche die Hashes
+        const accountFound = validAccounts.find(account => 
+            // Der gespeicherte Hash des Benutzernamens muss mit dem Hash der Eingabe übereinstimmen
+            account.username === hashedUsernameInput && 
+            // Und der gespeicherte Hash des Passworts muss mit dem Hash der Eingabe übereinstimmen
+            account.password === hashedPasswordInput
+        );
 
         if (accountFound) {
             // Erfolg
@@ -192,7 +185,7 @@
 
     // Beim Laden zuerst die Konten laden und dann auf den Login-Status prüfen
     document.addEventListener('DOMContentLoaded', async () => {
-        document.getElementById('login-message').textContent = 'Lade und entschlüssele Kontodaten...';
+        document.getElementById('login-message').textContent = 'Lade Kontodaten...';
         document.getElementById('login-message').style.display = 'block';
         
         await loadAccounts(); 
@@ -211,5 +204,6 @@
     
 </body>
 </html>
+
 
 
