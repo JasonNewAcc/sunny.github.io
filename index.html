@@ -30,7 +30,7 @@
         }
 
         #login-form-container h2 {
-            color: #4CAF50; /* Grüner Akzent */
+            color: #4CAF50;
             margin-top: 0;
             margin-bottom: 20px;
         }
@@ -51,7 +51,7 @@
             box-sizing: border-box;
         }
         #login-username:focus, #login-password:focus {
-            border-color: #4CAF50; /* Grüner Akzent beim Fokus */
+            border-color: #4CAF50;
             outline: none;
         }
 
@@ -72,7 +72,7 @@
             background-color: #43A047;
         }
         #login-message {
-            color: #d9534f; /* Roter Akzent für Fehler */
+            color: #d9534f;
             margin-top: 10px;
             display: none;
             font-weight: bold;
@@ -92,25 +92,29 @@
 
 
 <script>
+    // ⚠️ WICHTIGER HINWEIS: Passwörter sind im Klartext in accounts.json gespeichert und UNSICHER.
+    
+    // --- AUTHENTIFIZIERUNGSDATEN ---
     let validAccounts = []; 
     const LOGIN_KEY = 'holostats_logged_in';
-    const TARGET_PAGE = 'app.html'; // ZIELSEITE
+    const TARGET_PAGE = 'app.html'; 
 
     /**
-     * Lädt die Zugangsdaten aus der accounts.json Datei.
+     * Lädt die Zugangsdaten aus der externen accounts.json Datei.
      */
     async function loadAccounts() {
         try {
-            // Die accounts.json muss korrektes JSON sein!
+            // Führt eine Anfrage an die accounts.json-Datei aus
             const response = await fetch('accounts.json'); 
             
             if (!response.ok) {
-                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (404).';
+                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
                 document.getElementById('login-message').style.display = 'block';
                 return;
             }
             
-            const data = await response.json(); 
+            const data = await response.json();
+            // Erwartet, dass die Liste unter dem Schlüssel 'accounts' liegt
             validAccounts = data.accounts || []; 
             
         } catch (error) {
@@ -122,7 +126,7 @@
 
 
     /**
-     * Führt die Login-Prüfung durch und speichert die Rolle des Benutzers.
+     * Führt die Login-Prüfung durch.
      */
     function checkLogin() {
         const usernameInput = document.getElementById('login-username').value;
@@ -131,27 +135,26 @@
 
         loginMessage.style.display = 'none';
         
+        // Prüft, ob die Konten geladen wurden
         if (validAccounts.length === 0) {
-            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte prüfen Sie die accounts.json.';
-            loadAccounts(); 
+            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte warten oder Seite neu laden.';
+            loadAccounts(); // Versucht, erneut zu laden
             loginMessage.style.display = 'block';
             return;
         }
         
+        // Findet ein passendes Konto in der Liste (Klartext-Vergleich)
         const accountFound = validAccounts.find(account => 
             account.username === usernameInput && account.password === passwordInput
         );
 
         if (accountFound) {
-            // Erfolg: Session-Schlüssel und Benutzerdaten speichern
+            // Erfolg: Session-Schlüssel setzen und weiterleiten
             sessionStorage.setItem(LOGIN_KEY, 'true');
-            sessionStorage.setItem('userRole', accountFound.role);
-            sessionStorage.setItem('playerNameFilter', accountFound.playername || ''); 
-            
             window.location.href = TARGET_PAGE; 
             
         } else {
-            // Fehler
+            // Fehler: Nachricht anzeigen
             loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
             loginMessage.style.display = 'block';
         }
@@ -162,8 +165,9 @@
         document.getElementById('login-message').textContent = 'Lade Kontodaten...';
         document.getElementById('login-message').style.display = 'block';
         
-        await loadAccounts(); 
+        await loadAccounts(); // Warten, bis die Daten geladen sind
 
+        // Wenn Konten erfolgreich geladen wurden, Nachricht verstecken
         if (validAccounts.length > 0) {
             document.getElementById('login-message').style.display = 'none'; 
         }
