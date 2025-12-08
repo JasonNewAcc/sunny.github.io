@@ -52,6 +52,18 @@
             box-sizing: border-box;
         }
 
+        p5 {
+            width: calc(100% - 30px);
+            padding: 12px 15px;
+            margin: 10px 0;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background-color: #3a3a3d;
+            color: #f0f0f0;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
         #login-username:focus, #login-password:focus {
             border-color: #4CAF50;
             outline: none;
@@ -93,6 +105,18 @@
     <button onclick="checkLogin()">Anmelden</button>
     <p id="login-message"></p>
 </div>
+
+<header>
+    <img src="logo.svg" alt="logo">
+    <p5>Test</p5>
+  </header>
+
+  <h1>Überschrift der Seite</h1>
+
+  <footer>
+     <a href="kontakt.html">Kontakt</a>
+     <p>© 2014 by selfHTML</p>
+  </footer>
 <script>
     // ⚠️ WICHTIGER HINWEIS: Passwörter sind im Klartext in accounts.json gespeichert und UNSICHER.
     // --- AUTHENTIFIZIERUNGSDATEN ---
@@ -181,7 +205,6 @@
     });
 </script>
 
-</body>
-
 </html>
+
 
