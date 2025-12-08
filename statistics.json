@@ -743,7 +743,7 @@
     {
       "uuid": "2cedc456-5050-45f4-87cb-23e4d6745e66",
       "playername": "FizzyBubbele00",
-      "wager": 56225
+      "wager": 56220
     },
     {
       "uuid": "1954af97-b9e2-40ca-9ddf-3f64bd605cdf",
@@ -828,7 +828,7 @@
     {
       "uuid": "e496b078-5f28-4bb0-b33d-1a076992fdd9",
       "playername": "Godemode007",
-      "wager": 524015
+      "wager": 12010
     },
     {
       "uuid": "bf91df5c-fdf7-4025-b76c-191c00cf3819",
@@ -1953,7 +1953,7 @@
     {
       "uuid": "84309eed-f98b-4244-b672-04774aeca3b1",
       "playername": "Pawel_PI",
-      "wager": 128045
+      "wager": 45
     },
     {
       "uuid": "f37cfd52-d4d6-4e54-b2ef-07ff3a801f98",
@@ -2068,7 +2068,7 @@
     {
       "uuid": "679ae9aa-1bc8-418f-857b-cdb5f196c17c",
       "playername": "chaostobi_",
-      "wager": 1024020
+      "wager": 512015
     },
     {
       "uuid": "57f6394e-5fa9-413d-8d02-21633f9a6b93",
@@ -2188,7 +2188,7 @@
     {
       "uuid": "b96d11de-a2c7-44d9-8b98-ba86c9b09eac",
       "playername": "Gameking1240",
-      "wager": 3600095
+      "wager": 2576090
     },
     {
       "uuid": "adf3ba5a-4d75-3a6f-9c1b-097dd1166b9d",
@@ -2433,7 +2433,7 @@
     {
       "uuid": "a6b2204c-3154-4926-96b8-a6c1dc6df77c",
       "playername": "drchenreiter",
-      "wager": 6560130
+      "wager": 5536130
     },
     {
       "uuid": "cb9dbf81-30a6-3de0-9898-2850e3185e1f",
@@ -3003,7 +3003,7 @@
     {
       "uuid": "8e89d01c-0c01-3f48-94e7-4db379a3a6e9",
       "playername": "!Freaky8741",
-      "wager": 145
+      "wager": 140
     },
     {
       "uuid": "dce4b840-b794-414b-9056-be507c791947",
@@ -3088,7 +3088,7 @@
     {
       "uuid": "aa48f2eb-18fb-489d-8af6-79767cf077dc",
       "playername": "HammerEchse",
-      "wager": 120
+      "wager": 115
     },
     {
       "uuid": "354c964e-8233-4dde-86bb-b84d62bd038f",
@@ -3403,7 +3403,7 @@
     {
       "uuid": "e8fb8204-c183-4788-a9a4-0dcc39364e1a",
       "playername": "CrafterXD1",
-      "wager": 34496030
+      "wager": 33984030
     },
     {
       "uuid": "561b3f0a-56e9-4cb4-9599-742da7f8e1ad",
@@ -3463,7 +3463,7 @@
     {
       "uuid": "926d142b-f698-48a2-bf1c-c59b6a9d34ca",
       "playername": "brosforhoues",
-      "wager": 128050
+      "wager": 128045
     },
     {
       "uuid": "af5c7c42-1fa3-3e4a-a4c6-203de699c8a7",
@@ -3493,7 +3493,7 @@
     {
       "uuid": "4dc299fd-c036-4672-b7a4-275dc4e87c65",
       "playername": "L3g1t_Linus",
-      "wager": 12930030
+      "wager": 12930025
     },
     {
       "uuid": "6800165d-495c-4a5b-a89d-6750a8830c4d",
@@ -3728,7 +3728,7 @@
     {
       "uuid": "b9ae9643-7d1f-481c-9093-3985fc919500",
       "playername": "LHTHEONE",
-      "wager": 45
+      "wager": 40
     },
     {
       "uuid": "3fb639fc-928d-40e4-b2cf-cfc8aaa95798",
@@ -3748,7 +3748,7 @@
     {
       "uuid": "6e2b0862-74ef-3e27-b254-019a69a2a4bc",
       "playername": "!lucapdm",
-      "wager": 25
+      "wager": 20
     },
     {
       "uuid": "a43f7dbd-16db-441d-8af8-bb80cb6c3097",
@@ -3773,7 +3773,7 @@
     {
       "uuid": "455ada56-39cd-4dd3-aea1-0ed985561813",
       "playername": "xXZeroColaXx",
-      "wager": 128005
+      "wager": 32005
     },
     {
       "uuid": "862c6c3e-b011-3359-bb12-5d783afece17",
@@ -3783,7 +3783,7 @@
     {
       "uuid": "dcad5767-a86d-48dc-9305-3e295be6a033",
       "playername": "Sagori83",
-      "wager": 5152020
+      "wager": 4128015
     },
     {
       "uuid": "57eec277-4adf-4594-a97d-20a9d1e39180",
@@ -3793,7 +3793,7 @@
     {
       "uuid": "88443e90-6424-4699-b6cd-430379d61499",
       "playername": "S3nt3",
-      "wager": 1024015
+      "wager": 10
     },
     {
       "uuid": "62cd4f78-1b6a-4c6f-8dd9-3f4a02fc25b3",
@@ -3859,9 +3859,50 @@
       "uuid": "28d18a8d-3096-4e7c-a295-19fce61d8bbd",
       "playername": "ManLionsCity",
       "wager": 5
+    }
+  ],
+  "jackpots": [
+    {
+      "price": 500000,
+      "times_purchased": 436,
+      "last_username": "Sagori83"
     },
+    {
+      "price": 250000,
+      "times_purchased": 194,
+      "last_username": "ItzZ_Popeye"
+    },
+    {
+      "price": 1000000,
+      "times_purchased": 5,
+      "last_username": "ItzZ_Popeye"
+    },
+    {
+      "price": 750000,
+      "times_purchased": 40,
+      "last_username": "ItzZ_Popeye"
+    }
+  ],
+  "holos": [
+    {
+      "type": "umsatz",
+      "holo_name": "2",
+      "lines": []
+    },
+    {
+      "type": "jackpot",
+      "holo_name": "1",
+      "lines": [
+        {
+          "1": 1000000
+        },
+        {
+          "2": 750000
+        },
+        {
+          "3": 500000
+        }
+      ]
+    }
   ]
 }
-  ]
-}
-
