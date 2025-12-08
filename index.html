@@ -84,9 +84,8 @@ body {
     font-weight: bold;
 }
 
-/* === FOOTER === */
 .site-footer {
-    position: fixed;   /* correct */
+    position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
@@ -95,9 +94,17 @@ body {
     padding: 20px 10px;
     text-align: center;
     font-family: "Inter", sans-serif;
-
     box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
     border-top: 1px solid rgba(255,255,255,0.1);
+
+    opacity: 0;
+    pointer-events: none; /* prevent interaction when hidden */
+    transition: opacity 0.3s ease;
+}
+
+.site-footer.visible {
+    opacity: 1;
+    pointer-events: auto; /* enable interaction when visible */
 }
 
 .site-footer a {
@@ -213,6 +220,17 @@ body {
         }
     }
 
+    <script>
+  window.addEventListener('scroll', () => {
+    const footer = document.querySelector('.site-footer');
+    if (window.scrollY > 200) {  // show footer after scrolling down 200px (adjust as needed)
+      footer.classList.add('visible');
+    } else {
+      footer.classList.remove('visible');
+    }
+  });
+</script>
+
     // Beim Laden zuerst die Konten laden und dann auf den Login-Status prüfen
     document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('login-message').textContent = 'Lade Kontodaten...';
@@ -234,6 +252,7 @@ body {
 </script>
 </body>
 </html>
+
 
 
 
