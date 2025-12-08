@@ -245,23 +245,49 @@
 
     // --- DATEN-FUNKTIONEN ---
 
-    async function loadPlayerStats() {
-        try {
-            const response = await fetch('statistics.json'); 
-            if (!response.ok) {
-                 displayMessage('Fehler: Statistikdatei (statistics.json) nicht gefunden oder fehlerhaft.', 'error');
-                 return;
-            }
-            const data = await response.json();
-            playerStats = data.wagers || []; 
-            return playerStats;
-
-        } catch (error) {
-            displayMessage('Fehler beim Laden oder Parsen der Statistikdaten.', 'error');
-            console.error('Ladefehler:', error);
+async function loadPlayerStats() {
+    try {
+        const response = await fetch('statistics.json');
+        if (!response.ok) {
+            displayMessage('Fehler: Konnte statistics.json nicht laden.', 'error');
             return [];
         }
+
+        let text = await response.text();
+
+        // === AUTO-FIX: Fehlende schließende Klammer erkennen ===
+        // Erwartete Struktur: { "wagers": [ ... ] }
+        if (!text.trim().endsWith("}")) {
+            console.warn("⚠ statistics.json endet nicht mit '}'. Versuche Auto-Fix...");
+            text = text.trim() + "\n}";
+        }
+
+        // Zweiter Fix: BOM entfernen
+        if (text.charCodeAt(0) === 65279) {
+            console.warn("⚠ BOM gefunden – wird entfernt.");
+            text = text.slice(1);
+        }
+
+        let data;
+
+        // JSON sicher parsen
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error("❌ JSON Parsefehler nach Auto-Fix:", e);
+            displayMessage("Fehler beim Lesen der Statistikdaten (JSON ungültig).", "error");
+            return [];
+        }
+
+        playerStats = data.wagers || [];
+        return playerStats;
+
+    } catch (error) {
+        console.error("❌ Allgemeiner Ladefehler:", error);
+        displayMessage("Fehler beim Laden der Statistikdatei.", "error");
+        return [];
     }
+}
 
     /**
      * Filtert die Daten basierend auf der gespeicherten Rolle und dem Spielernamen.
@@ -433,6 +459,8 @@
         }
     });
 </script>
+    
 </body>
 </html>
+
 
