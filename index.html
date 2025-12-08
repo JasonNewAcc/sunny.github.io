@@ -119,7 +119,7 @@
     async function loadAccounts() {
         try {
             // 1. Datei als reinen Text laden (enthält den Base64-String)
-            const response = await fetch('accounts.json'); 
+const response = await fetch('accounts.json');
             
             if (!response.ok) {
                 document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
@@ -127,13 +127,9 @@
                 return;
             }
             
-            const encodedData = await response.text();
-            
-            // 2. Base64-Daten entschlüsseln (macht sie wieder zu einem JSON-String)
-            const jsonString = atob(encodedData);
-            
-            // 3. JSON-String parsen (wandelt ihn in ein JavaScript-Objekt um)
-            const data = JSON.parse(jsonString);
+const encodedData = await response.text(); // Wichtig: Als reiner Text laden
+const jsonString = atob(encodedData); // Base64 dekodieren
+const data = JSON.parse(jsonString); // JSON parsen
             
             // 4. Speichere die Liste der gehashten Konten
             validAccounts = data.accounts || []; 
@@ -206,3 +202,4 @@
 </script>
 </body>
 </html>
+
