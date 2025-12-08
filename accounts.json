@@ -2,21 +2,15 @@
   "accounts": [
     {
       "username": "JasonNewAcc",
-      "password": "1234",
-      "role": "panel",
-      "playername": "JasonNewAcc"
+      "password": "1234"
     },
     {
       "username": "Admin",
-      "password": "passwort_sicher",
-      "role": "admin",
-      "playername": "Minikuchen__" 
+      "password": "passwort_sicher"
     },
     {
       "username": "TestUser",
-      "password": "test",
-      "role": "user",
-      "playername": ""
+      "password": "test"
     }
   ]
 }
