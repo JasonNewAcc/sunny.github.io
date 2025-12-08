@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Holostats Spielerstatistik-Suche</title>
     <style>
-        /* === Neues, cooles Design: Dunkles Thema mit Cyan-Akzenten === */
+        /* === Altes Design: Dunkles Thema mit Grün-Akzenten === */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -21,15 +21,15 @@
         .container {
             width: 90%;
             max-width: 700px;
-            background: #252526; /* Leicht dunkler Container */
+            background: #2d2d30; /* Dunkle Container-Fläche */
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         h1 {
-            color: #00BCD4; /* Haupt-Akzent: Cyan-Blau */
+            color: #4CAF50; /* Haupt-Akzent: Grün */
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-size: 2.5em; 
             letter-spacing: 1px;
         }
@@ -43,7 +43,7 @@
         #search-input {
             flex-grow: 1;
             padding: 12px;
-            border: 1px solid #444;
+            border: 1px solid #555;
             border-radius: 6px;
             background-color: #3a3a3d;
             color: #f0f0f0;
@@ -51,7 +51,7 @@
         }
         #search-button {
             padding: 12px 20px;
-            background-color: #00BCD4; /* Cyan-Akzent */
+            background-color: #4CAF50; /* Grüner Akzent */
             color: white;
             border: none;
             border-radius: 6px;
@@ -60,9 +60,9 @@
             transition: all 0.2s;
         }
         #search-button:hover {
-            background-color: #00ACC1; 
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 188, 212, 0.4);
+            background-color: #43A047; 
+            transform: none; /* Entfernt den Schwebe-Effekt */
+            box-shadow: none;
         }
 
         /* --- Nachrichten-Styling --- */
@@ -77,12 +77,12 @@
         .message.success {
             background-color: #004d40;
             color: #80cbc4; 
-            border-left: 5px solid #00BCD4; /* Cyan-Linie */
+            border-left: 5px solid #4CAF50; /* Grüner Akzent-Linie */
         }
         .message.error {
             background-color: #5d0000;
             color: #ff8a80;
-            border-left: 5px solid #ff5757;
+            border-left: 5px solid #d9534f;
         }
         
         /* --- Vorschläge & Ergebnisse --- */
@@ -112,12 +112,12 @@
             font-weight: bold;
         }
         .suggestion-wager {
-            color: #80cbc4; /* Heller Akzent */
+            color: #9ccc65; /* Hellerer Grünton */
             font-size: 0.9em;
         }
         .suggestion-button {
             padding: 6px 15px;
-            background-color: #00BCD4; 
+            background-color: #4CAF50; 
             color: white;
             border: none;
             border-radius: 4px;
@@ -125,12 +125,11 @@
             transition: background-color 0.2s;
         }
         .suggestion-button:hover {
-            background-color: #00ACC1;
+            background-color: #43A047;
         }
 
         /* --- Modal Styling (Detailansicht) --- */
         .modal {
-            /* ... (wie zuvor) ... */
             display: none; 
             position: fixed; 
             z-index: 1; 
@@ -164,14 +163,14 @@
             cursor: pointer;
         }
         .modal-content h2 {
-            color: #00BCD4;
+            color: #4CAF50;
             margin-top: 0;
         }
         .modal-content p {
             margin-bottom: 15px;
         }
         .modal-content a {
-            color: #00BCD4;
+            color: #4CAF50;
             text-decoration: none;
             display: block;
             margin-top: 20px;
@@ -219,7 +218,7 @@
     let playerStats = []; // Beinhaltet alle geladenen Daten
     let filteredStats = []; // Beinhaltet die gefilterten Daten (je nach Rolle)
     const LOGIN_KEY = 'holostats_logged_in';
-    const LOGIN_PAGE = 'login.html';
+    const LOGIN_PAGE = 'index.html';
 
     // --- HELPER FUNKTIONEN FÜR ROLLEN ---
     function getRole() {
@@ -424,15 +423,14 @@
             displayMessage(statusText, 'success');
             displayTopSuggestions(filteredStats);
             
-            // Wenn es ein Panel-Nutzer ist, die Suche deaktivieren oder verstecken, 
-            // da die Suche ohnehin nur ein Ergebnis liefern kann.
+            // Wenn es ein Panel-Nutzer ist, die Suche deaktivieren
             if (role === 'panel') {
                 document.getElementById('search-area').style.display = 'none';
                 document.getElementById('suggestions-container').querySelector('h2').textContent = 'Ihre Statistik';
             }
         } else {
              displayMessage('⚠️ Sie sind eingeloggt, aber es wurden keine für Ihre Rolle relevanten Daten gefunden.', 'error');
-             document.getElementById('suggestions-container').innerHTML = ''; // Leere den Container
+             document.getElementById('suggestions-container').innerHTML = ''; 
              document.getElementById('search-area').style.display = 'none';
         }
     });
