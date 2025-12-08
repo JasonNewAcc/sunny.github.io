@@ -10,8 +10,8 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #1e1e1e; /* Dunkler Hintergrund */
-            color: #f0f0f0; /* Helle Textfarbe */
+            background-color: #1e1e1e; 
+            color: #f0f0f0; 
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -21,7 +21,7 @@
         .container {
             width: 90%;
             max-width: 700px;
-            background: #2d2d30; /* Dunkle Container-Fläche */
+            background: #2d2d30; 
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -61,8 +61,6 @@
         }
         #search-button:hover {
             background-color: #43A047; 
-            transform: none; /* Entfernt den Schwebe-Effekt */
-            box-shadow: none;
         }
 
         /* --- Nachrichten-Styling --- */
@@ -218,7 +216,7 @@
     let playerStats = []; // Beinhaltet alle geladenen Daten
     let filteredStats = []; // Beinhaltet die gefilterten Daten (je nach Rolle)
     const LOGIN_KEY = 'holostats_logged_in';
-    const LOGIN_PAGE = 'index.html';
+    const LOGIN_PAGE = 'login.html';
 
     // --- HELPER FUNKTIONEN FÜR ROLLEN ---
     function getRole() {
