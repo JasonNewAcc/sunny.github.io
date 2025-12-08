@@ -2,15 +2,15 @@
   "accounts": [
     {
       "username": "JasonNewAcc",
-      "password": "1234"
+      "password": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"
     },
     {
       "username": "Admin",
-      "password": "passwort_sicher"
+      "password": "77a6ff417855075671158d62657e2815ff89e81b6c7e2d93e29f37c356f960f2"
     },
     {
       "username": "TestUser",
-      "password": "test"
+      "password": "9f86d081884c7d659a2feaa0c55ad015a3c6395e85d774cb22c4f82631a3adac"
     }
   ]
 }
