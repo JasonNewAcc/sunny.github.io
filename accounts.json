@@ -13,8 +13,8 @@
     {
       "username": "TestUser",
       "password": "test",
-      "role": "panel",
-      "playername": "JasonNewAcc"
+      "role": "user",
+      "playername": ""
     }
   ]
 }
