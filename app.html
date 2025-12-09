@@ -4595,17 +4595,56 @@ function approveRequest(i) {
             return;
         }
 
-        if (role === "self" && searchValue.toLowerCase() !== loggedUser.toLowerCase()) {
-            showErrorMessage("Du kannst nur deinen eigenen Umsatz sehen.");
-        return;
-        }
+if (role === "self" && input.toLowerCase() !== loggedUser.toLowerCase()) {
+    showErrorMessage("Du kannst nur deinen eigenen Umsatz sehen.");
+    return;
+}
 
-        if (role === "moderator") {
+
+if (role === "moderator") {
     const reason = prompt("Bitte Grund für die Anfrage eingeben:");
     if (!reason) {
         showErrorMessage("Anfrage abgebrochen.");
         return;
     }
+
+    const requests = JSON.parse(localStorage.getItem('moderator_requests') || "[]");
+
+    requests.push({
+        user: loggedUser,
+        target: input,
+        reason: reason,
+        time: Date.now(),
+        status: "pending"
+    });
+
+    localStorage.setItem('moderator_requests', JSON.stringify(requests));
+
+    document.getElementById("results-container").innerHTML =
+        `<div style="text-align:center;">
+            <img src="waiting-icon-gif-5.jpg" width="120"><br>
+            <p style="margin-top:10px;font-size:1.2em;color:#4CAF50;">Warte auf Bestätigung...</p>
+        </div>`;
+
+    return;
+}
+
+        if (role === "moderator") {
+    const requests = JSON.parse(localStorage.getItem('moderator_requests') || "[]");
+    const found = requests.find(r =>
+        r.user === loggedUser &&
+        r.status === "approved"
+    );
+
+    if (found) {
+        document.getElementById('search-input').value = found.target;
+        searchPlayers(false);
+
+        requests.splice(requests.indexOf(found), 1);
+        localStorage.setItem('moderator_requests', JSON.stringify(requests));
+    }
+}
+
 
     // Anfrage speichern
     const requests = JSON.parse(localStorage.getItem('moderator_requests') || "[]");
@@ -4767,6 +4806,7 @@ function approveRequest(i) {
 </script>
 </body>
 </html>
+
 
 
 
