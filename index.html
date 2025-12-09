@@ -126,7 +126,7 @@ body {
 .footer-meta span {
     font-weight: 600;
 }
-   </style>
+ </style>
     
 </head>
 <body>
@@ -152,27 +152,31 @@ body {
     // --- AUTHENTIFIZIERUNGSDATEN ---
     let validAccounts = []; 
     const LOGIN_KEY = 'holostats_logged_in';
-    const TARGET_PAGE = 'app (2).html'; // Angepasst an Ihren Dateinamen
-    
-    // NEUE KONSTANTEN
-    const CURRENT_USER_ROLE = 'holostats_role';
-    const CURRENT_USER_NAME = 'holostats_user';
-    
-    // MOCK-ACCOUNTS (Ihre Struktur)
-    const MOCK_ACCOUNTS = [
-        { "username": "JasonNewAcc", "password": "1234", "role": "admin" },
-        { "username": "Lattenrost1234", "password": "1234", "role": "moderator" },
-        { "username": "Admin", "password": "passwort_sicher", "role": "admin" },
-        { "username": "TestUser", "password": "test", "role": "self" }
-    ];
+    const TARGET_PAGE = 'app.html'; 
 
     /**
-     * Lädt die Zugangsdaten. Im Beispiel wird die accounts.json durch die Mock-Daten ersetzt.
+     * Lädt die Zugangsdaten aus der externen accounts.json Datei.
      */
     async function loadAccounts() {
-        // Simuliert das Laden der Konten, indem die Mock-Daten verwendet werden
-        window.validAccounts = MOCK_ACCOUNTS;
-        return true;
+        try {
+            // Führt eine Anfrage an die accounts.json-Datei aus
+            const response = await fetch('accounts.json'); 
+            
+            if (!response.ok) {
+                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
+                document.getElementById('login-message').style.display = 'block';
+                return;
+            }
+            
+            const data = await response.json();
+            // Erwartet, dass die Liste unter dem Schlüssel 'accounts' liegt
+            validAccounts = data.accounts || []; 
+            
+        } catch (error) {
+            document.getElementById('login-message').textContent = 'Netzwerkfehler oder Fehler beim Parsen der Kontodaten.';
+            document.getElementById('login-message').style.display = 'block';
+            console.error(error);
+        }
     }
 
 
@@ -186,19 +190,23 @@ body {
 
         loginMessage.style.display = 'none';
         
+        // Prüft, ob die Konten geladen wurden
+        if (validAccounts.length === 0) {
+            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte warten oder Seite neu laden.';
+            loadAccounts(); // Versucht, erneut zu laden
+            loginMessage.style.display = 'block';
+            return;
+        }
+        
         // Findet ein passendes Konto in der Liste (Klartext-Vergleich)
         const accountFound = validAccounts.find(account => 
             account.username === usernameInput && account.password === passwordInput
         );
 
         if (accountFound) {
-            // Erfolg: Session-Schlüssel setzen, ROLLE und BENUTZERNAME speichern
+            // Erfolg: Session-Schlüssel setzen und weiterleiten
             sessionStorage.setItem(LOGIN_KEY, 'true');
-            sessionStorage.setItem(CURRENT_USER_ROLE, accountFound.role);
-            sessionStorage.setItem(CURRENT_USER_NAME, accountFound.username);
-            
-            window.location.href = TARGET_PAGE;
-
+            window.location.href = TARGET_PAGE; 
             
         } else {
             // Fehler: Nachricht anzeigen
@@ -237,3 +245,14 @@ body {
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
