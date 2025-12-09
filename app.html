@@ -353,6 +353,8 @@
         </div>
 
     <p id="error-message"></p>
+
+    
     
     <div id="results-container">
         </div>
@@ -365,7 +367,33 @@
             </div>
     </div>
 </div>
+
+    <div id="admin-panel" style="
+    display:none;
+    position:fixed;
+    top:0; right:0;
+    background:#2d2d30;
+    color:#fff;
+    padding:15px;
+    border-radius:0 0 0 10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.4);
+    z-index:200;
+">
+    <h3 style="margin-top:0;color:#4CAF50;">Mod-Anfragen</h3>
+    <div id="admin-requests"></div>
+</div>
+
 <script>
+
+    const role = sessionStorage.getItem('holostats_role');
+const loggedUser = sessionStorage.getItem('holostats_user');
+
+// Wenn keine Rolle / kein Login → zurück zur Login-Seite
+if (!role) {
+    window.location.href = "index.html";
+}
+
+    
     // ** START DER NEUESTEN SPIELERDATEN **
     let playerStats = [
     {
@@ -4327,6 +4355,44 @@
         return playerName.startsWith('!') ? playerName.substring(1) : playerName;
     }
 
+    function loadAdminRequests() {
+    if (role !== "admin") return;
+
+    document.getElementById("admin-panel").style.display = "block";
+
+    const requests = JSON.parse(localStorage.getItem('moderator_requests') || "[]");
+
+    const container = document.getElementById("admin-requests");
+    container.innerHTML = "";
+
+    requests
+        .filter(r => r.status === "pending")
+        .forEach((req, index) => {
+            const div = document.createElement("div");
+            div.style.borderBottom = "1px solid #444";
+            div.style.padding = "8px 0";
+            div.innerHTML = `
+                <b>${req.user}</b> fragt <b>${req.target}</b> an<br>
+                Grund: ${req.reason}<br>
+                <button onclick="approveRequest(${index})" style="margin-top:5px;">Freigeben</button>
+            `;
+            container.appendChild(div);
+        });
+}
+
+function approveRequest(i) {
+    const requests = JSON.parse(localStorage.getItem('moderator_requests') || "[]");
+
+    const req = requests[i];
+    req.status = "approved";
+
+    localStorage.setItem('moderator_requests', JSON.stringify(requests));
+
+    alert("Anfrage freigegeben!");
+    loadAdminRequests();
+}
+
+
     /**
      * Formatiert eine Zahl mit Tausender-Trennzeichen (deutsch).
      */
@@ -4529,6 +4595,43 @@
             return;
         }
 
+        if (role === "self" && searchValue.toLowerCase() !== loggedUser.toLowerCase()) {
+            showErrorMessage("Du kannst nur deinen eigenen Umsatz sehen.");
+        return;
+        }
+
+        if (role === "moderator") {
+    const reason = prompt("Bitte Grund für die Anfrage eingeben:");
+    if (!reason) {
+        showErrorMessage("Anfrage abgebrochen.");
+        return;
+    }
+
+    // Anfrage speichern
+    const requests = JSON.parse(localStorage.getItem('moderator_requests') || "[]");
+
+    requests.push({
+        user: loggedUser,
+        target: searchValue,
+        reason: reason,
+        time: Date.now(),
+        status: "pending"
+    });
+
+    localStorage.setItem('moderator_requests', JSON.stringify(requests));
+
+    // Der Moderator sieht nur das hier:
+    document.getElementById("results-container").innerHTML =
+        `<div style="text-align:center;">
+            <img src="waiting-icon-gif-5.jpg" width="120"><br>
+            <p style="margin-top:10px;font-size:1.2em;color:#4CAF50;">Warte auf Bestätigung...</p>
+        </div>`;
+
+    return;
+}
+
+
+
         // 1. Exakter Match (Case-Insensitive)
         let foundPlayers = playerStats.filter(p => p.playername.toLowerCase() === searchTerm);
         
@@ -4624,6 +4727,24 @@
             document.getElementById('login-modal-overlay').style.display = 'flex';
             return;
         }
+
+        if (role === "moderator") {
+    const requests = JSON.parse(localStorage.getItem('moderator_requests') || "[]");
+    const found = requests.find(r =>
+        r.user === loggedUser &&
+        r.status === "approved"
+    );
+
+    if (found) {
+        document.getElementById('search-input').value = found.target;
+        searchPlayers(false);
+
+        // Danach löschen, damit es nicht erneut angezeigt wird
+        requests.splice(requests.indexOf(found), 1);
+        localStorage.setItem('moderator_requests', JSON.stringify(requests));
+    }
+}
+
         
         // 2. Prüfen, ob bereits eingeloggt
         const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true';
@@ -4646,5 +4767,6 @@
 </script>
 </body>
 </html>
+
 
 
