@@ -54,7 +54,6 @@ body {
     font-size: 1em;
     box-sizing: border-box;
 }
-
 #login-username:focus, #login-password:focus {
     border-color: #4CAF50;
     outline: none;
@@ -77,82 +76,49 @@ body {
     background-color: #43A047;
 }
 
-#login-message {
-    color: #d9534f;
-    margin-top: 10px;
-    display: none;
-    font-weight: bold;
-}
-
+/* === Footer === */
 .site-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #111;
-    color: #ddd;
-    padding: 10px 5px;
-    text-align: center;
-    font-family: "Inter", sans-serif;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
-    border-top: 1px solid rgba(255,255,255,0.1);
-
-    opacity: 0;
-    pointer-events: none; /* prevent interaction when hidden */
-    transition: opacity 0.3s ease;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  padding: 15px 0;
+  background-color: #1e1e1e; 
+  color: #888;
+  text-align: center;
+  font-size: 0.8em;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+  transform: translateY(100%); /* Startet unter dem Bildschirm */
+  transition: transform 0.5s ease-in-out;
+  z-index: 100;
 }
-
 .site-footer.visible {
-    opacity: 1;
-    pointer-events: auto; /* enable interaction when visible */
+  transform: translateY(0); /* Fährt hoch */
 }
-
-.site-footer a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: 500;
-    transition: opacity 0.2s ease;
-}
-
-.site-footer a:hover {
-    opacity: 0.7;
-}
-
-.footer-meta p {
-    margin: 4px 0;
-    font-size: 0.85rem;
-}
-
-.footer-meta span {
-    font-weight: 600;
-}
- </style>
-    
+</style>
 </head>
 <body>
 
-<div id="login-form-container">
-    <h2>Zugriff erforderlich</h2>
-    <p>Bitte melden Sie sich an, um die Holostats-Daten einzusehen.</p>
-    <input type="text" id="login-username" placeholder="Benutzername">
-    <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()"> 
-    <button onclick="checkLogin()">Anmelden</button>
-    <p id="login-message"></p>
-</div>
+    <div id="login-form-container">
+        <h2>Holostats Login</h2>
+        <p>Bitte melden Sie sich an.</p>
+        <input type="text" id="login-username" placeholder="Benutzername">
+        <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()">
+        <button onclick="checkLogin()">Anmelden</button>
+        <p id="login-message" style="color: #d9534f; margin-top: 10px; display: none;"></p>
+    </div>
 
-<footer class="site-footer">
-  <div class="footer-meta">
-    <p>Website by <span>JasonNewAcc</span></p>
-  </div>
-</footer>
+    <footer class="site-footer">
+        <p>&copy; 2025 Holostats. Alle Rechte vorbehalten.</p>
+    </footer>
 
 <script>
-    // ⚠️ WICHTIGER HINWEIS: Passwörter sind im Klartext in accounts.json gespeichert und UNSICHER.
-    
-    // --- AUTHENTIFIZIERUNGSDATEN ---
-    let validAccounts = []; 
-    const LOGIN_KEY = 'holostats_logged_in';
-    const TARGET_PAGE = 'app.html'; 
+    // --- KONSTANTEN ---
+    const LOGIN_KEY = 'userLoggedIn';
+    const TARGET_PAGE = 'app (2).html'; // Zielseite nach erfolgreichem Login
+    const ACCOUNTS_FILE = 'accounts.json';
+    let validAccounts = []; // Speichert die geladenen Konten
+
+    // --- AUTHENTIFIZIERUNG FUNKTIONEN ---
 
     /**
      * Lädt die Zugangsdaten aus der externen accounts.json Datei.
@@ -160,25 +126,21 @@ body {
     async function loadAccounts() {
         try {
             // Führt eine Anfrage an die accounts.json-Datei aus
-            const response = await fetch('accounts.json'); 
-            
+            const response = await fetch(ACCOUNTS_FILE);
             if (!response.ok) {
-                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
+                document.getElementById('login-message').textContent = `Fehler beim Laden von ${ACCOUNTS_FILE}. Status: ${response.status}`;
                 document.getElementById('login-message').style.display = 'block';
-                return;
+                return false;
             }
-            
             const data = await response.json();
-            // Erwartet, dass die Liste unter dem Schlüssel 'accounts' liegt
-            validAccounts = data.accounts || []; 
-            
-        } catch (error) {
-            document.getElementById('login-message').textContent = 'Netzwerkfehler oder Fehler beim Parsen der Kontodaten.';
+            validAccounts = data.accounts || []; // Daten speichern
+            return true;
+        } catch (e) {
+            document.getElementById('login-message').textContent = `Datei "${ACCOUNTS_FILE}" ist fehlerhaft oder konnte nicht geladen werden. Prüfen Sie die JSON-Syntax.`;
             document.getElementById('login-message').style.display = 'block';
-            console.error(error);
+            return false;
         }
     }
-
 
     /**
      * Führt die Login-Prüfung durch.
@@ -189,23 +151,16 @@ body {
         const loginMessage = document.getElementById('login-message');
 
         loginMessage.style.display = 'none';
-        
-        // Prüft, ob die Konten geladen wurden
-        if (validAccounts.length === 0) {
-            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte warten oder Seite neu laden.';
-            loadAccounts(); // Versucht, erneut zu laden
-            loginMessage.style.display = 'block';
-            return;
-        }
-        
-        // Findet ein passendes Konto in der Liste (Klartext-Vergleich)
-        const accountFound = validAccounts.find(account => 
+
+        // Prüfung gegen die geladenen Accounts in der validAccounts-Liste
+        const accountFound = validAccounts.find(account =>
             account.username === usernameInput && account.password === passwordInput
         );
 
         if (accountFound) {
-            // Erfolg: Session-Schlüssel setzen und weiterleiten
+            // Erfolg: Session speichern, ROLLE speichern (NEU) und weiterleiten
             sessionStorage.setItem(LOGIN_KEY, 'true');
+            sessionStorage.setItem('userRole', accountFound.role); // ✨ NEU: Rolle speichern
             window.location.href = TARGET_PAGE; 
             
         } else {
@@ -217,7 +172,7 @@ body {
 
   window.addEventListener('scroll', () => {
     const footer = document.querySelector('.site-footer');
-    if (window.scrollY > 15) {  // show footer after scrolling down 200px (adjust as needed)
+    if (window.scrollY > 15) { 
       footer.classList.add('visible');
     } else {
       footer.classList.remove('visible');
@@ -242,17 +197,7 @@ body {
         }
         document.getElementById('login-username').focus();
     });
+
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
