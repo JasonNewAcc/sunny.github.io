@@ -1,22 +1,24 @@
-MOCK_ACCOUNTS = [
+{
+  "accounts": [
     {
-        "username": "JasonNewAcc",
-        "password": "1234",
-        "role": "admin"
+      "username": "JasonNewAcc",
+      "password": "1234",
+      "role": "admin"
     },
     {
-        "username": "Lattenrost1234",
-        "password": "1234",
-        "role": "moderator"
+      "username": "Lattenrost1234",
+      "password": "1234",
+      "role": "moderator"
     },
     {
-        "username": "Admin",
-        "password": "passwort_sicher",
-        "role": "admin"
+      "username": "Admin",
+      "password": "passwort_sicher",
+      "role": "admin"
     },
     {
-        "username": "TestUser",
-        "password": "test",
-        "role": "self"
+      "username": "TestUser",
+      "password": "test",
+      "role": "self"
     }
-];
+  ]
+}
