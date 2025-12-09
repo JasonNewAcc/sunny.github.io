@@ -365,7 +365,33 @@
             </div>
     </div>
 </div>
+
+    <div id="admin-panel-modal" onclick="if(event.target === this) closeAdminPanel()">
+        <div id="admin-panel-content">
+            <h2>Ausstehende Moderator-Anfragen</h2>
+            <div id="admin-requests-list">
+                <p>Lade Anfragen...</p>
+            </div>
+            <button onclick="closeAdminPanel()" style="margin-top: 20px;">Schließen</button>
+        </div>
+    </div>
+
+    <div id="waiting-overlay">
+        <img src="waiting-icon-gif-5.jpg" alt="Warte-Icon"> 
+        <h2>Warte auf Bestätigung...</h2>
+        <p>Ihre Abfrage für <strong id="waiting-playername">Spielername</strong> wurde zur Bestätigung an einen Administrator gesendet.</p>
+        <p>Sie werden benachrichtigt, sobald die Anfrage bearbeitet wurde.</p>
+    </div>
+
+    
 <script>
+
+    // NEU: Globale Variablen für Rollen und Login-Infos
+    const USER_ROLE_KEY = 'user_role'; 
+    let currentRole = ''; 
+    let currentUsername = '';
+    // Speichern ausstehender Anfragen (simuliert, da kein Backend)
+    let pendingRequests = [];
     // ** START DER NEUESTEN SPIELERDATEN **
     let playerStats = [
     {
@@ -4327,6 +4353,279 @@
         return playerName.startsWith('!') ? playerName.substring(1) : playerName;
     }
 
+    // Ersetze die existierende fetchStats Funktion
+    async function fetchStats(playername, isApproved = false) {
+        if (!playername) {
+            document.getElementById('loading-message').textContent = 'Bitte Spielernamen eingeben.';
+            return;
+        }
+
+        const statsDiv = document.getElementById('player-stats');
+        statsDiv.innerHTML = '';
+        document.getElementById('loading-message').textContent = 'Lade Spielerstatistik...';
+        document.getElementById('loading-message').style.display = 'block';
+
+        // 1. Rollen-Check
+        if (currentRole === 'Self' && playername !== currentUsername) {
+            document.getElementById('loading-message').textContent = `Fehler: Als 'Self' können Sie nur Statistiken für ${currentUsername} anzeigen.`;
+            return;
+        }
+
+        // 2. Moderator-Anfrage-Logik
+        if (currentRole === 'Moderator' && !isApproved) {
+            const reason = prompt(`Bitte geben Sie den Grund für die Abfrage von ${playername} an:`);
+            if (!reason) {
+                document.getElementById('loading-message').textContent = 'Abfrage abgebrochen: Ein Grund ist erforderlich.';
+                return;
+            }
+
+            // Simulierte Anfrage senden
+            const requestId = `req-${Date.now()}`;
+            pendingRequests.push({
+                id: requestId,
+                requester: currentUsername,
+                target: playername,
+                reason: reason,
+                status: 'pending' // Ausstehend
+            });
+
+            updatePendingCount(); // Admin-Top-Bar aktualisieren
+
+            showWaitingOverlay(playername); // Warte-Screen anzeigen
+            document.getElementById('loading-message').textContent = `Warte auf Bestätigung für ${playername}...`;
+            
+            // NEU: Hinzufügen der Anfrage zur Historie
+            updateModeratorHistory(); 
+
+            // Die eigentliche Abfrage wird hier NICHT ausgeführt, sondern erst, 
+            // wenn der Admin die Anfrage über handleRequest() bestätigt (isApproved = true gesetzt).
+            return;
+        }
+
+        // 3. Admin / Self / Bestätigte Moderator-Anfrage: Führe die Abfrage aus
+
+        try {
+            // Führe eine simulierte API-Anfrage aus (wie im Original-Code)
+            const response = await fetch(`data/${playername}.json`);
+            if (!response.ok) {
+                throw new Error('Spieler nicht gefunden oder Daten nicht verfügbar.');
+            }
+            const data = await response.json();
+            
+            // ... (Rest des Original-Codes zur Anzeige der Daten)
+            renderStats(data);
+            document.getElementById('loading-message').style.display = 'none';
+
+        } catch (error) {
+            document.getElementById('loading-message').textContent = `Fehler: ${error.message}`;
+            console.error('Fetch error:', error);
+        }
+    }
+
+    // NEU: Funktionen für Admin-Panel und Moderator-Anfragen
+
+    function updatePendingCount() {
+        const countSpan = document.getElementById('pending-count');
+        if (countSpan) {
+            countSpan.textContent = pendingRequests.filter(r => r.status === 'pending').length;
+        }
+    }
+
+    // Zeigt das Admin-Panel (Modal) mit den ausstehenden Anfragen
+    function showAdminPanel() {
+        const modal = document.getElementById('admin-panel-modal');
+        const content = document.getElementById('admin-requests-list');
+        content.innerHTML = '';
+        
+        const pending = pendingRequests.filter(r => r.status === 'pending');
+
+        if (pending.length === 0) {
+            content.innerHTML = '<p>Keine ausstehenden Anfragen.</p>';
+        } else {
+            pending.forEach(request => {
+                const item = document.createElement('div');
+                item.className = 'request-item';
+                item.innerHTML = `
+                    <p><strong>Von:</strong> ${request.requester}</p>
+                    <p><strong>Für Spieler:</strong> ${request.target}</p>
+                    <p><strong>Grund:</strong> ${request.reason}</p>
+                    <button onclick="handleRequest('${request.id}', 'approved')">Bestätigen</button>
+                    <button onclick="handleRequest('${request.id}', 'denied')">Ablehnen</button>
+                `;
+                content.appendChild(item);
+            });
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    // Schließt das Admin-Panel
+    function closeAdminPanel() {
+        document.getElementById('admin-panel-modal').style.display = 'none';
+    }
+
+    // Bearbeitet die Anfrage (Bestätigen/Ablehnen)
+    function handleRequest(id, status) {
+        const request = pendingRequests.find(r => r.id === id);
+        if (request) {
+            request.status = status; // Status aktualisieren
+            
+            if (status === 'approved') {
+                 // Simulation: Führe die Abfrage für den Moderator aus
+                 fetchStats(request.target, true); // Abfrage sofort ausführen, "true" = ist bestätigt
+            }
+
+            // Benachrichtigung (Optional: könnte besser über ein Event-System gelöst werden)
+            console.log(`Anfrage von ${request.requester} für ${request.target} wurde ${status}.`);
+        }
+        updatePendingCount();
+        closeAdminPanel();
+        updateModeratorHistory(); // Update die Historie des Moderators
+    }
+
+    // Zeigt die Anfragen-Historie für Moderatoren
+    function updateModeratorHistory() {
+        if (currentRole !== 'Moderator') return;
+
+        const historyContainer = document.getElementById('moderator-history');
+        if (!historyContainer) return;
+
+        historyContainer.innerHTML = '<h3>Anfragen-Historie</h3>';
+        const userRequests = pendingRequests.filter(r => r.requester === currentUsername);
+
+        if (userRequests.length === 0) {
+            historyContainer.innerHTML += '<p>Noch keine Anfragen gestellt.</p>';
+            return;
+        }
+
+        userRequests.forEach(req => {
+            const item = document.createElement('div');
+            item.className = `history-item history-${req.status}`;
+            item.innerHTML = `
+                Anfrage für <strong>${req.target}</strong> (${req.reason}): 
+                <span style="font-weight:bold;">${req.status === 'pending' ? 'Wartet auf Admin' : (req.status === 'approved' ? 'Bestätigt' : 'Abgelehnt')}</span>
+                ${req.status === 'approved' ? '<span style="color:#4CAF50; margin-left: 10px;">(Daten geladen)</span>' : ''}
+            `;
+            historyContainer.appendChild(item);
+        });
+    }
+
+    // Zeigt den "Warte auf Bestätigung"-Screen
+    function showWaitingOverlay(playername) {
+        const overlay = document.getElementById('waiting-overlay');
+        document.getElementById('waiting-playername').textContent = playername;
+        overlay.style.display = 'flex';
+        // Nach 5 Sekunden (simulierte Zeit) wieder schließen, falls es nicht vom Admin aufgelöst wird
+        setTimeout(() => {
+             // Wenn der Status noch pending ist, schließe das Overlay und zeige eine Nachricht
+             const latestRequest = pendingRequests.find(r => r.target === playername && r.requester === currentUsername && r.status === 'pending');
+             if (latestRequest) {
+                 document.getElementById('loading-message').textContent = 'Anfrage an Admin gesendet. Bitte warten Sie auf Bestätigung.';
+                 overlay.style.display = 'none';
+             }
+        }, 5000); 
+    }
+
+    // Hinzufügen des Topbar-Stylings
+    function addAdminTopbarStyle() {
+        const style = document.createElement('style');
+        style.textContent = `
+            #admin-topbar {
+                background: #4CAF50; 
+                color: #1e1e1e;
+                padding: 10px 20px;
+                text-align: center;
+                border-radius: 8px 8px 0 0;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                margin-top: -30px; /* An den Container anpassen */
+                margin-bottom: 20px;
+                font-weight: bold;
+            }
+            #admin-topbar button {
+                background: #1e1e1e;
+                color: #f0f0f0;
+                border: none;
+                padding: 5px 10px;
+                margin-left: 15px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            #admin-topbar button:hover {
+                background: #000;
+            }
+            #admin-panel-modal {
+                position: fixed;
+                left: 0; top: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            }
+            #admin-panel-content {
+                background: #2d2d30;
+                padding: 20px;
+                border-radius: 10px;
+                width: 90%;
+                max-width: 600px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.9);
+            }
+            .request-item {
+                border: 1px solid #4CAF50;
+                padding: 10px;
+                margin-bottom: 10px;
+                border-radius: 5px;
+            }
+            .request-item button {
+                margin-left: 10px;
+            }
+            #waiting-overlay {
+                position: fixed;
+                left: 0; top: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.9);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                z-index: 999;
+            }
+            #waiting-overlay img {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 20px;
+            }
+            /* Styling für die Anfragen-Historie */
+            #moderator-history {
+                margin-top: 20px;
+                padding-top: 10px;
+                border-top: 1px solid #555;
+            }
+            .history-item {
+                padding: 8px;
+                margin-top: 5px;
+                border-left: 3px solid;
+            }
+            .history-approved {
+                border-left-color: #4CAF50;
+            }
+            .history-denied {
+                border-left-color: #f44336;
+            }
+            .history-pending {
+                border-left-color: #ff9800;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // RUFEN SIE DIESE FUNKTION INNERHALB VON initializeApp() NACH dem Einfügen der Topbar AUF
+    // addAdminTopbarStyle();
+
+    // Schließt den "Warte auf Bestätigung"-Screen
+    function hideWaitingOverlay() {
+        document.getElementById('waiting-overlay').style.display = 'none';
+    }
+
     /**
      * Formatiert eine Zahl mit Tausender-Trennzeichen (deutsch).
      */
@@ -4589,12 +4888,55 @@
      * Initialisiert die Hauptanwendung, nachdem der Login erfolgreich war.
      */
     function initializeApp() {
+
+        // NEU: Lädt Benutzerdaten und Role
+    function initializeUserAndRole() {
+        currentRole = sessionStorage.getItem(USER_ROLE_KEY);
+        currentUsername = sessionStorage.getItem(LOGIN_USERNAME_KEY); // Gehen wir davon aus, dass der Username beim Login gespeichert wurde (LOGIC muss in index.html ggf. angepasst werden: LOGIN_USERNAME_KEY)
+
+        // Falls der Username in index.html nicht gespeichert wurde, hier speichern, falls die accounts geladen wurden:
+        if (!currentUsername && validAccounts.length > 0) {
+             const foundAccount = validAccounts.find(account => account.role === currentRole && sessionStorage.getItem(LOGIN_KEY) === 'true');
+             if (foundAccount) {
+                 currentUsername = foundAccount.username;
+             }
+        }
+        
+        console.log(`Benutzer ${currentUsername} mit Rolle: ${currentRole} ist eingeloggt.`);
+
+        // Logik für "Self"-Benutzer: Das Suchfeld mit dem eigenen Namen füllen und sperren
+        const searchInput = document.getElementById('search-input');
+        if (currentRole === 'Self') {
+            searchInput.value = currentUsername;
+            searchInput.disabled = true;
+            searchInput.placeholder = `Sie können nur Statistiken für ${currentUsername} anzeigen.`;
+        } else {
+            searchInput.disabled = false; // Für Mods/Admins freigeben
+            searchInput.placeholder = 'Spielername eingeben...';
+        }
+    }
+
+        
         // Entfernt Hover-Sounds vom Suchfeld und Button
         const searchInput = document.getElementById('search-input');
         if (searchInput.onmouseenter) searchInput.onmouseenter = null;
         
         const searchButton = document.getElementById('search-button');
         if (searchButton.onmouseenter) searchButton.onmouseenter = null;
+
+        initializeUserAndRole(); // NEU: Rolle und Usernamen laden
+        await loadAccounts();
+        
+        if (currentRole === 'Admin') {
+            document.querySelector('.container').insertAdjacentHTML('beforebegin', `
+                <div id="admin-topbar">
+                    Admin-Bestätigungs-Panel: <span id="pending-count">0</span> ausstehende Anfragen. 
+                    <button onclick="showAdminPanel()">Anfragen prüfen</button>
+                </div>
+            `);
+            // Füge Styling für die Topbar hinzu (muss ggf. in den <style>-Block)
+            addAdminTopbarStyle();
+        }
 
         if (playerStats.length > 0) {
              displayMessage(`Daten von ${playerStats.length} Spielern geladen. Sie können nun suchen oder einen vorgeschlagenen Spieler wählen.`, 'success');
@@ -4646,5 +4988,6 @@
 </script>
 </body>
 </html>
+
 
 
