@@ -1,4 +1,4 @@
-const MOCK_ACCOUNTS = [
+const accounts = [
     {
         "username": "JasonNewAcc",
         "password": "1234",
