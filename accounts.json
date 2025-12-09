@@ -19,4 +19,4 @@ const accounts = [
         "password": "test",
         "role": "self"
     }
-];
+]
