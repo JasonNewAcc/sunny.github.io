@@ -205,8 +205,11 @@ body {
 
         if (accountFound) {
             // Erfolg: Session-Schlüssel setzen und weiterleiten
-            sessionStorage.setItem(LOGIN_KEY, 'true');
-            window.location.href = TARGET_PAGE; 
+sessionStorage.setItem(LOGIN_KEY, 'true');
+sessionStorage.setItem('holostats_role', accountFound.role);
+sessionStorage.setItem('holostats_user', accountFound.username);
+window.location.href = TARGET_PAGE;
+
             
         } else {
             // Fehler: Nachricht anzeigen
@@ -245,6 +248,7 @@ body {
 </script>
 </body>
 </html>
+
 
 
 
