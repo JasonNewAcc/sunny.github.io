@@ -1,24 +1,8 @@
 {
   "accounts": [
-    {
-      "username": "JasonNewAcc",
-      "password": "1234",
-      "role": "admin"
-    },
-    {
-      "username": "Lattenrost1234",
-      "password": "1234",
-      "role": "moderator"
-    },
-    {
-      "username": "Admin",
-      "password": "passwort_sicher",
-      "role": "admin"
-    },
-    {
-      "username": "TestUser",
-      "password": "test",
-      "role": "self"
-    }
+    { "username": "JasonNewAcc", "password": "1234", "role": "Admin" },
+    { "username": "Lattenrost1234", "password": "1234", "role": "Admin" },
+    { "username": "Admin", "password": "passwort_sicher", "role": "Admin" },
+    { "username": "TestUser", "password": "test", "role": "User" }
   ]
 }
