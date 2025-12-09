@@ -1,0 +1,4650 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holostats Spielerstatistik-Suche</title>
+    <style>
+        /* === Allgemeiner Stil und Dunkles Thema === */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e; /* Dunkler Hintergrund */
+            color: #f0f0f0; /* Helle Textfarbe */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+        }
+        .container {
+            display: none; /* NEU: Standardmäßig versteckt */
+            width: 90%;
+            max-width: 700px;
+            background: #2d2d30; /* Dunkle Container-Fläche */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h1 {
+            color: #4CAF50; /* Akzentfarbe Grün */
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 2em;
+        }
+        #current-date {
+            text-align: right;
+            font-size: 0.8em;
+            color: #aaa;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #3a3a3d;
+            padding-bottom: 10px;
+        }
+        
+        /* === LOGIN MODAL STYLES (NEU) === */
+        #login-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1e1e1e; /* Hintergrundfarbe des Bodys */
+            display: none; /* Wird über JS bei Bedarf auf 'flex' gesetzt */
+            justify-content: center;
+            align-items: center;
+            z-index: 101; /* Über allen anderen Elementen */
+        }
+
+        #login-form-container {
+            background-color: #2d2d30;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            text-align: center;
+            width: 90%;
+            max-width: 350px;
+        }
+
+        #login-form-container h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        #login-form-container p {
+            color: #aaa;
+        }
+
+        #login-username, #login-password {
+            width: calc(100% - 30px);
+            padding: 12px 15px;
+            margin: 10px 0;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background-color: #3a3a3d;
+            color: #f0f0f0;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        #login-username:focus, #login-password:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        #login-form-container button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.2s;
+        }
+
+        #login-form-container button:hover {
+            background-color: #43A047;
+        }
+        
+        /* === Suchfeld-Design (Suchfenster) === */
+        #search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            position: relative;
+        }
+        #search-input {
+            padding: 12px 15px;
+            font-size: 1.1em;
+            border: 2px solid #555;
+            border-radius: 8px;
+            flex-grow: 1;
+            background-color: #3a3a3d;
+            color: #f0f0f0;
+            transition: border-color 0.3s;
+        }
+        #search-input:focus {
+            border-color: #4CAF50; /* Akzentfarbe bei Fokus */
+            outline: none;
+        }
+        #search-button {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #search-button:hover {
+            background-color: #43A047;
+        }
+        
+        /* === Vorschlags-Container (Top 5 & Dynamisch) === */
+        #suggestions-container, #dynamic-suggestions-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #3a3a3d;
+            border-left: 5px solid #4CAF50; /* Grüner Akzent */
+        }
+        #suggestions-container h4, #dynamic-suggestions-container h4 {
+            margin-top: 0;
+            color: #4CAF50; 
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        .suggestion-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .suggestion-player {
+            background-color: #555;
+            color: #fff;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-weight: bold;
+        }
+        .suggestion-player:hover {
+            background-color: #4CAF50;
+            transform: translateY(-2px);
+        }
+
+        /* === Ergebnis-Karten === */
+        #results-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .player-card {
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 8px;
+            width: 160px;
+            text-align: center;
+            background: #3a3a3d;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer; 
+        }
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5), 0 0 10px #4CAF50;
+        }
+        .player-card img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%; /* Rundes Profilbild */
+            border: 3px solid #4CAF50;
+            margin-bottom: 10px;
+            image-rendering: pixelated;
+        }
+        .player-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.2em;
+            color: #e0e0e0;
+            word-break: break-all;
+        }
+        .player-card p {
+            margin: 0;
+            font-size: 0.95em;
+            color: #bbb;
+        }
+        .divider {
+            margin: 10px 0;
+            border-top: 1px solid #444;
+        }
+        
+        /* === Meldungen und Fehler === */
+        #error-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: none; /* Initial versteckt */
+        }
+        /* Erfolgsmeldung */
+        #error-message[style*="background-color: #d4edda"] { 
+            background-color: #384239 !important;
+            border: 1px solid #4CAF50;
+            color: #4CAF50 !important;
+        }
+        /* Fehlermeldung */
+        #error-message[style*="background-color: #f2dede"] { 
+            background-color: #5d3f42 !important;
+            border: 1px solid #d9534f;
+            color: #d9534f !important;
+        }
+
+        /* === DETAIL MODAL STYLES === */
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 100; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.8); 
+        }
+        .modal-content {
+            background-color: #3a3a3d;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 450px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #fff;
+        }
+        #detail-content img {
+            width: 128px; 
+            height: auto;
+            image-rendering: pixelated;
+            margin: 15px auto 25px auto;
+            border: 4px solid #4CAF50;
+            border-radius: 50%;
+        }
+        #detail-content h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 15px;
+            font-size: 1.8em;
+        }
+        #detail-content p {
+            margin: 12px 0;
+            text-align: left;
+            padding: 5px 10px;
+            font-size: 1.05em;
+            background-color: #2d2d30;
+            border-radius: 4px;
+        }
+        #detail-content b {
+            color: #fff;
+        }
+        #detail-content a {
+            display: block;
+            margin-top: 25px;
+            padding: 12px;
+            background-color: #007bff; /* Sekundäre Akzentfarbe Blau */
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        #detail-content a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div id="login-modal-overlay">
+    <div id="login-form-container">
+        <h2>Zugriff erforderlich</h2>
+        <p>Bitte melden Sie sich an, um die Holostats-Daten einzusehen.</p>
+        <input type="text" id="login-username" placeholder="Benutzername">
+        <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()">
+        <button onclick="checkLogin()">Anmelden</button>
+        <p id="login-message" style="color: #d9534f; margin-top: 10px; display: none;"></p>
+    </div>
+</div>
+<div class="container">
+    <h1><span style="color: white;">Sunny_Casino</span> - Spieler Umsatz suchen</h1>
+    
+    <p id="current-date">Daten-Stand: 07.12.2025</p>
+
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Spielernamen eingeben..." onkeyup="handleSearchInput(event)">
+        <button id="search-button" onclick="searchPlayers(true)">Suchen</button>
+    </div>
+    
+    <div id="dynamic-suggestions-container" style="display: none;">
+        </div>
+
+    <div id="suggestions-container">
+        </div>
+
+    <p id="error-message"></p>
+    
+    <div id="results-container">
+        </div>
+</div>
+
+<div id="player-detail-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closePlayerDetails()">&times;</span>
+        <div id="detail-content">
+            </div>
+    </div>
+</div>
+<script>
+    // ** START DER NEUESTEN SPIELERDATEN **
+    let playerStats = [
+    {
+      "uuid": "2143da9f-503b-4e4a-835a-d1d7f37a0af1",
+      "playername": "JasonNewAcc",
+      "wager": 4904301
+    },
+    {
+      "uuid": "3afc41d9-6ac7-41d1-b7c2-8286ce21765d",
+      "playername": "xNotNamex",
+      "wager": 7864090
+    },
+    {
+      "uuid": "895d190d-77d7-4c85-b79b-bcd6768011ca",
+      "playername": "Lilly_197",
+      "wager": 3022045
+    },
+    {
+      "uuid": "1038f0a9-4431-490a-b07c-c3b5222b259c",
+      "playername": "3infach_Craz7",
+      "wager": 9644035
+    },
+    {
+      "uuid": "2e809eab-3e83-4632-9743-d061c119b59f",
+      "playername": "Yxlukas",
+      "wager": 13346075
+    },
+    {
+      "uuid": "467e9ab0-b048-4307-b5fd-1ea110f45817",
+      "playername": "lblenni",
+      "wager": 256010
+    },
+    {
+      "uuid": "a490eea8-725d-4140-9ac7-68bd751229de",
+      "playername": "1real_nox",
+      "wager": 1244210
+    },
+    {
+      "uuid": "9c1e2e4e-650b-4018-a22d-6197eca0a49f",
+      "playername": "1Verfehlter",
+      "wager": 1596185
+    },
+    {
+      "uuid": "9d593273-a33d-40de-9e66-78ff12991e7e",
+      "playername": "ces_cot",
+      "wager": 65
+    },
+    {
+      "uuid": "9bda69ad-3ebe-42e2-a48f-96fa6f3a4351",
+      "playername": "KenRyugujiYT",
+      "wager": 5
+    },
+    {
+      "uuid": "42b0dfc2-40d9-44d3-8678-5091f15afde7",
+      "playername": "BiBo_Th3_Ripp3r",
+      "wager": 1660235
+    },
+    {
+      "uuid": "f2ed72bb-31ef-42c3-8456-372c85aa739b",
+      "playername": "Orb_Store",
+      "wager": 5
+    },
+    {
+      "uuid": "52ffcd1b-7cb4-48e7-82de-03a41afa061d",
+      "playername": "pusplocke",
+      "wager": 1962145
+    },
+    {
+      "uuid": "77706451-4eaa-4061-9e03-169e27cee023",
+      "playername": "Oxication_HD",
+      "wager": 2432015
+    },
+    {
+      "uuid": "fe10c7c9-83f4-4603-a423-d5cdcd1f2def",
+      "playername": "RiryC001",
+      "wager": 5
+    },
+    {
+      "uuid": "068ff8c2-9918-411d-9593-d2b7e2fd371d",
+      "playername": "Jere0258",
+      "wager": 20010
+    },
+    {
+      "uuid": "0e7c2bab-cf1b-4d3c-954f-e2a11cd0b582",
+      "playername": "zNight649",
+      "wager": 83098080
+    },
+    {
+      "uuid": "cab5bcd2-7b88-4a1d-94ba-dbaffc1a56f2",
+      "playername": "xAlserak",
+      "wager": 15128155
+    },
+    {
+      "uuid": "a39d4373-60ad-4e18-852b-e0796dedef62",
+      "playername": "Premium_man_",
+      "wager": 5248075
+    },
+    {
+      "uuid": "7e9774da-dd78-3fde-bbbb-61b84a5c979d",
+      "playername": "!RobLoxxGhosT",
+      "wager": 2352020
+    },
+    {
+      "uuid": "3a5309af-6510-4445-916a-660aaeb0e76e",
+      "playername": "Lattenrost1234",
+      "wager": 12608075
+    },
+    {
+      "uuid": "27c8b333-4954-32d7-a27c-12e4c61b58da",
+      "playername": "!Russivan639",
+      "wager": 920015
+    },
+    {
+      "uuid": "d2362403-231e-4d2e-b26c-0ad7a8a24b80",
+      "playername": "FriksGames",
+      "wager": 17848320
+    },
+    {
+      "uuid": "8dca34b2-9500-4d01-a510-a53037f20579",
+      "playername": "Oxiiiii_42",
+      "wager": 10
+    },
+    {
+      "uuid": "21b987f7-2e45-4417-823c-2a9922635047",
+      "playername": "1Kxksen",
+      "wager": 2005
+    },
+    {
+      "uuid": "75f31271-ea69-4ad4-b275-884dedb6d357",
+      "playername": "salina3534",
+      "wager": 9514055
+    },
+    {
+      "uuid": "a380117b-7213-44b8-bb8d-1e0d3071aa19",
+      "playername": "ItzZ_PauleXx",
+      "wager": 104035
+    },
+    {
+      "uuid": "440e3388-4cc4-4d7f-b5cd-048a5e9b8eea",
+      "playername": "versabberter",
+      "wager": 3426060
+    },
+    {
+      "uuid": "79852977-c186-4c74-ba6a-186cec4c953a",
+      "playername": "CryzZ11",
+      "wager": 2246040
+    },
+    {
+      "uuid": "7854f1fd-3050-41c7-99f4-60ad0d6eec25",
+      "playername": "ItzZ_Popeye",
+      "wager": 17858235
+    },
+    {
+      "uuid": "5c2a3eee-ab92-4ff8-b71f-416c995ba97c",
+      "playername": "zdobeq",
+      "wager": 832170
+    },
+    {
+      "uuid": "d0560923-c832-4c51-8053-d4869aef69ca",
+      "playername": "RealShiva",
+      "wager": 512005
+    },
+    {
+      "uuid": "62a7ebe6-c142-42e7-b639-dc0d58236a2e",
+      "playername": "Teufelswesen",
+      "wager": 384000
+    },
+    {
+      "uuid": "51597d23-214a-47a0-9fe6-2427e013efb8",
+      "playername": "Trogoso",
+      "wager": 8146085
+    },
+    {
+      "uuid": "67da9ce1-b83d-49ae-9df6-146d26212f22",
+      "playername": "Silberjason",
+      "wager": 136040
+    },
+    {
+      "uuid": "4a8fcd88-c3e0-4bc8-8e76-7cb825095c83",
+      "playername": "meerkatinthehat",
+      "wager": 20
+    },
+    {
+      "uuid": "966f6fef-a5ce-3486-aa85-3e43f265336b",
+      "playername": "!uzzi193159",
+      "wager": 155
+    },
+    {
+      "uuid": "e278048c-993f-4dda-adce-d29e93887aaa",
+      "playername": "Null_FPS",
+      "wager": 256015
+    },
+    {
+      "uuid": "05a43700-011f-4ea5-b3b6-e7d189758271",
+      "playername": "4real2k",
+      "wager": 1664010
+    },
+    {
+      "uuid": "6ec4de13-0deb-4b08-b0d1-1f27dbb9fff4",
+      "playername": "Rxffel",
+      "wager": 6025
+    },
+    {
+      "uuid": "d774b1f9-5078-439a-a267-17d6a5b02f5d",
+      "playername": "Telephos85",
+      "wager": 3492015
+    },
+    {
+      "uuid": "98bd03cf-ac4c-4bcc-82a4-19e74c7d7ea2",
+      "playername": "Nectaner",
+      "wager": 16010
+    },
+    {
+      "uuid": "c1565fda-3110-4549-904b-8cd07d7a464a",
+      "playername": "Agent007_",
+      "wager": 38270
+    },
+    {
+      "uuid": "7b097e9c-6269-4f4e-8cad-910bfa64a675",
+      "playername": "DrInk3653",
+      "wager": 3584005
+    },
+    {
+      "uuid": "b1eeae81-97cc-4798-a908-9848cf35953d",
+      "playername": "XZSupaA_Gecko",
+      "wager": 5
+    },
+    {
+      "uuid": "f460c89e-c955-456c-8d3a-fecae5fd6d88",
+      "playername": "1Lxca",
+      "wager": 130005
+    },
+    {
+      "uuid": "bce9a4da-6993-4066-b4ac-51ea75b24092",
+      "playername": "BoBderBaumester",
+      "wager": 384005
+    },
+    {
+      "uuid": "4be759a2-a416-4e35-b1d8-7b61deb6ccb1",
+      "playername": "JustHackl",
+      "wager": 5
+    },
+    {
+      "uuid": "61a62498-35a3-4437-9746-7ce258e77464",
+      "playername": "Lumania2020",
+      "wager": 768000
+    },
+    {
+      "uuid": "63a2f0d3-70a5-4c4f-a609-ada33451c8d6",
+      "playername": "zFlevo",
+      "wager": 4000
+    },
+    {
+      "uuid": "f04cc68f-cf1d-45d5-bf9c-0f2f1410d5da",
+      "playername": "mayumyi",
+      "wager": 256000
+    },
+    {
+      "uuid": "02b57fac-b8be-4693-90ca-50be497b7945",
+      "playername": "9Sleepyy",
+      "wager": 11278170
+    },
+    {
+      "uuid": "8dc50d76-b7cc-406e-8ecf-01bbfb45f4e1",
+      "playername": "LytnoGG",
+      "wager": 192060
+    },
+    {
+      "uuid": "1478210a-6b94-4486-bb9b-bfc8c1a786db",
+      "playername": "Crazylaser46",
+      "wager": 490090
+    },
+    {
+      "uuid": "33510a1b-0aff-4cd5-8f8a-62dfdce109c7",
+      "playername": "Stepmarvin_",
+      "wager": 1542010
+    },
+    {
+      "uuid": "b85224c9-60bb-4d5b-8623-a778176c6b59",
+      "playername": "KurzVorGucci",
+      "wager": 128005
+    },
+    {
+      "uuid": "4da4007c-d36e-4e51-85e3-b9032fc3a158",
+      "playername": "Alterschwede45",
+      "wager": 640255
+    },
+    {
+      "uuid": "b0d05b0a-1433-4f09-82ae-45e7a95d2a16",
+      "playername": "ReLaXeD_YT",
+      "wager": 1024000
+    },
+    {
+      "uuid": "9ce71af3-f8be-4d98-a1ee-84f2e969729e",
+      "playername": "Farfuss293",
+      "wager": 9350115
+    },
+    {
+      "uuid": "9a630acf-e2a8-4851-b427-35830297878e",
+      "playername": "OkBinStili",
+      "wager": 876035
+    },
+    {
+      "uuid": "e0233016-36a8-40ad-a9d4-9b3c9acc47b4",
+      "playername": "xJazeek",
+      "wager": 16135
+    },
+    {
+      "uuid": "f06b9822-5c24-4a0b-8a57-4dcd5640e256",
+      "playername": "UndeadDuck",
+      "wager": 128000
+    },
+    {
+      "uuid": "983b1a4a-9f5d-4e76-8fb3-ee3459066851",
+      "playername": "Em1n3e7",
+      "wager": 64005
+    },
+    {
+      "uuid": "0b12bb65-2f18-408a-a004-87e756bdb83e",
+      "playername": "Verhunted",
+      "wager": 130005
+    },
+    {
+      "uuid": "b4e86782-c1b5-4fbe-8e37-24410ddb49d2",
+      "playername": "Luksch007x",
+      "wager": 11008000
+    },
+    {
+      "uuid": "15fef32b-8f3b-457d-a005-adb89baa490c",
+      "playername": "IchGehOOC",
+      "wager": 512055
+    },
+    {
+      "uuid": "1eabc4cd-f6de-4038-b67b-9b0aa0840247",
+      "playername": "mcpack22",
+      "wager": 5
+    },
+    {
+      "uuid": "b05acf76-7fc9-43d2-a16b-12e78a4d4bd1",
+      "playername": "Gaming__Buddy",
+      "wager": 15
+    },
+    {
+      "uuid": "687102df-08c8-47fe-8771-1bb03ebfdb8e",
+      "playername": "Amelie1up",
+      "wager": 128090
+    },
+    {
+      "uuid": "10dd715e-c489-400d-8024-5f5440840685",
+      "playername": "Marcel1UP",
+      "wager": 384120
+    },
+    {
+      "uuid": "56ed648d-9fa2-4027-93e4-32c6e87c1967",
+      "playername": "NiemandKilltMich",
+      "wager": 18602010
+    },
+    {
+      "uuid": "0869cafa-4ceb-47ac-93ac-20993c9a02c9",
+      "playername": "BerndDasBrot2",
+      "wager": 1512030
+    },
+    {
+      "uuid": "0b94f4e3-2f1a-45ad-9ea1-d2b83e881783",
+      "playername": "yasin112",
+      "wager": 2005
+    },
+    {
+      "uuid": "affd6ad8-58c3-4e93-be9f-d4ba32fdebfa",
+      "playername": "NightWolfLG",
+      "wager": 256005
+    },
+    {
+      "uuid": "19c19880-6b67-49bc-b691-c24c6c3ab97f",
+      "playername": "DerTechnoGod",
+      "wager": 64040
+    },
+    {
+      "uuid": "fd9ba1a8-5bc1-47b2-871c-974c105f31db",
+      "playername": "ItsEmily17",
+      "wager": 10
+    },
+    {
+      "uuid": "c1cc9cbc-5458-43f3-87a0-b9c3c369e931",
+      "playername": "Emilian141",
+      "wager": 1370225
+    },
+    {
+      "uuid": "9e65449f-1036-4c0d-8c55-82bef3bc70f7",
+      "playername": "AceStarling9506",
+      "wager": 25
+    },
+    {
+      "uuid": "2821a07e-6619-4938-b108-4d1300b9c497",
+      "playername": "dcue",
+      "wager": 3072010
+    },
+    {
+      "uuid": "be35c47b-7970-49a3-8a97-f29016238e64",
+      "playername": "Schlagzeugnis",
+      "wager": 1792005
+    },
+    {
+      "uuid": "1fccf772-0ffe-4de5-bae9-e002177f1a47",
+      "playername": "nxmooo",
+      "wager": 1088000
+    },
+    {
+      "uuid": "eb6b414c-e708-4761-a6e0-7c251cc76b77",
+      "playername": "Krebserreger2",
+      "wager": 814140
+    },
+    {
+      "uuid": "74725752-2df1-4c61-b2b0-636473ba344d",
+      "playername": "Noel2811",
+      "wager": 8146015
+    },
+    {
+      "uuid": "07499c36-6e38-4fc9-a973-f0aa3ca7bd32",
+      "playername": "Timy2011",
+      "wager": 32005
+    },
+    {
+      "uuid": "9f7d8e71-b935-4dc3-9e86-384145e17b23",
+      "playername": "TheChef_Cook",
+      "wager": 5
+    },
+    {
+      "uuid": "d99beb3f-621d-4498-a51f-d96d0f6f2cc6",
+      "playername": "PapaPaul2876",
+      "wager": 432015
+    },
+    {
+      "uuid": "33219211-c22e-4f4e-ab8a-ee3edcf7ebec",
+      "playername": "Anbu_Muha",
+      "wager": 384010
+    },
+    {
+      "uuid": "4c5ff8d1-a64f-4f09-97b5-e17302aa3398",
+      "playername": "Buzunbaruk",
+      "wager": 28010
+    },
+    {
+      "uuid": "e9a8b15c-ca2a-4b39-8458-bb372d80b1a4",
+      "playername": "KSCDennis",
+      "wager": 1280045
+    },
+    {
+      "uuid": "515736d6-3b5c-4122-aad1-a9518ebe1049",
+      "playername": "Verkokster",
+      "wager": 3266005
+    },
+    {
+      "uuid": "5f1475a9-7ff0-3b8f-b4a5-a4061215a6b0",
+      "playername": "!Ripeax5677",
+      "wager": 1858005
+    },
+    {
+      "uuid": "ad8e9e12-a189-4785-8de4-673e71550ee5",
+      "playername": "coldNovell",
+      "wager": 175
+    },
+    {
+      "uuid": "ae3163e5-1de2-430e-be27-28b84d758d9f",
+      "playername": "xfabian206",
+      "wager": 10
+    },
+    {
+      "uuid": "3537c5d8-52d6-4b36-8bfa-256ae54d185c",
+      "playername": "Peukstar19",
+      "wager": 70
+    },
+    {
+      "uuid": "4607fa8c-eb85-490a-bf11-44c8a48a744e",
+      "playername": "Traze_Philipp",
+      "wager": 15
+    },
+    {
+      "uuid": "8e6380e9-a597-4c51-8e5e-b5825c0330b9",
+      "playername": "Monster1239344",
+      "wager": 132155
+    },
+    {
+      "uuid": "36b8a9a9-41ce-49dc-b22f-d724b0595ca7",
+      "playername": "ItsZynex",
+      "wager": 13760140
+    },
+    {
+      "uuid": "3a907163-f7b1-4ab3-9703-746d4097ff32",
+      "playername": "Eifnurgym1161",
+      "wager": 9856010
+    },
+    {
+      "uuid": "977f8273-1a86-4410-8790-186ee09c74f7",
+      "playername": "Bannfee",
+      "wager": 4000015
+    },
+    {
+      "uuid": "19b7c223-a2e7-451f-b269-d089f956c79e",
+      "playername": "Der_Jodocy",
+      "wager": 2196090
+    },
+    {
+      "uuid": "838d974a-22b0-43b6-85b8-266bf413caa8",
+      "playername": "Illegal_Baum",
+      "wager": 2070010
+    },
+    {
+      "uuid": "d173deb5-49f4-3294-b22b-021fa33f0661",
+      "playername": "!Bauer+Jason1539",
+      "wager": 552025
+    },
+    {
+      "uuid": "3721798b-3d00-4903-8d7e-33bd2550bac7",
+      "playername": "MarbleDrake3120",
+      "wager": 678010
+    },
+    {
+      "uuid": "3dc3dc64-8eac-455e-a352-4529884c0b97",
+      "playername": "Unverhoffter",
+      "wager": 5
+    },
+    {
+      "uuid": "8a47ffe1-0832-46aa-bf69-42e442acf226",
+      "playername": "xXFLucaXx",
+      "wager": 130015
+    },
+    {
+      "uuid": "80e87567-44eb-4885-95fb-cb0ff3654abe",
+      "playername": "1Alex__",
+      "wager": 64045
+    },
+    {
+      "uuid": "f2a76dd2-57b0-3a0e-b040-4e65aefc3237",
+      "playername": "!DrollBow2952262",
+      "wager": 5
+    },
+    {
+      "uuid": "d364a204-0283-3312-9ba3-9baf983ec15f",
+      "playername": "!Donutxlina557",
+      "wager": 16025
+    },
+    {
+      "uuid": "2e8ab09f-badc-471d-92cc-82f6a588ac4e",
+      "playername": "WasserRitter48",
+      "wager": 390010
+    },
+    {
+      "uuid": "4e0f14e5-bc26-42dc-9665-a2a1d07c13a3",
+      "playername": "GrabBeule189",
+      "wager": 160010
+    },
+    {
+      "uuid": "19126b3f-26e8-4305-a403-da280f041bb7",
+      "playername": "xx_jace_xx",
+      "wager": 125
+    },
+    {
+      "uuid": "c682a4bb-08ff-4d62-b9ab-16689bfe8ceb",
+      "playername": "TheKing_Alda",
+      "wager": 140
+    },
+    {
+      "uuid": "fe32d30a-c854-476f-87e9-edb28457c138",
+      "playername": "7Fabianx",
+      "wager": 1964090
+    },
+    {
+      "uuid": "47840ae0-b095-4c0a-a9d9-4d8dfe44a687",
+      "playername": "pacyy",
+      "wager": 5
+    },
+    {
+      "uuid": "501a7b6c-a791-4c9b-b676-9f6b8c408734",
+      "playername": "gerritgl",
+      "wager": 130010
+    },
+    {
+      "uuid": "e9dff5fa-6609-4b1d-a260-4111425beace",
+      "playername": "GRIPEYgoatsAY",
+      "wager": 2816005
+    },
+    {
+      "uuid": "265b5ece-c141-44b8-b245-2ecb9d09170a",
+      "playername": "MappiLP2005",
+      "wager": 640000
+    },
+    {
+      "uuid": "bc9d562d-3d5c-4b11-ba35-1f4fedef7b1c",
+      "playername": "OchMarloooon",
+      "wager": 128015
+    },
+    {
+      "uuid": "bddef550-44f9-446a-bf44-945a5dc5d33b",
+      "playername": "Max_Scx",
+      "wager": 58045
+    },
+    {
+      "uuid": "7de7c311-7c74-4096-9d21-d8df43464a5b",
+      "playername": "DeathGamer_",
+      "wager": 125
+    },
+    {
+      "uuid": "7ef097f6-0e77-4028-9c04-95d0b7a33380",
+      "playername": "_LeGeSu_",
+      "wager": 25
+    },
+    {
+      "uuid": "1924eeea-8ff9-4080-97e2-7e1ee479ffec",
+      "playername": "ScopezLuki6996",
+      "wager": 2050
+    },
+    {
+      "uuid": "77b539c7-3fd0-42a7-a6a1-8ce415cb632a",
+      "playername": "Sammyluca2010",
+      "wager": 504005
+    },
+    {
+      "uuid": "a15b2dee-33a1-4a5f-8f09-6a4cf21d6da9",
+      "playername": "Nikindergarten",
+      "wager": 152005
+    },
+    {
+      "uuid": "84cc50d0-a46b-4216-9c7f-4ca0b9c163f6",
+      "playername": "_KlonMitDrip_",
+      "wager": 256005
+    },
+    {
+      "uuid": "66711d71-879e-4ba8-92e6-ba346b2437c2",
+      "playername": "EinfxchZecke",
+      "wager": 320135
+    },
+    {
+      "uuid": "9af76d4b-186f-4e2d-b05f-c9886cdc8ec4",
+      "playername": "m1ningenjoyer",
+      "wager": 1248015
+    },
+    {
+      "uuid": "184584f9-bb68-4799-a970-5367dd608dbb",
+      "playername": "I_Elias1",
+      "wager": 19768115
+    },
+    {
+      "uuid": "d04d6f2b-72b0-489a-9dae-fa2f287d69b2",
+      "playername": "Sirhanibal9",
+      "wager": 96000
+    },
+    {
+      "uuid": "5eb6b20a-8f13-4649-84a6-a3bf8bc6e8b2",
+      "playername": "MineDerol",
+      "wager": 5
+    },
+    {
+      "uuid": "7616b970-701b-4b83-a397-39325ca7b728",
+      "playername": "Eli_dlj",
+      "wager": 5
+    },
+    {
+      "uuid": "1b747914-4cf3-41cc-93fa-a7d417b54abb",
+      "playername": "MissLucy_",
+      "wager": 256000
+    },
+    {
+      "uuid": "d0c793cf-1b8a-456d-8a3e-368ee9c05483",
+      "playername": "Axolotle_GG",
+      "wager": 10
+    },
+    {
+      "uuid": "5bcf68e1-3e39-4a9f-b809-b0b32d46c689",
+      "playername": "MCDamian_YT",
+      "wager": 384010
+    },
+    {
+      "uuid": "bab34b4c-08cd-4fd9-a843-fe3a916090c7",
+      "playername": "kingjoto",
+      "wager": 10
+    },
+    {
+      "uuid": "5b719607-c068-4399-a758-d40e1679aed4",
+      "playername": "RisQ_gg",
+      "wager": 1024005
+    },
+    {
+      "uuid": "fb93c6c4-47be-402e-8418-ac02af0259f2",
+      "playername": "SpaceAlexvomBVB",
+      "wager": 1178265
+    },
+    {
+      "uuid": "3212b00c-cf5a-4348-afdf-a5dc6fae6793",
+      "playername": "WhyNot_53",
+      "wager": 336005
+    },
+    {
+      "uuid": "5958fc3b-3313-4bbe-8178-784e4cbb3945",
+      "playername": "Sneaky2K22",
+      "wager": 5
+    },
+    {
+      "uuid": "227a3fe4-425a-48b0-ae1c-afdda393e620",
+      "playername": "WasserMagie",
+      "wager": 64040
+    },
+    {
+      "uuid": "90d6442d-cfca-4403-bac6-302c83fe4ef0",
+      "playername": "imo61",
+      "wager": 5
+    },
+    {
+      "uuid": "e618585f-ca54-4c9f-b1d6-f32dea8e4fc5",
+      "playername": "CxllMeBad",
+      "wager": 128015
+    },
+    {
+      "uuid": "58dcb6f8-a0ac-4dae-99a1-3b08f767382e",
+      "playername": "069Luka",
+      "wager": 130005
+    },
+    {
+      "uuid": "f500cf53-15b4-435a-98c3-1dd7d9cdde37",
+      "playername": "XxMarkoHxX",
+      "wager": 320065
+    },
+    {
+      "uuid": "76491936-abab-4e99-94c9-d11b55392d9e",
+      "playername": "Lama_Rama__1",
+      "wager": 110
+    },
+    {
+      "uuid": "23f7a6dc-d2f7-470c-a872-e4425fd176b0",
+      "playername": "rxpepad",
+      "wager": 5
+    },
+    {
+      "uuid": "b439429b-293e-4e04-8736-ce9e5a1e3611",
+      "playername": "Momo2309",
+      "wager": 2010
+    },
+    {
+      "uuid": "76e2d1d9-34c7-4fde-aa4c-7d032c32f1ce",
+      "playername": "Dave_DerBot",
+      "wager": 4512000
+    },
+    {
+      "uuid": "2cedc456-5050-45f4-87cb-23e4d6745e66",
+      "playername": "FizzyBubbele00",
+      "wager": 56225
+    },
+    {
+      "uuid": "1954af97-b9e2-40ca-9ddf-3f64bd605cdf",
+      "playername": "SY_Elbing85",
+      "wager": 215
+    },
+    {
+      "uuid": "cf41f66d-d1cc-4599-abdb-a3416e4fa80c",
+      "playername": "elbing85",
+      "wager": 195
+    },
+    {
+      "uuid": "b99735cc-c77a-4dad-bd3b-6c04d04d028d",
+      "playername": "Ivo_exe",
+      "wager": 512005
+    },
+    {
+      "uuid": "ffba81f1-6e24-4969-8951-792295eb5458",
+      "playername": "SpacemagSkinny",
+      "wager": 640000
+    },
+    {
+      "uuid": "398d94a8-7b87-3c18-b2ad-963c23008e4a",
+      "playername": "!Sectonia9030",
+      "wager": 5
+    },
+    {
+      "uuid": "ce21da68-6916-4ed2-8b7d-7631eb9bb0bd",
+      "playername": "Neon_gamer40",
+      "wager": 584015
+    },
+    {
+      "uuid": "ebbbee82-b18f-4628-9404-042bdce56a0c",
+      "playername": "jaron189",
+      "wager": 2104015
+    },
+    {
+      "uuid": "2a3cbfcc-8836-4372-bdd8-274b2ca36515",
+      "playername": "ronny154",
+      "wager": 10
+    },
+    {
+      "uuid": "d668a344-3cd8-3c4b-b3d6-0d4353330798",
+      "playername": "!soap12274",
+      "wager": 512000
+    },
+    {
+      "uuid": "b45ab842-71b1-4ad4-9c30-8de50392e643",
+      "playername": "DukeGamer46388",
+      "wager": 32005
+    },
+    {
+      "uuid": "fec5687e-646a-4e30-ab01-3a9a8f6ac4d2",
+      "playername": "vAkenoHimejima",
+      "wager": 512005
+    },
+    {
+      "uuid": "81e347c9-43a4-4d91-ba82-d2b71f0b4900",
+      "playername": "Blend325",
+      "wager": 55
+    },
+    {
+      "uuid": "a5255238-3015-4dfd-bb2f-405bb979764c",
+      "playername": "Tensukyy",
+      "wager": 5
+    },
+    {
+      "uuid": "29f656bb-597f-445c-afd6-e7b4b04962bd",
+      "playername": "Znaq0",
+      "wager": 896000
+    },
+    {
+      "uuid": "dd0e8429-67e5-4205-bf9b-00396d766e1b",
+      "playername": "Azugreift",
+      "wager": 352010
+    },
+    {
+      "uuid": "55fcaf19-9b23-41dd-9d67-a0dc735b65ba",
+      "playername": "Traez12",
+      "wager": 8015
+    },
+    {
+      "uuid": "e496b078-5f28-4bb0-b33d-1a076992fdd9",
+      "playername": "Godemode007",
+      "wager": 524015
+    },
+    {
+      "uuid": "bf91df5c-fdf7-4025-b76c-191c00cf3819",
+      "playername": "MakaDoktor1019",
+      "wager": 128000
+    },
+    {
+      "uuid": "4320224f-0ad8-4105-877b-81c00a2a5ec6",
+      "playername": "AimDE",
+      "wager": 2005
+    },
+    {
+      "uuid": "8e154176-0e71-4fa9-ad2a-4d167bfe51f9",
+      "playername": "Esatpala",
+      "wager": 1048020
+    },
+    {
+      "uuid": "708cc6d7-07c8-4fb9-a9a4-a47919661c7c",
+      "playername": "_An1m3_S3npa1_",
+      "wager": 1024010
+    },
+    {
+      "uuid": "f0b003af-a75d-4c58-a9ae-bdaf060bef9a",
+      "playername": "iTzzMaxii07",
+      "wager": 5
+    },
+    {
+      "uuid": "d46cb01f-43d5-464f-a8fc-a1faa35392bd",
+      "playername": "ImVirox",
+      "wager": 132020
+    },
+    {
+      "uuid": "d15b20bd-bb81-47f5-bf84-f381a8f58018",
+      "playername": "PropTheReal",
+      "wager": 3330030
+    },
+    {
+      "uuid": "1c56c215-ac76-4276-8cd2-5850c54bbe07",
+      "playername": "godwar753",
+      "wager": 1024000
+    },
+    {
+      "uuid": "5ac00ff2-538f-45b5-bc82-370eb7d8a6fe",
+      "playername": "1Unbekannter",
+      "wager": 640010
+    },
+    {
+      "uuid": "9b583819-0df2-4971-98d5-a414f05df00d",
+      "playername": "Timizda",
+      "wager": 3840020
+    },
+    {
+      "uuid": "d870c610-b03b-45bc-88ae-ae30e4651a10",
+      "playername": "Maverick48",
+      "wager": 5
+    },
+    {
+      "uuid": "73c06ff8-f4fb-4963-83ee-105cab8b79b8",
+      "playername": "phil785",
+      "wager": 128005
+    },
+    {
+      "uuid": "522a6c55-7918-435f-9623-42ec320e37e8",
+      "playername": "JustHilarus",
+      "wager": 6144020
+    },
+    {
+      "uuid": "18f75a2f-3723-32c2-8044-1326b87ce2b3",
+      "playername": "!PaxxOneYT",
+      "wager": 5
+    },
+    {
+      "uuid": "6f252cf2-39d4-4a7d-96c1-ae4d4cb0aacb",
+      "playername": "zNicooZ",
+      "wager": 5
+    },
+    {
+      "uuid": "a19ee650-5e9c-475d-9490-6a3155e22f83",
+      "playername": "FawnFeather5205",
+      "wager": 1058020
+    },
+    {
+      "uuid": "b80fc988-c0cb-4d01-bcd8-e3260807030f",
+      "playername": "EdgyMichel",
+      "wager": 128000
+    },
+    {
+      "uuid": "33ca74ed-47da-47b6-b652-3150e29dc385",
+      "playername": "Flupjamin",
+      "wager": 5
+    },
+    {
+      "uuid": "c58dfac7-d14e-40ce-868b-6c618be5cca5",
+      "playername": "NilsCraftHD",
+      "wager": 2005
+    },
+    {
+      "uuid": "8866e410-1dbb-41c5-a726-93c882cf06e3",
+      "playername": "Nexo_1605",
+      "wager": 5
+    },
+    {
+      "uuid": "dac8123a-addd-4e0a-b8e3-fdfbb84d443a",
+      "playername": "AppleIPhone13",
+      "wager": 256010
+    },
+    {
+      "uuid": "92a21664-2a07-40e5-bb8d-b98f514bc6a0",
+      "playername": "AVX_Bot",
+      "wager": 64000
+    },
+    {
+      "uuid": "315858ef-106e-4313-bec3-2ee7efcca2f3",
+      "playername": "Draconia111",
+      "wager": 40
+    },
+    {
+      "uuid": "3642df00-7cbf-34ce-81c4-a0a29d7f1530",
+      "playername": "!Eyeliner425",
+      "wager": 10
+    },
+    {
+      "uuid": "ffaa6453-6c98-3473-920b-cfd350615bc3",
+      "playername": "!xXKnolliXx3464",
+      "wager": 2752010
+    },
+    {
+      "uuid": "cbf62390-3b1f-32c9-94e7-096bb118bf62",
+      "playername": "!monster123935",
+      "wager": 15
+    },
+    {
+      "uuid": "43981ee4-0304-43a8-8252-b711a53e57a9",
+      "playername": "PqulTV",
+      "wager": 5
+    },
+    {
+      "uuid": "abb06492-8973-4340-a980-cba4cb638a6f",
+      "playername": "Aflex7",
+      "wager": 5
+    },
+    {
+      "uuid": "4b98d35d-d3ec-45e5-9d2a-2cd310f704a9",
+      "playername": "zDxrky",
+      "wager": 488015
+    },
+    {
+      "uuid": "bde2e89f-913d-4d21-8f12-f5b7890cdd32",
+      "playername": "Evokey5184",
+      "wager": 128005
+    },
+    {
+      "uuid": "4beaa750-c483-450e-bbed-b5971f7f6f08",
+      "playername": "TJ196FL",
+      "wager": 5
+    },
+    {
+      "uuid": "3df366b3-47a5-429b-8eef-c200ac022874",
+      "playername": "PeakStingray21",
+      "wager": 536010
+    },
+    {
+      "uuid": "28b49dc6-734a-433f-859d-dcc5c75ffee8",
+      "playername": "SharpenShard",
+      "wager": 360005
+    },
+    {
+      "uuid": "948be899-1a6a-420f-af41-f5e6c11cf013",
+      "playername": "DasBilderbuch",
+      "wager": 5
+    },
+    {
+      "uuid": "9ebe8a11-e589-4530-84ee-5ade4a673744",
+      "playername": "GianKannAlles",
+      "wager": 3704015
+    },
+    {
+      "uuid": "2493af9e-e07f-47af-bd04-34e3bef39589",
+      "playername": "Dragonfire2447",
+      "wager": 1184005
+    },
+    {
+      "uuid": "979bc696-77fc-4b0b-85f0-94b526fe36d2",
+      "playername": "Crazyfish_04",
+      "wager": 20
+    },
+    {
+      "uuid": "3f6b7783-df40-4e52-97c4-5472e8824ad4",
+      "playername": "1Menma",
+      "wager": 5
+    },
+    {
+      "uuid": "5c5d6722-052c-44bd-8737-cccc3b13f30f",
+      "playername": "1Nokon",
+      "wager": 5
+    },
+    {
+      "uuid": "27791361-92f2-42c4-bfd1-6592ff2edeb4",
+      "playername": "Windbreathing",
+      "wager": 5
+    },
+    {
+      "uuid": "a70f6e8e-0e9e-4769-8803-1de200be6d0d",
+      "playername": "1Nagato",
+      "wager": 5
+    },
+    {
+      "uuid": "f39377c8-bbf4-44a0-870f-ff0b91457f8b",
+      "playername": "EasyJukiii",
+      "wager": 4920015
+    },
+    {
+      "uuid": "ae240436-8086-42bd-bbf6-a51bcda9e536",
+      "playername": "DrShade007",
+      "wager": 134000
+    },
+    {
+      "uuid": "1dcc3b99-adbe-35f0-9df6-faae7729dcc2",
+      "playername": "!CeDDric22",
+      "wager": 24005
+    },
+    {
+      "uuid": "81187374-bfcb-47b3-a721-419166e06c29",
+      "playername": "phvlpp",
+      "wager": 5
+    },
+    {
+      "uuid": "02f8adc4-3c91-4169-a1a5-5b417784e828",
+      "playername": "DerKloLecker1234",
+      "wager": 296025
+    },
+    {
+      "uuid": "b24a0497-26cf-4673-b201-f165b590adb6",
+      "playername": "TrickserMerlin",
+      "wager": 1126075
+    },
+    {
+      "uuid": "22ab3f4a-ed85-43b2-99d5-29d52c041db7",
+      "playername": "AdventureCBE",
+      "wager": 1152000
+    },
+    {
+      "uuid": "e1b3575a-100b-4a7b-83e2-08e03d2f749d",
+      "playername": "PX62",
+      "wager": 2005
+    },
+    {
+      "uuid": "cb854c85-fd7d-498a-9907-8813ec81287d",
+      "playername": "HolzbeinJones",
+      "wager": 512005
+    },
+    {
+      "uuid": "c5fee1ad-d958-4d4e-b54f-e80f613dcc24",
+      "playername": "bananen_Fetisch",
+      "wager": 5
+    },
+    {
+      "uuid": "9e711e40-4369-4620-a91d-19309b889456",
+      "playername": "VxlligHigh",
+      "wager": 5
+    },
+    {
+      "uuid": "bfeb587b-8768-35c1-8a98-0b11fcf9cea4",
+      "playername": "!Clementos1",
+      "wager": 5
+    },
+    {
+      "uuid": "e4954e8b-4ab3-42f0-83cb-c44728efc843",
+      "playername": "Terminatorxy123",
+      "wager": 5
+    },
+    {
+      "uuid": "157dc923-6e38-4749-a8f0-2b269e643137",
+      "playername": "janejann",
+      "wager": 2005
+    },
+    {
+      "uuid": "5edd31f6-89f8-3dea-a752-d699d7d401c6",
+      "playername": "!shutdown8070",
+      "wager": 10
+    },
+    {
+      "uuid": "f314a5e9-a12a-4d71-b74b-ece0c3f510a3",
+      "playername": "7mao",
+      "wager": 20
+    },
+    {
+      "uuid": "1d1bee30-973b-4b04-b3fd-7f6333c9241c",
+      "playername": "ImmerDieserRandY",
+      "wager": 5
+    },
+    {
+      "uuid": "a08bdf16-7b53-48c8-a68b-474fa15ac1aa",
+      "playername": "EinFaultier",
+      "wager": 290010
+    },
+    {
+      "uuid": "5e907043-d2d8-458f-aed0-6472bdb0bcf6",
+      "playername": "VSO_Lion",
+      "wager": 16000
+    },
+    {
+      "uuid": "ef5f9132-8f71-4261-821d-2f3b50765cc6",
+      "playername": "EPT_Leon",
+      "wager": 1024000
+    },
+    {
+      "uuid": "a13352b3-3041-4da9-8a6d-607ab96a1342",
+      "playername": "Relasing",
+      "wager": 2600060
+    },
+    {
+      "uuid": "a3ce0ac9-8032-49c2-a5c9-af040060185e",
+      "playername": "Power_pro12",
+      "wager": 576035
+    },
+    {
+      "uuid": "f2fd6b5d-88a6-452a-890f-cf03f0f6250f",
+      "playername": "racss_ttv",
+      "wager": 2005
+    },
+    {
+      "uuid": "cbb40998-a957-45c8-991e-09bea9fca2b5",
+      "playername": "fumot",
+      "wager": 5
+    },
+    {
+      "uuid": "2f4b10de-fe56-4e7e-b643-d0a99b82b92f",
+      "playername": "Vipez_m",
+      "wager": 480005
+    },
+    {
+      "uuid": "d8d7cca4-da66-4994-8016-7a8ed1d25702",
+      "playername": "LuziaraBaby",
+      "wager": 5
+    },
+    {
+      "uuid": "7c2c9bf3-bf84-37a0-848b-1a93ba8b675b",
+      "playername": "!GeheimerMann429",
+      "wager": 180
+    },
+    {
+      "uuid": "259d202e-940e-4b3e-89ef-de0662b0c942",
+      "playername": "Loqical_32",
+      "wager": 16005
+    },
+    {
+      "uuid": "7946f5ce-7fb2-4d84-ad7f-00c47874ac27",
+      "playername": "_3ngeLcheN_",
+      "wager": 100
+    },
+    {
+      "uuid": "11536a5c-8aa2-4de2-8fdb-dc6f251bd889",
+      "playername": "Muhi5400",
+      "wager": 1536000
+    },
+    {
+      "uuid": "1c535e26-daba-3570-8f3f-387388cf655e",
+      "playername": "!TagWolf3320",
+      "wager": 32065
+    },
+    {
+      "uuid": "a3dc03bb-8395-445e-b56c-6878eff5a886",
+      "playername": "ItzZ_Loco",
+      "wager": 15
+    },
+    {
+      "uuid": "9302446e-bb9f-4722-b8ed-3ca63ef47b7a",
+      "playername": "Mundschutziii",
+      "wager": 5
+    },
+    {
+      "uuid": "d99d85ed-b46e-4c88-9904-a25a8fab316b",
+      "playername": "BobbyB87",
+      "wager": 4224005
+    },
+    {
+      "uuid": "82ef4271-43b5-43bf-8366-479a398b74f5",
+      "playername": "Muntaro",
+      "wager": 32015
+    },
+    {
+      "uuid": "e80f3c10-5d32-4000-81d2-9c678bb4b257",
+      "playername": "HEL133",
+      "wager": 256000
+    },
+    {
+      "uuid": "67079c0c-43bd-43a9-b39b-dbe8ac0b175a",
+      "playername": "1Postbote",
+      "wager": 5
+    },
+    {
+      "uuid": "446e2917-1bf7-43b2-adb3-2873e7fc1bd7",
+      "playername": "2Eismitkamahel",
+      "wager": 16045
+    },
+    {
+      "uuid": "e7aa8d9c-ac33-41ba-851d-c53970fc50a7",
+      "playername": "Zeyrox_dox",
+      "wager": 32005
+    },
+    {
+      "uuid": "7b75ed40-b01e-4660-bed4-827bbee595ce",
+      "playername": "OmaHxtSkill",
+      "wager": 512070
+    },
+    {
+      "uuid": "27bb53cb-ae9e-46f9-8886-3111703bd4c3",
+      "playername": "Takatunga",
+      "wager": 256100
+    },
+    {
+      "uuid": "e5c16e6f-f464-4377-8eb9-1e2301292bd0",
+      "playername": "Cookieboyking",
+      "wager": 5
+    },
+    {
+      "uuid": "39b69885-f3ef-4e0b-9ab3-9ec5aa80b4eb",
+      "playername": "GamerTimmy2020",
+      "wager": 192035
+    },
+    {
+      "uuid": "ad66449b-d6da-4e9b-945e-0f5d066d9e6c",
+      "playername": "rednightx",
+      "wager": 25
+    },
+    {
+      "uuid": "68abbcaf-78b8-4e07-aeca-b840e2cbd74c",
+      "playername": "Crazy_Einhorn",
+      "wager": 15
+    },
+    {
+      "uuid": "f91001d1-6a1e-4bda-9a5f-a41fdb04a002",
+      "playername": "T_Eintausend",
+      "wager": 30
+    },
+    {
+      "uuid": "39e0e4c8-8d08-406b-bc95-e4c0473d462c",
+      "playername": "Klausi1910",
+      "wager": 5
+    },
+    {
+      "uuid": "a05cba81-bb64-4024-a181-e4f0c0b636a9",
+      "playername": "DragonFelix_",
+      "wager": 40
+    },
+    {
+      "uuid": "3f6585b5-364f-4efd-985c-cc7c179d4db5",
+      "playername": "_IceFire_",
+      "wager": 10
+    },
+    {
+      "uuid": "50526fdf-d953-4ac5-b3c5-4d8efb9ead8f",
+      "playername": "Radditz03",
+      "wager": 10
+    },
+    {
+      "uuid": "f27f89d4-12b3-4b81-8238-c9382eec9c1f",
+      "playername": "1Knuffiges",
+      "wager": 5
+    },
+    {
+      "uuid": "d74ea799-2727-4978-8158-74287170196c",
+      "playername": "Antandra",
+      "wager": 30
+    },
+    {
+      "uuid": "52d0f6ec-ada7-3086-ab5b-d11dc011ba6a",
+      "playername": "!NPHCrafter",
+      "wager": 5
+    },
+    {
+      "uuid": "7f3e357f-b8f0-4663-93e1-bf1f2bdaefe7",
+      "playername": "lucasria17",
+      "wager": 480025
+    },
+    {
+      "uuid": "bfde792a-b7ad-4f5e-805d-2548ba52d66c",
+      "playername": "ShxGuy7",
+      "wager": 5
+    },
+    {
+      "uuid": "88c7197c-ffe0-4699-8f1f-8755eea88038",
+      "playername": "bUbAKureli",
+      "wager": 48005
+    },
+    {
+      "uuid": "4176c7bb-2ec7-48fa-9d8f-c1db4b24eee6",
+      "playername": "Russivan639",
+      "wager": 3314045
+    },
+    {
+      "uuid": "18dd9a2a-2e62-4cd0-a0af-150612a9333c",
+      "playername": "Dewran_s063",
+      "wager": 3284025
+    },
+    {
+      "uuid": "a1921015-7da4-35ca-b6f0-33b77aaa6322",
+      "playername": "!Carlos17k2015",
+      "wager": 416010
+    },
+    {
+      "uuid": "93fe46ea-85b6-4d9d-bbd9-5ed6b9691434",
+      "playername": "Referee94",
+      "wager": 115
+    },
+    {
+      "uuid": "e3945f1c-2c5f-482f-bb5a-581c45763605",
+      "playername": "BYQadaFNA",
+      "wager": 128000
+    },
+    {
+      "uuid": "3336be0e-bd29-4f32-8662-4260f90bfcbc",
+      "playername": "matschas",
+      "wager": 196015
+    },
+    {
+      "uuid": "64bc6dad-ac8d-41dd-afbe-e617fde4417e",
+      "playername": "TomyZockt",
+      "wager": 1280060
+    },
+    {
+      "uuid": "c4552d88-810a-43bf-bb32-5a55511c87c9",
+      "playername": "Voltolux24",
+      "wager": 5
+    },
+    {
+      "uuid": "664f544e-a640-4d5f-80ed-effd44ca3ee1",
+      "playername": "Mxkko62",
+      "wager": 5
+    },
+    {
+      "uuid": "adf3c44d-8e0c-4ebd-8d94-31198305824a",
+      "playername": "1893s",
+      "wager": 10
+    },
+    {
+      "uuid": "f73c5569-6610-412a-be6b-b6f8f8aeb761",
+      "playername": "Esutapioner",
+      "wager": 384000
+    },
+    {
+      "uuid": "2c477f2b-d545-474e-ad04-df8c329315b5",
+      "playername": "Fluxeyy",
+      "wager": 5
+    },
+    {
+      "uuid": "140597da-1794-4939-a8c0-584d37c221f4",
+      "playername": "zDripy",
+      "wager": 1152010
+    },
+    {
+      "uuid": "c81e6014-71b8-44ca-88a4-72856db5b355",
+      "playername": "Leonard0912",
+      "wager": 256000
+    },
+    {
+      "uuid": "ee3b221a-d334-4c8c-8911-a9190988c65f",
+      "playername": "PopelNacho",
+      "wager": 10
+    },
+    {
+      "uuid": "67075d6b-029c-43c8-8b25-0fc573ab0288",
+      "playername": "TwitchMods",
+      "wager": 32005
+    },
+    {
+      "uuid": "0f21ae2d-9f0b-4f0d-9bbe-0fb90c57cb69",
+      "playername": "Cpt_Kn",
+      "wager": 70
+    },
+    {
+      "uuid": "9ce3e51e-a964-40cb-b176-3bbd75dd63a6",
+      "playername": "Stonezeit",
+      "wager": 16005
+    },
+    {
+      "uuid": "80c97c30-fef6-3be7-bad3-bba1c5b35893",
+      "playername": "!NiemannFPT",
+      "wager": 406015
+    },
+    {
+      "uuid": "c1c73b05-e030-48b7-be47-feade9c4f41b",
+      "playername": "flexi0",
+      "wager": 3424010
+    },
+    {
+      "uuid": "95bb063e-68fc-4962-9c0d-48d531deca14",
+      "playername": "Oo_Naruto_oO",
+      "wager": 372020
+    },
+    {
+      "uuid": "e26bf908-a3a6-480b-a1dd-1d83316fe8fa",
+      "playername": "TOG_D4rkF4cti0n",
+      "wager": 32000
+    },
+    {
+      "uuid": "ae85a284-35e5-4705-aecb-9e491436765f",
+      "playername": "Traze_Florian",
+      "wager": 10
+    },
+    {
+      "uuid": "18d8a215-618a-3f8a-a44e-c49edf430d42",
+      "playername": "!K4rtoffelpueree",
+      "wager": 64005
+    },
+    {
+      "uuid": "ac01ba6f-d151-41cc-a1b4-2e04460f122f",
+      "playername": "TheRivalHD",
+      "wager": 85
+    },
+    {
+      "uuid": "7345acd9-513e-4425-ba79-1920d9b0157e",
+      "playername": "SmileGrey",
+      "wager": 34035
+    },
+    {
+      "uuid": "1ccc17d7-404d-471e-8ebe-27db736de913",
+      "playername": "Redstonephysiker",
+      "wager": 4020
+    },
+    {
+      "uuid": "86a6ec40-c6b6-4153-bde7-9a0a3e6e717f",
+      "playername": "TanTheBanana",
+      "wager": 1152010
+    },
+    {
+      "uuid": "618a6211-3298-4250-a758-4aeeadbfcb8a",
+      "playername": "jacob_hgn",
+      "wager": 2048000
+    },
+    {
+      "uuid": "2e43cc88-4457-44a0-b907-c3d3b5759106",
+      "playername": "zoomnig",
+      "wager": 20
+    },
+    {
+      "uuid": "3ce0a82b-0329-4426-a208-45c4e2caa1e9",
+      "playername": "Lord_Cancour",
+      "wager": 25
+    },
+    {
+      "uuid": "73ade809-80ff-4b90-8d62-bd4550b686c9",
+      "playername": "TANZVERTOB",
+      "wager": 256005
+    },
+    {
+      "uuid": "59cf7bfa-a22a-4027-a529-f2b945ecdbf9",
+      "playername": "GreenPlasmaTV",
+      "wager": 262065
+    },
+    {
+      "uuid": "a7341b75-cfe2-49c5-b9a8-3405566e1df0",
+      "playername": "Ghambio",
+      "wager": 5
+    },
+    {
+      "uuid": "3bbeb5b7-ad84-3f00-b023-1f12589a1001",
+      "playername": "!Maxi95359",
+      "wager": 400045
+    },
+    {
+      "uuid": "9fbef760-4848-4df0-b765-1f8c502aa1c9",
+      "playername": "TheWolf1904",
+      "wager": 5
+    },
+    {
+      "uuid": "a45a85c2-cf5e-452e-83c2-63ff47c470f3",
+      "playername": "xDieDoriee2005",
+      "wager": 5
+    },
+    {
+      "uuid": "0b364fb9-148e-424c-84ca-c3c98213491b",
+      "playername": "1Supremes_",
+      "wager": 1056025
+    },
+    {
+      "uuid": "1ec39493-f01f-4229-9742-13b66c58f7d8",
+      "playername": "SklnnyBrakka",
+      "wager": 32000
+    },
+    {
+      "uuid": "e9975bcd-1efa-4684-b68d-2c62c8908990",
+      "playername": "ItsLeon06",
+      "wager": 2998080
+    },
+    {
+      "uuid": "12f5f0da-8121-48e8-9cab-0ebff89931da",
+      "playername": "Feuerdrache666",
+      "wager": 1024010
+    },
+    {
+      "uuid": "66b74f63-1f86-491f-8e73-61ce77afd514",
+      "playername": "Papa_Abge",
+      "wager": 7478130
+    },
+    {
+      "uuid": "673a5f54-c1ff-40d3-a059-5e75e75d7d0d",
+      "playername": "0IbimsdaB3nn1",
+      "wager": 5
+    },
+    {
+      "uuid": "39184854-ad19-4ea8-a797-5b7778a640a5",
+      "playername": "PoliceModzXD",
+      "wager": 5
+    },
+    {
+      "uuid": "a76dcec6-593b-43b0-b984-4ce086a49a91",
+      "playername": "WhyStartOver",
+      "wager": 20
+    },
+    {
+      "uuid": "08edf31e-b666-41ad-989f-f2f7c25fa7e3",
+      "playername": "Freshboy756",
+      "wager": 35
+    },
+    {
+      "uuid": "96cd1a0b-313d-4b39-b3e5-aab30c8f3bd4",
+      "playername": "Freshiger",
+      "wager": 10
+    },
+    {
+      "uuid": "24bb0e6c-debf-44f4-a80a-cd0b3b5d130d",
+      "playername": "rxmx099",
+      "wager": 448015
+    },
+    {
+      "uuid": "4f89e778-694c-40b8-b08b-983c56c14964",
+      "playername": "werenator",
+      "wager": 28035
+    },
+    {
+      "uuid": "dbb1da34-4249-37d3-8d61-6661e9ffef92",
+      "playername": "!SieL7461",
+      "wager": 2000
+    },
+    {
+      "uuid": "1ba312b9-c57e-497c-a848-a5eb122c108e",
+      "playername": "Stxned",
+      "wager": 128000
+    },
+    {
+      "uuid": "145be6a1-c63c-4105-b17e-ffc174973a1f",
+      "playername": "Hakkai_Shibaa",
+      "wager": 5
+    },
+    {
+      "uuid": "d1bcc7aa-e3d2-4567-8e21-a11f76f6d1be",
+      "playername": "Pixelmaster1749",
+      "wager": 2005
+    },
+    {
+      "uuid": "b2cdcace-9752-49be-8a69-817cfd27276f",
+      "playername": "MasterofBFD88",
+      "wager": 145
+    },
+    {
+      "uuid": "2a25afe1-8d27-4725-9c01-26ad1ac13dc1",
+      "playername": "justizvollzug",
+      "wager": 5
+    },
+    {
+      "uuid": "695ca7ac-0f67-4967-9174-968ec0307d25",
+      "playername": "ZeroTqo",
+      "wager": 632010
+    },
+    {
+      "uuid": "ce020333-d1c1-41ef-9d22-e5ad886d7c36",
+      "playername": "Raxiders",
+      "wager": 288010
+    },
+    {
+      "uuid": "c2a608a3-ccd5-4500-886d-32125f10ce68",
+      "playername": "McKhadissa",
+      "wager": 112005
+    },
+    {
+      "uuid": "b0c1e0a0-9daa-4b5d-8740-7774ed0d2cd7",
+      "playername": "xPietroSx",
+      "wager": 4005
+    },
+    {
+      "uuid": "2e61125e-2997-40f8-86e0-73dc1e1783d5",
+      "playername": "Big_Mac13",
+      "wager": 2880010
+    },
+    {
+      "uuid": "5c0055b6-cf0e-4c01-b3eb-580a5bdb9f47",
+      "playername": "Gustav008",
+      "wager": 196140
+    },
+    {
+      "uuid": "c00ec9b7-1e5b-411e-b375-21c39b96e576",
+      "playername": "cxnc",
+      "wager": 3262005
+    },
+    {
+      "uuid": "cda72795-deef-4644-982c-ff1d40a82dda",
+      "playername": "Laserstar1904",
+      "wager": 1024010
+    },
+    {
+      "uuid": "782c1cfc-24b8-47b8-906e-2b1ee537238d",
+      "playername": "xAzalia",
+      "wager": 32000
+    },
+    {
+      "uuid": "94a3c242-2bbe-4f67-bc4b-a01cbcfd038e",
+      "playername": "Cevary",
+      "wager": 10
+    },
+    {
+      "uuid": "13fa8eef-db0d-4a53-954c-56a17ddae549",
+      "playername": "paul_kgh",
+      "wager": 5
+    },
+    {
+      "uuid": "81521adf-11bc-4e0e-a8f2-ca0d305b7ed1",
+      "playername": "Cookiebrot",
+      "wager": 20005
+    },
+    {
+      "uuid": "a6b32a72-187b-4990-acbd-cc30cbc0fd48",
+      "playername": "L4TNG",
+      "wager": 1024005
+    },
+    {
+      "uuid": "e1019444-fc30-3c7e-9c99-18684b6c770f",
+      "playername": "!ChefChoch5002",
+      "wager": 12028140
+    },
+    {
+      "uuid": "7d7113ea-6dcc-4c1d-8fc5-519c516cdf83",
+      "playername": "Tim_Rauschebart",
+      "wager": 60010
+    },
+    {
+      "uuid": "a204776e-a9a9-4593-99ba-57d521a279eb",
+      "playername": "WylderSchocki",
+      "wager": 5
+    },
+    {
+      "uuid": "fcdd5ce5-f955-4d67-9459-d3c54b9d4a9c",
+      "playername": "ColdPix0411",
+      "wager": 5
+    },
+    {
+      "uuid": "364377df-dda7-32a2-938f-ceb399a5b378",
+      "playername": "!H2O2KOPF",
+      "wager": 1808110
+    },
+    {
+      "uuid": "0670efb2-6656-4df3-bbe7-c2d5482ed294",
+      "playername": "LotusWNL",
+      "wager": 256010
+    },
+    {
+      "uuid": "68525d55-fccb-3955-bc26-1c8a7df310ec",
+      "playername": "!Krebserreger157",
+      "wager": 5
+    },
+    {
+      "uuid": "8ee120b4-aa7a-4a67-ada2-e641947434e1",
+      "playername": "Xx_xNoaHx_xX",
+      "wager": 5
+    },
+    {
+      "uuid": "76688a33-96ab-481b-818e-eada01d5e11e",
+      "playername": "MSFS_Hunter",
+      "wager": 256005
+    },
+    {
+      "uuid": "e601a334-38f1-4fc2-a950-88ac1f3f629c",
+      "playername": "Ey_bubu",
+      "wager": 5
+    },
+    {
+      "uuid": "5a19f952-222d-33c9-b975-9b0a231d5067",
+      "playername": "!thvskiddo",
+      "wager": 386085
+    },
+    {
+      "uuid": "c05ea90f-2633-3dd8-a5f8-7f0134fcc51d",
+      "playername": "!Bussibaer88",
+      "wager": 1152115
+    },
+    {
+      "uuid": "64b8d49a-e2d5-4307-8e1d-d5df8c17b9ab",
+      "playername": "7Risk7",
+      "wager": 2005
+    },
+    {
+      "uuid": "4d4b1a29-7df3-40ca-b000-36396b63505c",
+      "playername": "icefight555",
+      "wager": 5
+    },
+    {
+      "uuid": "6727df75-6566-480a-b7a4-9c5861b5b133",
+      "playername": "Joni103",
+      "wager": 5
+    },
+    {
+      "uuid": "31bc288c-084f-312a-b559-17ffeb6e64c9",
+      "playername": "!EastCereal00117",
+      "wager": 20
+    },
+    {
+      "uuid": "5b8ab130-6999-49cb-b367-3b68a4d5b8e8",
+      "playername": "Stapelchips88",
+      "wager": 128005
+    },
+    {
+      "uuid": "a78e3830-9251-42a1-92a4-8417578b1113",
+      "playername": "Alexandro16",
+      "wager": 45
+    },
+    {
+      "uuid": "afea0186-30be-4844-bd3e-2691acbe41cd",
+      "playername": "Hardi_BOSS",
+      "wager": 5
+    },
+    {
+      "uuid": "4275f106-f700-4ace-a283-98bb6e17e922",
+      "playername": "Hardstyler86",
+      "wager": 115
+    },
+    {
+      "uuid": "7f89e5b9-4c69-4133-9276-fe7676cf7788",
+      "playername": "Mimbgamer72",
+      "wager": 50
+    },
+    {
+      "uuid": "ebb33304-e2e0-4233-a55e-82a78d57ea2d",
+      "playername": "New_Bambu",
+      "wager": 80
+    },
+    {
+      "uuid": "d844ec83-b4a6-409f-bfe7-836dd0cb1bc2",
+      "playername": "Pano385",
+      "wager": 5
+    },
+    {
+      "uuid": "6083b511-5774-457e-b4bc-7f7c0a7d4f7e",
+      "playername": "taunus08",
+      "wager": 258100
+    },
+    {
+      "uuid": "83dfaa7b-599c-4c59-a18c-4e4e4bc807e6",
+      "playername": "FortKnox13",
+      "wager": 512000
+    },
+    {
+      "uuid": "10ced8d1-7b1c-44ad-8e93-a5f45a336923",
+      "playername": "KillerMeteoroid",
+      "wager": 5
+    },
+    {
+      "uuid": "413e2679-66ba-325e-b3ea-4d6a7f2e4340",
+      "playername": "!UneasyFire12628",
+      "wager": 5
+    },
+    {
+      "uuid": "b1b7c200-0921-3c16-a2e4-fc3c06e259bd",
+      "playername": "!BookOfRaw",
+      "wager": 5
+    },
+    {
+      "uuid": "46350c46-23b8-4743-b10c-fc3d8c6396a8",
+      "playername": "stayzzzz",
+      "wager": 632015
+    },
+    {
+      "uuid": "2aaf63a6-4a77-4e24-865a-6212ae0fce5d",
+      "playername": "Stolli220",
+      "wager": 388035
+    },
+    {
+      "uuid": "650e37f6-ae77-40e7-bdf4-08a8a8616f3a",
+      "playername": "01Bounty",
+      "wager": 2316025
+    },
+    {
+      "uuid": "14a28d49-1dbf-481b-bab0-2f439b924cb6",
+      "playername": "Stoffer345",
+      "wager": 5
+    },
+    {
+      "uuid": "d62f1555-b204-463e-be5d-de126920c1e0",
+      "playername": "Zeyrox_77",
+      "wager": 5
+    },
+    {
+      "uuid": "341c6932-29a1-4052-87e1-eb0738a3f946",
+      "playername": "z0urr",
+      "wager": 15
+    },
+    {
+      "uuid": "a79cdffd-04f5-45e8-8ae2-db0d52c657e9",
+      "playername": "tomiortega1",
+      "wager": 5
+    },
+    {
+      "uuid": "da0bbdaf-8fa6-4313-8ad4-d085d37070b9",
+      "playername": "ConCrafter_Fan",
+      "wager": 736020
+    },
+    {
+      "uuid": "6e6207a6-1351-4dff-9feb-6cb2d9d12684",
+      "playername": "PutzeHierNurXD",
+      "wager": 35
+    },
+    {
+      "uuid": "02bd5306-f19b-409d-bb9e-35bc2b64fd17",
+      "playername": "shredder222",
+      "wager": 35
+    },
+    {
+      "uuid": "a0df83d1-8f54-343e-a590-fb84efc718df",
+      "playername": "!versxfft",
+      "wager": 32005
+    },
+    {
+      "uuid": "949b896b-b1bb-42d3-88a4-35b99f82a257",
+      "playername": "Armin324",
+      "wager": 64010
+    },
+    {
+      "uuid": "038900c1-5690-3fb8-b360-f1e9b10d4295",
+      "playername": "!Jack+Sparrow954",
+      "wager": 45
+    },
+    {
+      "uuid": "5b500764-f13a-3a5a-94e1-286a08471aff",
+      "playername": "!MyAimIsReal1681",
+      "wager": 20
+    },
+    {
+      "uuid": "c71b06dc-8a4e-4457-954b-df3695868ad8",
+      "playername": "KrzyGer",
+      "wager": 272005
+    },
+    {
+      "uuid": "fa32d142-a833-4ea0-b189-35da851f1003",
+      "playername": "Lord_Neo2K",
+      "wager": 128045
+    },
+    {
+      "uuid": "1b496c91-2542-4027-b896-f29ca314109f",
+      "playername": "lofilovis",
+      "wager": 256005
+    },
+    {
+      "uuid": "9fbc42c6-b4e1-46a7-8508-5d4280060d55",
+      "playername": "Constator",
+      "wager": 5
+    },
+    {
+      "uuid": "87a919ef-4986-4601-a79a-14490ceab5d5",
+      "playername": "xNiinoo",
+      "wager": 5
+    },
+    {
+      "uuid": "5393cdee-6c4b-3543-9d60-4a5fc5a7b0a6",
+      "playername": "!Anas123454540",
+      "wager": 5944015
+    },
+    {
+      "uuid": "e2b5c4f7-d3a5-4f7a-beb5-798660923a97",
+      "playername": "Luca187",
+      "wager": 5
+    },
+    {
+      "uuid": "5a54e17c-fef5-486e-bfe8-5c6ca4428d85",
+      "playername": "Sabayen19",
+      "wager": 10
+    },
+    {
+      "uuid": "3874b703-88d9-467e-8376-50579e790cc1",
+      "playername": "btwOke",
+      "wager": 640035
+    },
+    {
+      "uuid": "27de6bf3-fc10-4856-92ea-4efd1f2d6271",
+      "playername": "H34dcut",
+      "wager": 8554070
+    },
+    {
+      "uuid": "21fb877b-cac6-4547-b2e3-946c66d7e983",
+      "playername": "btwLuca",
+      "wager": 40
+    },
+    {
+      "uuid": "6dfccad2-3e17-4d43-8af6-8a9249e72d4c",
+      "playername": "Edeimudi",
+      "wager": 5
+    },
+    {
+      "uuid": "bda4af21-17db-440e-a24d-a5dee81e3b06",
+      "playername": "AirHits4Valle",
+      "wager": 5
+    },
+    {
+      "uuid": "c8584c33-9ea5-4948-929f-3e9e82fce8eb",
+      "playername": "1Matixem",
+      "wager": 5
+    },
+    {
+      "uuid": "51087845-01b6-4565-b0d0-74ef323f930e",
+      "playername": "Lugiuss",
+      "wager": 122015
+    },
+    {
+      "uuid": "6d856cad-b4b5-491d-bf9d-fcc296d7ce76",
+      "playername": "9khoa",
+      "wager": 512010
+    },
+    {
+      "uuid": "a06a60a2-4ba2-4840-824b-1cdb880c9b69",
+      "playername": "MrNoast",
+      "wager": 64010
+    },
+    {
+      "uuid": "84309eed-f98b-4244-b672-04774aeca3b1",
+      "playername": "Pawel_PI",
+      "wager": 128045
+    },
+    {
+      "uuid": "f37cfd52-d4d6-4e54-b2ef-07ff3a801f98",
+      "playername": "Ilyas201301",
+      "wager": 5
+    },
+    {
+      "uuid": "b7923d55-0401-4935-8013-733ca2b1f70e",
+      "playername": "SneaX_Jo",
+      "wager": 10
+    },
+    {
+      "uuid": "479a66db-9a24-3996-bc05-dc7c014e37a9",
+      "playername": "!MaxMusterman396",
+      "wager": 20
+    },
+    {
+      "uuid": "336b16ba-fedf-31bd-8e9d-0308577a551d",
+      "playername": "!GreenPlasma2",
+      "wager": 10
+    },
+    {
+      "uuid": "ab6026af-e2c1-3d6a-ae34-87cc8de7c1bb",
+      "playername": "!taunus08",
+      "wager": 10
+    },
+    {
+      "uuid": "4f788c3c-4854-4902-b2c0-55f72dc41a6b",
+      "playername": "FxkeGhxst",
+      "wager": 5
+    },
+    {
+      "uuid": "679fbe55-e716-4db9-81a5-b27d18d9fd67",
+      "playername": "SuperFlummi",
+      "wager": 1024005
+    },
+    {
+      "uuid": "fd1ce588-7c63-3d27-971b-4aadbba61273",
+      "playername": "!Audrey1977",
+      "wager": 10
+    },
+    {
+      "uuid": "3641e4e6-b3a8-3701-b674-bdf86d6d67d5",
+      "playername": "!chrollo4871",
+      "wager": 5
+    },
+    {
+      "uuid": "d8de2a1c-d266-4ac3-8701-db1d1151629f",
+      "playername": "Sainyy",
+      "wager": 576020
+    },
+    {
+      "uuid": "379f44bf-8f89-4a94-a7f0-fba371222f8e",
+      "playername": "Wave_Robin",
+      "wager": 256005
+    },
+    {
+      "uuid": "a0778b74-1273-3abc-b498-6f483a9c05a4",
+      "playername": "!GreenPlasma4205",
+      "wager": 5
+    },
+    {
+      "uuid": "170b014a-31cb-4265-a29f-d438792e5def",
+      "playername": "MotteFlamme7530",
+      "wager": 12000
+    },
+    {
+      "uuid": "fe32a782-4e8e-3e5f-98fe-7d0353921605",
+      "playername": "!ItsBomber47",
+      "wager": 7276075
+    },
+    {
+      "uuid": "bcf1efb2-1069-35dd-bbbd-913e10390e7d",
+      "playername": "!Farfuss293",
+      "wager": 5
+    },
+    {
+      "uuid": "6bb2d4a6-8002-4829-a018-f670be58e660",
+      "playername": "BrokkoliBlock",
+      "wager": 30
+    },
+    {
+      "uuid": "03099d4c-232f-480a-a158-15170926dfff",
+      "playername": "VailingOrca1334",
+      "wager": 5
+    },
+    {
+      "uuid": "6c5c1987-a31d-4c57-af69-edd118ff27f8",
+      "playername": "itszonno",
+      "wager": 5
+    },
+    {
+      "uuid": "5b90658a-7697-4ad9-9984-64138db90ab3",
+      "playername": "Live2_ItzTim",
+      "wager": 5
+    },
+    {
+      "uuid": "5c08c63a-d379-4a19-a947-d02f130f6f57",
+      "playername": "Herogamer859125",
+      "wager": 32015
+    },
+    {
+      "uuid": "1fd3a8e3-0a32-4de4-9dc1-53456d4be618",
+      "playername": "blizzard_8",
+      "wager": 2158010
+    },
+    {
+      "uuid": "45cc08e7-159e-4de6-8a8a-8ba00637476f",
+      "playername": "yasin2613862",
+      "wager": 5
+    },
+    {
+      "uuid": "679ae9aa-1bc8-418f-857b-cdb5f196c17c",
+      "playername": "chaostobi_",
+      "wager": 1024020
+    },
+    {
+      "uuid": "57f6394e-5fa9-413d-8d02-21633f9a6b93",
+      "playername": "Shadowsnipe5673",
+      "wager": 136000
+    },
+    {
+      "uuid": "750d7d3d-64ae-473e-96cf-b1dde1cca693",
+      "playername": "snayzii",
+      "wager": 12020
+    },
+    {
+      "uuid": "aac99d09-92a7-482b-bd74-2847b5aab5be",
+      "playername": "PowerValli",
+      "wager": 2050
+    },
+    {
+      "uuid": "66c03319-8428-36bb-8374-274acdc041c5",
+      "playername": "!Voalle5000",
+      "wager": 10
+    },
+    {
+      "uuid": "270b6682-a309-42e9-a885-19cad9ad0e2b",
+      "playername": "TheJannisKing",
+      "wager": 60020
+    },
+    {
+      "uuid": "526b0034-e2ff-4f87-bb81-5418e9da75f4",
+      "playername": "dadarki_jr5",
+      "wager": 74005
+    },
+    {
+      "uuid": "1d34d7e7-0d54-4e33-a1b9-f009ac732320",
+      "playername": "Wieedii",
+      "wager": 124030
+    },
+    {
+      "uuid": "22aef9bb-59b5-49fe-8278-4f23e07f372e",
+      "playername": "YUGU64",
+      "wager": 5
+    },
+    {
+      "uuid": "25218d12-0955-49a2-9d1c-9d3c36a18bc4",
+      "playername": "Julian442",
+      "wager": 18020
+    },
+    {
+      "uuid": "7e8fd811-0d18-4814-873e-21bc05ff8e0e",
+      "playername": "doominikkk",
+      "wager": 5
+    },
+    {
+      "uuid": "dd702935-94f8-43a7-bc74-4183ae6a9afe",
+      "playername": "Minemax963",
+      "wager": 72005
+    },
+    {
+      "uuid": "1705f7b1-07bb-45b6-9513-1ae98e2ac871",
+      "playername": "_Mr_Melone_2206_",
+      "wager": 5
+    },
+    {
+      "uuid": "249d04d0-d7fd-4dc2-9782-38feee5e090b",
+      "playername": "Darettich",
+      "wager": 10
+    },
+    {
+      "uuid": "ef3979fb-654a-3120-b0a9-31acea0a349d",
+      "playername": "!Kzrdo4747",
+      "wager": 5
+    },
+    {
+      "uuid": "c18e51a8-8018-4ee4-8342-9e7fec2d6cb5",
+      "playername": "JxnnickMC",
+      "wager": 128005
+    },
+    {
+      "uuid": "792b193b-8423-3368-a759-aae3d2bb657b",
+      "playername": "!Darettich",
+      "wager": 5
+    },
+    {
+      "uuid": "35fe2cfe-4a49-4529-aa26-b9de3d90745d",
+      "playername": "QuelleHD",
+      "wager": 196000
+    },
+    {
+      "uuid": "d5e6eb52-de2f-4dfa-8d7e-15a00d388aab",
+      "playername": "Lukas2010_",
+      "wager": 4994000
+    },
+    {
+      "uuid": "f58ef998-db42-47d9-b4b9-d9951880844b",
+      "playername": "Pascoqualle",
+      "wager": 5
+    },
+    {
+      "uuid": "464ec473-39dc-46da-9017-19ba3de34abd",
+      "playername": "IcedOutNoFlex",
+      "wager": 512000
+    },
+    {
+      "uuid": "bbe42e12-4861-4ac2-a786-7b32fefacbaf",
+      "playername": "1JannisMc",
+      "wager": 128010
+    },
+    {
+      "uuid": "db07143c-6627-421f-a12f-0eaf615d9864",
+      "playername": "Bademeister01",
+      "wager": 10
+    },
+    {
+      "uuid": "74b6edee-b46f-449c-a7fc-cf2ffd43a901",
+      "playername": "killu89",
+      "wager": 512035
+    },
+    {
+      "uuid": "b96d11de-a2c7-44d9-8b98-ba86c9b09eac",
+      "playername": "Gameking1240",
+      "wager": 3600095
+    },
+    {
+      "uuid": "adf3ba5a-4d75-3a6f-9c1b-097dd1166b9d",
+      "playername": "!bubatzz5884",
+      "wager": 256005
+    },
+    {
+      "uuid": "47a6108d-14cc-39d4-80e2-b32998f31a77",
+      "playername": "!LoewePunzel11",
+      "wager": 5
+    },
+    {
+      "uuid": "547b4c9b-ef8d-3704-a99b-4cf9fe4ca625",
+      "playername": "!Premiumman8315",
+      "wager": 5
+    },
+    {
+      "uuid": "b872e1f1-5659-4cbe-9ba7-9b89a4f8cd23",
+      "playername": "ScamYou",
+      "wager": 5
+    },
+    {
+      "uuid": "2dc00421-3ddf-478f-aab5-b2930e4b69ba",
+      "playername": "itsmoneee",
+      "wager": 5
+    },
+    {
+      "uuid": "3e5e7c68-8498-477f-8d5a-7ddb645d1429",
+      "playername": "TheWuppelHD",
+      "wager": 256000
+    },
+    {
+      "uuid": "db3167b5-d5f6-44aa-ba5c-4b1eacd0a31c",
+      "playername": "Norwayghost10",
+      "wager": 10
+    },
+    {
+      "uuid": "f1f5cfdb-a4fd-44c3-9c48-da4c36e63205",
+      "playername": "BrrBrrBatabim",
+      "wager": 128005
+    },
+    {
+      "uuid": "8f88057f-aa71-42da-94b2-c058c038520a",
+      "playername": "Crazy_Jeremy",
+      "wager": 5
+    },
+    {
+      "uuid": "b861ea66-dee4-4d99-9cd1-94445f35330f",
+      "playername": "117p",
+      "wager": 10
+    },
+    {
+      "uuid": "45386784-e80f-43c9-928e-6dcc49e9d556",
+      "playername": "CALIMINISTER",
+      "wager": 5
+    },
+    {
+      "uuid": "c15ac923-12db-39be-9c23-3feb42be1397",
+      "playername": "!Dynamo96554219",
+      "wager": 256005
+    },
+    {
+      "uuid": "c34ed06d-96e9-4afc-ade3-5f411ae7f862",
+      "playername": "123IchBinHigh",
+      "wager": 5
+    },
+    {
+      "uuid": "ea0ce975-23df-4e35-ad42-f61672fd8783",
+      "playername": "Spawner4Free",
+      "wager": 256030
+    },
+    {
+      "uuid": "aa5185da-c6f7-3d35-8878-bde094737f22",
+      "playername": "!Xaloelind",
+      "wager": 16000
+    },
+    {
+      "uuid": "8a9df7f7-4cca-4d13-9cbc-d014a0261c96",
+      "playername": "EinfachCloud",
+      "wager": 1216010
+    },
+    {
+      "uuid": "9713fa93-3a03-450a-931a-099c06b490fb",
+      "playername": "Oskus203",
+      "wager": 10
+    },
+    {
+      "uuid": "c7a1e4d3-7df0-4d26-a4d3-ce1da9014c28",
+      "playername": "AgbegriftHD",
+      "wager": 4980090
+    },
+    {
+      "uuid": "b7522865-b010-40d2-83b4-6944f8ab5828",
+      "playername": "XayahLore",
+      "wager": 5
+    },
+    {
+      "uuid": "73bfaea0-2f38-4759-8e32-6aff12b6aa99",
+      "playername": "mausi3131",
+      "wager": 640010
+    },
+    {
+      "uuid": "9208ef74-e0b8-4b59-a93a-601274dd27d0",
+      "playername": "Ch4rlyH4rper",
+      "wager": 5
+    },
+    {
+      "uuid": "7a22299a-322c-4129-9809-5ba82f555db0",
+      "playername": "JoneBone09",
+      "wager": 5952045
+    },
+    {
+      "uuid": "2c957d1d-615c-483d-bd12-89ac8020d996",
+      "playername": "Moralfraud",
+      "wager": 10
+    },
+    {
+      "uuid": "64417562-268b-4056-be7e-6b21eace913b",
+      "playername": "tio_msmc_hir",
+      "wager": 16005
+    },
+    {
+      "uuid": "7b49ad89-994b-4c63-9cb7-0e729428a7b8",
+      "playername": "SpawnPlotReport",
+      "wager": 5
+    },
+    {
+      "uuid": "719bd92d-0f3e-3083-a4e0-bf4ec3fd330a",
+      "playername": "!Staugsauber",
+      "wager": 30
+    },
+    {
+      "uuid": "e7e54956-a5db-407a-a0fd-a783c8e20def",
+      "playername": "best_player_500",
+      "wager": 5
+    },
+    {
+      "uuid": "edbd33aa-d69b-3de5-8792-62f7ac69ee2b",
+      "playername": "!Hogger8181",
+      "wager": 948025
+    },
+    {
+      "uuid": "c513f788-6ce5-44a5-b9bd-0b5bcf2641f5",
+      "playername": "SleepyIceBearr",
+      "wager": 128000
+    },
+    {
+      "uuid": "f74f4912-ed91-4c7b-bd63-a322b15ed4da",
+      "playername": "Moin42",
+      "wager": 1792015
+    },
+    {
+      "uuid": "5092da55-37ff-4c6c-86db-a34f242d912e",
+      "playername": "BvBmanu",
+      "wager": 30
+    },
+    {
+      "uuid": "0e2a1aea-92f7-4b36-a400-f9f7b20ecb90",
+      "playername": "Hxrmlose",
+      "wager": 45
+    },
+    {
+      "uuid": "e8931313-6183-4690-a38d-2bc80441bf26",
+      "playername": "zJonaas",
+      "wager": 512000
+    },
+    {
+      "uuid": "3c4b68c6-13eb-40d3-9731-58ae07c42f91",
+      "playername": "R0seofWhite",
+      "wager": 35
+    },
+    {
+      "uuid": "a3f65f29-3db6-46d3-8175-e3a92b0869d1",
+      "playername": "Sumsiiii",
+      "wager": 5
+    },
+    {
+      "uuid": "a5e423e6-989d-41ae-b0ff-a96861272ac4",
+      "playername": "ThousandSanni",
+      "wager": 5
+    },
+    {
+      "uuid": "f9dea61f-bcf5-4b4a-b8f3-0ba1ca8e870d",
+      "playername": "voyzeg",
+      "wager": 5
+    },
+    {
+      "uuid": "89464a34-2c0f-4757-b45f-9e0423f03fa3",
+      "playername": "IceCreamZocker",
+      "wager": 5
+    },
+    {
+      "uuid": "0e99f82e-abae-3377-bc0a-d40ef442d79a",
+      "playername": "!Luca6474",
+      "wager": 32005
+    },
+    {
+      "uuid": "93780024-52c2-4ecc-89f1-a04799f378ba",
+      "playername": "B0B_TheFarmer",
+      "wager": 5
+    },
+    {
+      "uuid": "74f57d04-70db-468a-9b3e-480442b87b06",
+      "playername": "Mewtu32",
+      "wager": 16000
+    },
+    {
+      "uuid": "44008ee2-a855-38e7-bb5d-dd14e6c2959e",
+      "playername": "!mustafa2002106",
+      "wager": 30
+    },
+    {
+      "uuid": "ea9b1b08-098b-3180-bc66-4eaa3a98ab4e",
+      "playername": "!gof1k",
+      "wager": 96010
+    },
+    {
+      "uuid": "6ff73979-f361-4331-b5e2-ffaf7de2eadf",
+      "playername": "UrpilZ",
+      "wager": 128000
+    },
+    {
+      "uuid": "de553425-276e-4a32-9273-73410a5663d5",
+      "playername": "Max99651787",
+      "wager": 6130
+    },
+    {
+      "uuid": "3f118713-41b8-43a1-862a-2dc424015479",
+      "playername": "Night_Fabian",
+      "wager": 32005
+    },
+    {
+      "uuid": "dd82da41-7423-3127-a7b0-7529f15f43ae",
+      "playername": "!DiamantGamer713",
+      "wager": 10
+    },
+    {
+      "uuid": "89ac1168-2d31-394a-ad53-4ca22b11d035",
+      "playername": "!Enes+Meral6378",
+      "wager": 5
+    },
+    {
+      "uuid": "a6b2204c-3154-4926-96b8-a6c1dc6df77c",
+      "playername": "drchenreiter",
+      "wager": 6560130
+    },
+    {
+      "uuid": "cb9dbf81-30a6-3de0-9898-2850e3185e1f",
+      "playername": "!Vone1989",
+      "wager": 95
+    },
+    {
+      "uuid": "926f32d3-1d02-4611-b169-bb504feb999e",
+      "playername": "Toxid_Lucas",
+      "wager": 128005
+    },
+    {
+      "uuid": "91177c40-9c93-4852-ab9e-c4b815d5ec3a",
+      "playername": "Kackstreifen1",
+      "wager": 5
+    },
+    {
+      "uuid": "cd07acc9-6e77-4470-ace5-17095bc1761a",
+      "playername": "GamerGecko13",
+      "wager": 10
+    },
+    {
+      "uuid": "74f561d8-940e-46b2-9dea-81c6e4ace61c",
+      "playername": "Das_FresheZucker",
+      "wager": 5
+    },
+    {
+      "uuid": "ba53e7cf-0ff5-4704-b0c2-08ecf3715d6f",
+      "playername": "Wilthener",
+      "wager": 1024000
+    },
+    {
+      "uuid": "e752df43-73c9-4b95-8266-87bbb9894d88",
+      "playername": "cistri404",
+      "wager": 16000
+    },
+    {
+      "uuid": "673a786c-a67c-457c-a6c0-1c2b58147161",
+      "playername": "dereuchabzieht",
+      "wager": 32005
+    },
+    {
+      "uuid": "50b47573-d5b7-3eef-8048-798c2a0b25e3",
+      "playername": "!Salvogamer12",
+      "wager": 464025
+    },
+    {
+      "uuid": "f1d63101-4ec0-423c-8b06-73c0392132b1",
+      "playername": "TDXRMark",
+      "wager": 5
+    },
+    {
+      "uuid": "40b9c73a-ec73-4708-bad8-672bdf769fdd",
+      "playername": "LeijayHD",
+      "wager": 128010
+    },
+    {
+      "uuid": "096deba4-31e4-4870-a655-aa07e7740f15",
+      "playername": "KampfKarotte44",
+      "wager": 128005
+    },
+    {
+      "uuid": "2ea88dfa-d3a4-4314-ad20-7dd617cf7865",
+      "playername": "AnubisLTD",
+      "wager": 10
+    },
+    {
+      "uuid": "8ff0df0c-a1b9-4214-9575-d44035489497",
+      "playername": "LaBonza",
+      "wager": 100
+    },
+    {
+      "uuid": "82d396af-b2ca-4327-9c4a-0408cccda157",
+      "playername": "FakeSuperHD",
+      "wager": 5
+    },
+    {
+      "uuid": "91a10104-e8ea-4cd0-a8f6-106c401df115",
+      "playername": "VirusXL",
+      "wager": 5632010
+    },
+    {
+      "uuid": "f390a057-544c-46dc-8d5f-a8aa5ee7fb39",
+      "playername": "phillix1",
+      "wager": 5
+    },
+    {
+      "uuid": "0b3dd007-03b6-4b01-9576-428e03f23418",
+      "playername": "MissMaya16",
+      "wager": 56005
+    },
+    {
+      "uuid": "97e8c443-1648-4f86-b8cf-d7308b33c49a",
+      "playername": "IchBinEinKeks01",
+      "wager": 1536000
+    },
+    {
+      "uuid": "2159d864-066d-4eed-acda-daaaa438dc09",
+      "playername": "SquexDerFlipFlop",
+      "wager": 15
+    },
+    {
+      "uuid": "04210d6a-7aab-47bb-b4d7-1197d34b8f4b",
+      "playername": "Kxllua2",
+      "wager": 32000
+    },
+    {
+      "uuid": "be4384b0-224b-4ed4-8c62-411e6cd01a59",
+      "playername": "EinBlitzz",
+      "wager": 144005
+    },
+    {
+      "uuid": "561efc06-1917-4cef-961d-4c68d6b94ae7",
+      "playername": "ZehnKosinus365",
+      "wager": 125
+    },
+    {
+      "uuid": "e62267c9-eb13-4996-b1d4-e3666fcc0afa",
+      "playername": "Toasti222",
+      "wager": 30010
+    },
+    {
+      "uuid": "c539bb85-d167-4de4-b845-bca0eb9250a6",
+      "playername": "Momo_best21",
+      "wager": 4096005
+    },
+    {
+      "uuid": "4247cfdd-2201-4d80-a039-0ff577658ada",
+      "playername": "ClapByMarlon",
+      "wager": 4010
+    },
+    {
+      "uuid": "0925f292-63c2-4c6e-a28f-29030aefa68d",
+      "playername": "PlasmaAndre2004",
+      "wager": 10
+    },
+    {
+      "uuid": "ad883fed-465b-4aca-a176-a3b74f4c4b98",
+      "playername": "CreepaTv",
+      "wager": 5
+    },
+    {
+      "uuid": "92f29777-92df-4ec6-b501-09c25dbdae0d",
+      "playername": "Nicoderlustige",
+      "wager": 12005
+    },
+    {
+      "uuid": "993437bb-a5b3-491a-8ccf-0482a5ceb9bf",
+      "playername": "Ecreator05",
+      "wager": 1042025
+    },
+    {
+      "uuid": "fa6a8738-a583-3ab1-a24f-20662866de12",
+      "playername": "!ReedyFerret999",
+      "wager": 30
+    },
+    {
+      "uuid": "8259b623-b41b-4103-8fe6-b3f7cefcc69b",
+      "playername": "DieMatheHeft",
+      "wager": 5
+    },
+    {
+      "uuid": "0805c507-561d-462e-86cf-9a4cfae89451",
+      "playername": "EljeroW",
+      "wager": 15
+    },
+    {
+      "uuid": "8c94ac33-5bd7-498d-8333-e0dbe8644d7d",
+      "playername": "TheBlauBlock",
+      "wager": 5
+    },
+    {
+      "uuid": "c6a6d4a3-c1e7-46e4-845c-71baa0bbd6a1",
+      "playername": "suboyu",
+      "wager": 1536005
+    },
+    {
+      "uuid": "1850ca86-8803-41e9-b2c7-1ba2dad4fdca",
+      "playername": "Nono_2686",
+      "wager": 244010
+    },
+    {
+      "uuid": "c94c02f1-e270-4bed-8d23-ef53090ce55e",
+      "playername": "Mickey9919",
+      "wager": 105
+    },
+    {
+      "uuid": "293da0f1-59ee-4245-a821-750dbf1b5208",
+      "playername": "TD52",
+      "wager": 5
+    },
+    {
+      "uuid": "aec0bfdb-c974-4f9a-8066-ffb9ef584a97",
+      "playername": "Ahmmo_189",
+      "wager": 482010
+    },
+    {
+      "uuid": "21b9d75c-2b1b-4688-8b0f-e591889d38b5",
+      "playername": "Obstig",
+      "wager": 256005
+    },
+    {
+      "uuid": "37dd68c0-ee30-4249-a05c-e08ea43c487f",
+      "playername": "Tims2acc",
+      "wager": 5
+    },
+    {
+      "uuid": "d395d40c-2445-42aa-9711-0475ffba3723",
+      "playername": "GibMalCash",
+      "wager": 5
+    },
+    {
+      "uuid": "c8c7e5de-6ef6-4162-bfd8-5a6eb97950a0",
+      "playername": "Drachenzocker00",
+      "wager": 6005
+    },
+    {
+      "uuid": "9731ffe5-6b86-4d96-b82f-c96076a564ab",
+      "playername": "tnam_1",
+      "wager": 5
+    },
+    {
+      "uuid": "565112e7-deb9-4dd6-bb05-27f2f7da16d5",
+      "playername": "GeG712",
+      "wager": 268005
+    },
+    {
+      "uuid": "3d2ef005-0a86-43c1-ae02-61cf8dd7af8f",
+      "playername": "ItzZ_NeoxX",
+      "wager": 10
+    },
+    {
+      "uuid": "fe7fc3b1-2a5d-4547-ad1b-d3e77bdd4bc1",
+      "playername": "vxRxpz",
+      "wager": 5
+    },
+    {
+      "uuid": "ef0bb7d6-a0df-48ed-b1ad-0077d68fb906",
+      "playername": "Reiox_",
+      "wager": 256005
+    },
+    {
+      "uuid": "5e0a88cd-d1e9-4c6c-b8e9-23d7ccb954bf",
+      "playername": "ItsBomber47",
+      "wager": 258025
+    },
+    {
+      "uuid": "d3608027-b472-483c-9a2d-95e6a8e1afe0",
+      "playername": "AndroMeister",
+      "wager": 128000
+    },
+    {
+      "uuid": "c6a6e68b-815b-4c1f-bfc4-8b928fb9014e",
+      "playername": "1Teezy",
+      "wager": 5
+    },
+    {
+      "uuid": "2abff1fb-33c2-36d0-ac6d-124621bdc02a",
+      "playername": "!GrafBrotIstDa",
+      "wager": 144070
+    },
+    {
+      "uuid": "2e3a5272-8548-4b4e-8b94-c3dba772e6a5",
+      "playername": "Namenloser__Held",
+      "wager": 5
+    },
+    {
+      "uuid": "597385db-24e4-4429-bce3-ad89df1c2346",
+      "playername": "AahJuxan",
+      "wager": 5
+    },
+    {
+      "uuid": "64232afd-d36e-4327-807c-17599aca371e",
+      "playername": "F1ton069",
+      "wager": 5
+    },
+    {
+      "uuid": "b0821815-aba6-4e2f-84fb-b11777f59aa4",
+      "playername": "Kurumi7016",
+      "wager": 64000
+    },
+    {
+      "uuid": "3554a68d-f205-4691-a9f9-fb6207b89110",
+      "playername": "01Recumm",
+      "wager": 4128005
+    },
+    {
+      "uuid": "4f9d1e97-6618-4602-9d9a-6458d4b8c19f",
+      "playername": "bobokMann22",
+      "wager": 104005
+    },
+    {
+      "uuid": "dbf69896-8a0d-454a-935d-e48e08503138",
+      "playername": "7coco7_",
+      "wager": 96005
+    },
+    {
+      "uuid": "19aa5d5b-cc4c-4c8e-b6c4-a1b919c05e2f",
+      "playername": "MoinDario",
+      "wager": 1536000
+    },
+    {
+      "uuid": "a856648e-7051-4766-9e87-4b82cc65167a",
+      "playername": "Floose_03",
+      "wager": 1074030
+    },
+    {
+      "uuid": "2cba056e-7a57-44f1-ae3b-d9fcc9351437",
+      "playername": "tayun_",
+      "wager": 10
+    },
+    {
+      "uuid": "79f0a85b-8f06-4e25-94e7-8978095f0144",
+      "playername": "otestotorsten",
+      "wager": 272000
+    },
+    {
+      "uuid": "9bc093d0-a3c1-41a9-ab47-0aceb529e8a0",
+      "playername": "L4CHSN4CKEN",
+      "wager": 75
+    },
+    {
+      "uuid": "74d053b6-1d6e-3396-b630-a84b790aaa56",
+      "playername": "!Monster123934",
+      "wager": 10
+    },
+    {
+      "uuid": "4de450e0-604e-4099-a16e-30b0f2e4b69c",
+      "playername": "Baby2blxck",
+      "wager": 512005
+    },
+    {
+      "uuid": "82624c60-97aa-4783-af25-ec49f175d577",
+      "playername": "Prestii7",
+      "wager": 1280005
+    },
+    {
+      "uuid": "62c4538a-80b5-4864-8262-b360ba758c6d",
+      "playername": "FreakyGrafSushi",
+      "wager": 5
+    },
+    {
+      "uuid": "48803179-32b6-301b-a5a7-c788b544788a",
+      "playername": "!Monsterino5957",
+      "wager": 5
+    },
+    {
+      "uuid": "16b8af1d-df10-4648-aba0-8405e507f2f8",
+      "playername": "Graefin_Lilly",
+      "wager": 5
+    },
+    {
+      "uuid": "d4b54835-b843-4e17-9cd9-6e4e776d7eaf",
+      "playername": "DrGrieferGames",
+      "wager": 5
+    },
+    {
+      "uuid": "d30c51e9-ee6b-4c50-8b5b-97bc5698fb27",
+      "playername": "Ace_of_Griefer",
+      "wager": 5
+    },
+    {
+      "uuid": "9f454163-831d-40d4-a19e-55c2a2cf259c",
+      "playername": "Graf_Stelz",
+      "wager": 5
+    },
+    {
+      "uuid": "208b0a16-df15-417c-8fc1-9bbfcabef746",
+      "playername": "TriHardBoy2024",
+      "wager": 5
+    },
+    {
+      "uuid": "4a194f94-1f4e-455d-b6a4-21c879724502",
+      "playername": "FreakyGrafKekW",
+      "wager": 5
+    },
+    {
+      "uuid": "f17821f4-6507-41c3-a02f-20c3f1e00d1d",
+      "playername": "hardlife4you",
+      "wager": 5
+    },
+    {
+      "uuid": "c017192a-7288-4418-b578-8f39f10f7e08",
+      "playername": "DrKult",
+      "wager": 5
+    },
+    {
+      "uuid": "82586818-0a1d-4ebf-9530-24ab6e8d8dcd",
+      "playername": "Traumblau",
+      "wager": 5
+    },
+    {
+      "uuid": "38a111c5-4016-4ca6-9477-77b515354619",
+      "playername": "Kuttendeckel90",
+      "wager": 384000
+    },
+    {
+      "uuid": "c2ecae0f-2453-487a-84b1-ef8d6e2053c0",
+      "playername": "ppmonster123",
+      "wager": 512025
+    },
+    {
+      "uuid": "86ec28c9-78a1-4a81-9cd4-5a02023877b8",
+      "playername": "leqedRisk",
+      "wager": 32000
+    },
+    {
+      "uuid": "04d84937-3b6a-4f64-a27d-c3f2eb0f715e",
+      "playername": "FazeLui",
+      "wager": 216005
+    },
+    {
+      "uuid": "92fbf49e-9528-4b6c-aa5c-bd5e440f0996",
+      "playername": "PritFrit",
+      "wager": 35
+    },
+    {
+      "uuid": "632982d0-f715-42f5-ac7b-340980a8238d",
+      "playername": "Spraqzy",
+      "wager": 5
+    },
+    {
+      "uuid": "49d47ce7-5223-4f6f-b990-82678f11921d",
+      "playername": "M3R1S_49",
+      "wager": 5
+    },
+    {
+      "uuid": "a87e751c-4889-47c1-be85-8dd4aef7ca86",
+      "playername": "Bankautomat187",
+      "wager": 5
+    },
+    {
+      "uuid": "decb398a-a81c-4dd6-b26c-7fb8a69d2d4a",
+      "playername": "1banz",
+      "wager": 1024070
+    },
+    {
+      "uuid": "0b29bab4-0f60-41d3-b0c4-514ea841bca4",
+      "playername": "PawoBey",
+      "wager": 256005
+    },
+    {
+      "uuid": "95b3d2b4-e2ef-4d0a-b520-7e95f597d4b0",
+      "playername": "yxbmarvin",
+      "wager": 256005
+    },
+    {
+      "uuid": "b0021481-2fb2-4804-97ed-183c37231a09",
+      "playername": "fainth",
+      "wager": 3584020
+    },
+    {
+      "uuid": "1d928e0a-fc7a-46cb-a70d-ba3ae6a70b5d",
+      "playername": "Maggei50",
+      "wager": 104005
+    },
+    {
+      "uuid": "6858e9e2-a19c-450f-b9c8-02a4582cfce5",
+      "playername": "Vip1r",
+      "wager": 128000
+    },
+    {
+      "uuid": "e4f5f92a-2b8d-4180-bfac-b35e25c1fae7",
+      "playername": "Schneebesenn",
+      "wager": 5
+    },
+    {
+      "uuid": "6129b69d-6c64-478b-b7ba-25e7bd0bc7c7",
+      "playername": "Semulein",
+      "wager": 5
+    },
+    {
+      "uuid": "51190d89-ccf6-435f-ba8c-9c46e554d776",
+      "playername": "AvakaiCS",
+      "wager": 78005
+    },
+    {
+      "uuid": "3fc16969-6421-48c8-9160-a18963c96eaa",
+      "playername": "LEO040404",
+      "wager": 5
+    },
+    {
+      "uuid": "cb14cfb7-42d0-489c-8996-08d40a26503b",
+      "playername": "Nikdas1234",
+      "wager": 80000
+    },
+    {
+      "uuid": "9c748b42-4d5d-40f1-be74-f21b96ab667f",
+      "playername": "BySlowlyyy",
+      "wager": 1024000
+    },
+    {
+      "uuid": "a6b1b9ec-2d57-4187-8841-458a954d1964",
+      "playername": "Nikl3s",
+      "wager": 384010
+    },
+    {
+      "uuid": "03fb83c6-6498-4281-933c-c52984dec2a3",
+      "playername": "Doppelbemme",
+      "wager": 112005
+    },
+    {
+      "uuid": "e7130af6-08db-4dde-8639-6fd50d94d4f4",
+      "playername": "Quyoo",
+      "wager": 5
+    },
+    {
+      "uuid": "a7424648-b893-440c-856e-3f6df85928f2",
+      "playername": "YTEnforced",
+      "wager": 5
+    },
+    {
+      "uuid": "4056feb3-72d9-4c91-a0c1-cf74debcb70a",
+      "playername": "_Kingzzz_",
+      "wager": 960010
+    },
+    {
+      "uuid": "7473846d-e778-4e2b-a389-b020271cd649",
+      "playername": "MrBinford",
+      "wager": 10
+    },
+    {
+      "uuid": "97acf1e5-952c-4eec-8f5d-8b9cc3b5229f",
+      "playername": "InvestInSPX6900",
+      "wager": 112000
+    },
+    {
+      "uuid": "a0482f6b-6852-4bb1-87bf-437cf219b8fd",
+      "playername": "Venquzo",
+      "wager": 15
+    },
+    {
+      "uuid": "b7ccfa2a-d73b-4bc5-98e3-dfe422506a11",
+      "playername": "MusstDuSelner",
+      "wager": 5
+    },
+    {
+      "uuid": "b2456b03-7004-4f04-be00-e4d6c2294f1a",
+      "playername": "BinDerAndere",
+      "wager": 5
+    },
+    {
+      "uuid": "e6ef0747-161a-45a4-a8f9-c168784ead00",
+      "playername": "Susydoge",
+      "wager": 392015
+    },
+    {
+      "uuid": "e4051a8e-080b-4e1d-8689-63e21175cdfc",
+      "playername": "WintersinoCBE",
+      "wager": 5
+    },
+    {
+      "uuid": "80fbd331-a60d-4fa4-be8a-4826ad813294",
+      "playername": "unwichtiqer",
+      "wager": 20
+    },
+    {
+      "uuid": "8ed05d28-3023-3db5-8e65-da91fb01b8e1",
+      "playername": "!Greepher1000",
+      "wager": 15
+    },
+    {
+      "uuid": "4ad4d16d-8e92-4ed2-a593-44d5495bcd47",
+      "playername": "SchickFussbild",
+      "wager": 5
+    },
+    {
+      "uuid": "8e89d01c-0c01-3f48-94e7-4db379a3a6e9",
+      "playername": "!Freaky8741",
+      "wager": 145
+    },
+    {
+      "uuid": "dce4b840-b794-414b-9056-be507c791947",
+      "playername": "Freaky6666",
+      "wager": 15
+    },
+    {
+      "uuid": "00d82f96-b56a-4307-95bd-f398c6dbc6b6",
+      "playername": "RuhrtypNRW",
+      "wager": 512005
+    },
+    {
+      "uuid": "6617d9b4-b694-4aea-8334-ff5b5df2524c",
+      "playername": "HansBratiGeming",
+      "wager": 10
+    },
+    {
+      "uuid": "000c9676-f43f-4ba7-86ab-78138f09615a",
+      "playername": "xW33dSt4Rx",
+      "wager": 5
+    },
+    {
+      "uuid": "b99f2deb-78e0-4867-beb0-9ecb6067b06c",
+      "playername": "FortnitePro_LM",
+      "wager": 5
+    },
+    {
+      "uuid": "ad07fead-724a-3ab2-8c99-72e3611c3230",
+      "playername": "!Hexe24051",
+      "wager": 5
+    },
+    {
+      "uuid": "c936893d-f352-3f10-b089-74e8c4d92fe8",
+      "playername": "!SteveMc2603",
+      "wager": 5
+    },
+    {
+      "uuid": "a98eacb3-559f-488b-93b1-0338ed9f9594",
+      "playername": "1Bedrock",
+      "wager": 5
+    },
+    {
+      "uuid": "52e0e5d2-d7ee-4a28-a477-3792ddf71a39",
+      "playername": "aeroalbert",
+      "wager": 5
+    },
+    {
+      "uuid": "d5cc309f-3aeb-48e2-a2f4-4c5f17827c5f",
+      "playername": "GlatsiGHG",
+      "wager": 16000
+    },
+    {
+      "uuid": "01248734-ed63-4e2e-a626-08193df5b6c4",
+      "playername": "teyru1",
+      "wager": 20
+    },
+    {
+      "uuid": "3ebbedd2-2b66-4123-8e75-d1e6c516cf74",
+      "playername": "Axtari",
+      "wager": 256005
+    },
+    {
+      "uuid": "c53f05f5-f6bc-4f13-9b2c-393a5f64b755",
+      "playername": "Sir_Kirschi",
+      "wager": 1024005
+    },
+    {
+      "uuid": "a16aedd4-8f57-40a1-81c0-0d719383f3d8",
+      "playername": "Just_Zoe_9",
+      "wager": 5
+    },
+    {
+      "uuid": "ac25f18e-dde4-4d96-8231-1462f16ce40d",
+      "playername": "22Perkz",
+      "wager": 768015
+    },
+    {
+      "uuid": "5b30d27f-a533-4708-9456-93e6032b970a",
+      "playername": "unidreow",
+      "wager": 5
+    },
+    {
+      "uuid": "aa48f2eb-18fb-489d-8af6-79767cf077dc",
+      "playername": "HammerEchse",
+      "wager": 120
+    },
+    {
+      "uuid": "354c964e-8233-4dde-86bb-b84d62bd038f",
+      "playername": "Yaziiix",
+      "wager": 5
+    },
+    {
+      "uuid": "31e78ec9-5bac-48b2-b0cd-0a5865d9709f",
+      "playername": "KnusperKeks2606",
+      "wager": 24005
+    },
+    {
+      "uuid": "38d4bd13-f4d2-43a4-a607-66c187dc36b6",
+      "playername": "xXFre3ksXx",
+      "wager": 5
+    },
+    {
+      "uuid": "3dde65dd-e66e-4843-bbd3-6d738ecc4cac",
+      "playername": "HusstenSaft",
+      "wager": 6000
+    },
+    {
+      "uuid": "614b3336-0f57-42b1-945e-0ea01272f94e",
+      "playername": "Vexamar",
+      "wager": 3112015
+    },
+    {
+      "uuid": "8811c985-469c-4ad9-af75-a1647ba2e828",
+      "playername": "Motschgan",
+      "wager": 512005
+    },
+    {
+      "uuid": "b3ff2d62-eb85-4eae-9c50-05683efe07fc",
+      "playername": "lukasun",
+      "wager": 5
+    },
+    {
+      "uuid": "5c05b56f-e208-4b06-855e-00298cea623d",
+      "playername": "F3nt4astisch_",
+      "wager": 15
+    },
+    {
+      "uuid": "3d8a1606-244b-4147-bf1d-99d777048792",
+      "playername": "ElliTheQueeen",
+      "wager": 5
+    },
+    {
+      "uuid": "293c1f82-d0d4-437f-8a86-7a4315d8695d",
+      "playername": "ZeroParsley1790",
+      "wager": 5
+    },
+    {
+      "uuid": "a54a9636-c7f6-493c-8618-2790f43f80df",
+      "playername": "Beawyy",
+      "wager": 320010
+    },
+    {
+      "uuid": "5eba7b48-0ada-483f-93b8-c84fcd844103",
+      "playername": "Akkuisonfire",
+      "wager": 5
+    },
+    {
+      "uuid": "8a8fdd12-2c2a-3fa9-bf82-9d372f69626b",
+      "playername": "!BaumSchema00362",
+      "wager": 5
+    },
+    {
+      "uuid": "e384785b-00e8-4fca-b372-828744db29b5",
+      "playername": "Dawid1329",
+      "wager": 272010
+    },
+    {
+      "uuid": "a0f28bda-19d8-44e9-b13f-dce2d7a5c08a",
+      "playername": "Buffel21",
+      "wager": 62020
+    },
+    {
+      "uuid": "2dfbde36-557e-4189-be5d-3e4fa2fd4048",
+      "playername": "KornDog_",
+      "wager": 128010
+    },
+    {
+      "uuid": "b48177e6-48ee-4ac0-9809-65ac5260759d",
+      "playername": "Norre80",
+      "wager": 5
+    },
+    {
+      "uuid": "2dff744a-1a59-4eed-9bec-154aa8d24038",
+      "playername": "Lias82",
+      "wager": 128005
+    },
+    {
+      "uuid": "24b921e1-28d1-4379-ade7-6c140923349a",
+      "playername": "DeutschePepega",
+      "wager": 5
+    },
+    {
+      "uuid": "9e84c0d8-df66-403d-9fe6-cb92999f6d88",
+      "playername": "Road2_Silverstar",
+      "wager": 72000
+    },
+    {
+      "uuid": "f4e1618c-daa4-45ad-8532-87a7c2a28f45",
+      "playername": "MandatedTrack31",
+      "wager": 12288010
+    },
+    {
+      "uuid": "85d5498b-6963-4c5b-aace-2429a06cd63a",
+      "playername": "Lyqv",
+      "wager": 5
+    },
+    {
+      "uuid": "e58d89c3-c225-442e-92db-e37dffe5e3a1",
+      "playername": "Tree_Mundius",
+      "wager": 5
+    },
+    {
+      "uuid": "85da0d2b-4a97-4ef0-8da0-366aa2fa5f3a",
+      "playername": "Firstguide",
+      "wager": 10
+    },
+    {
+      "uuid": "f6453379-f645-3636-8860-03705a1b9a4d",
+      "playername": "!Emilian141",
+      "wager": 10
+    },
+    {
+      "uuid": "326480df-8de1-445f-8295-c5e7126d8869",
+      "playername": "Hellekerze",
+      "wager": 96000
+    },
+    {
+      "uuid": "1545582f-4d39-4860-a381-9d6f388c5296",
+      "playername": "GiftPhoenix",
+      "wager": 5
+    },
+    {
+      "uuid": "9eec10d0-948d-44fe-8ab1-4d54db7750b0",
+      "playername": "santos3021",
+      "wager": 272000
+    },
+    {
+      "uuid": "51a234b0-9846-4253-b087-b7aff7b70bee",
+      "playername": "Kaido128",
+      "wager": 5
+    },
+    {
+      "uuid": "3a383842-5ead-4491-8e24-626d1714aad9",
+      "playername": "Bestellbar",
+      "wager": 5
+    },
+    {
+      "uuid": "0264c511-7fe1-470c-ac71-fbf8fcedd346",
+      "playername": "DeSGewitter",
+      "wager": 5
+    },
+    {
+      "uuid": "f0f913b9-9661-3f2b-bf3a-c401cd8cbde7",
+      "playername": "!YetiComic560871",
+      "wager": 2005
+    },
+    {
+      "uuid": "e4d3b80c-1d2e-4a29-b799-e9c3acb232e5",
+      "playername": "TheGamer2444598",
+      "wager": 96005
+    },
+    {
+      "uuid": "eb887152-77b6-3bba-bcb3-f5534378e375",
+      "playername": "!EnderFinno",
+      "wager": 304005
+    },
+    {
+      "uuid": "d497a009-778c-4747-a264-0788bc14bcd7",
+      "playername": "Bot_ShopCB2",
+      "wager": 84000
+    },
+    {
+      "uuid": "10e2c112-e076-4282-a638-2ba61cdaf1b6",
+      "playername": "Joel_12122005",
+      "wager": 128005
+    },
+    {
+      "uuid": "7c05f3cb-154e-4c1c-839c-7efec20f35e0",
+      "playername": "Botshop_MW",
+      "wager": 92005
+    },
+    {
+      "uuid": "c4946c06-cff2-4130-9650-5858cbff3bfd",
+      "playername": "Ocean_Riad",
+      "wager": 2005
+    },
+    {
+      "uuid": "bd71f93c-2979-405c-9cb9-1ea077986da1",
+      "playername": "Celina118",
+      "wager": 5
+    },
+    {
+      "uuid": "c1747948-3434-4b2c-8e30-10a4ec5983c9",
+      "playername": "Mxrcooo",
+      "wager": 5
+    },
+    {
+      "uuid": "2db1e134-1265-48a6-9239-eebcae4cdf39",
+      "playername": "Sanation44",
+      "wager": 5
+    },
+    {
+      "uuid": "fc64a0f4-f89f-496e-8c5d-b798328694ce",
+      "playername": "DoctorSeuss4129",
+      "wager": 80015
+    },
+    {
+      "uuid": "90fc6d08-d40b-47cb-b24e-85cc99c27d76",
+      "playername": "Noxiiiiiii",
+      "wager": 5
+    },
+    {
+      "uuid": "f14549d0-f7b3-49d4-aced-0a6941e9f2dd",
+      "playername": "7ZeroFire",
+      "wager": 1080005
+    },
+    {
+      "uuid": "975d8705-080b-42a3-9289-15873db33b02",
+      "playername": "TRE_Catlucky",
+      "wager": 1280000
+    },
+    {
+      "uuid": "14193e11-a825-45b5-b250-4351fdde1957",
+      "playername": "Warrior__YT",
+      "wager": 1024010
+    },
+    {
+      "uuid": "154d3cc8-c073-4857-bd45-e722a5f54b17",
+      "playername": "smilixddie",
+      "wager": 256005
+    },
+    {
+      "uuid": "e86d7e7e-e3ee-4d72-9666-47a1d16c43b9",
+      "playername": "Ruderratte1",
+      "wager": 10112000
+    },
+    {
+      "uuid": "058155f7-4eb5-412e-8805-b5736e0259b9",
+      "playername": "LeDummii",
+      "wager": 512005
+    },
+    {
+      "uuid": "fa6e9d86-2c38-4f39-a54d-78306f05b91a",
+      "playername": "_1Alex_",
+      "wager": 10
+    },
+    {
+      "uuid": "531b04e0-da73-3025-8e50-2fa509263f63",
+      "playername": "!OneWind14093868",
+      "wager": 38400030
+    },
+    {
+      "uuid": "b3119853-12bf-4a61-a01f-8c82fbcf0e05",
+      "playername": "Wintersled",
+      "wager": 11392005
+    },
+    {
+      "uuid": "55698a26-6fe0-4be7-bfdf-bb12e24f6b0c",
+      "playername": "Richy81",
+      "wager": 80010
+    },
+    {
+      "uuid": "642c6c8d-caca-4a68-b606-f633bb9008dc",
+      "playername": "Silverkiller73",
+      "wager": 7424010
+    },
+    {
+      "uuid": "4fd3d821-a610-3ad2-babc-c28ffa86f097",
+      "playername": "!OxKxAxN",
+      "wager": 512010
+    },
+    {
+      "uuid": "58dcbc2d-fd92-436a-bea8-6ceeadc47cd7",
+      "playername": "MaxgamerYT6061",
+      "wager": 10
+    },
+    {
+      "uuid": "04e022d5-9c7c-4b54-a9f8-4f1317d19714",
+      "playername": "StayHixh",
+      "wager": 24005
+    },
+    {
+      "uuid": "55457dd8-22a3-48eb-a83e-469992aba00b",
+      "playername": "Luftraum",
+      "wager": 1664000
+    },
+    {
+      "uuid": "3c634d20-cc52-3d0e-8e1b-45b667e1924d",
+      "playername": "!Bratan1330",
+      "wager": 35
+    },
+    {
+      "uuid": "9e970f52-b8b5-4d63-8d33-fc8a1685d268",
+      "playername": "Bot_CB12",
+      "wager": 40005
+    },
+    {
+      "uuid": "737147a6-fd43-4738-b13e-c3943e065953",
+      "playername": "Janic1712",
+      "wager": 128005
+    },
+    {
+      "uuid": "ce83f1f4-5539-42ed-9d6f-ba376066ede5",
+      "playername": "Jannator17",
+      "wager": 8025
+    },
+    {
+      "uuid": "e8fb8204-c183-4788-a9a4-0dcc39364e1a",
+      "playername": "CrafterXD1",
+      "wager": 34496030
+    },
+    {
+      "uuid": "561b3f0a-56e9-4cb4-9599-742da7f8e1ad",
+      "playername": "Marc0003",
+      "wager": 2005
+    },
+    {
+      "uuid": "4d0a824f-58d9-44b2-b65e-c496ee47ed0f",
+      "playername": "Nele_2",
+      "wager": 2014025
+    },
+    {
+      "uuid": "5f53b2f1-4cb3-4a24-be5b-ad9077df5994",
+      "playername": "Hauptgewinnerin",
+      "wager": 5
+    },
+    {
+      "uuid": "27a07706-876b-4c53-9abc-1afc837717b5",
+      "playername": "Summersled",
+      "wager": 512000
+    },
+    {
+      "uuid": "19d3da72-65f5-4dd1-9cb8-ddf8b17c58ca",
+      "playername": "reaxyy",
+      "wager": 2048010
+    },
+    {
+      "uuid": "e13364a9-cca7-4df2-93aa-c4fbbf3e17f2",
+      "playername": "1900shane",
+      "wager": 1024005
+    },
+    {
+      "uuid": "3ef83c73-0720-4d3d-ab55-c3e0e343f4f0",
+      "playername": "Janikracer",
+      "wager": 5
+    },
+    {
+      "uuid": "a83c505f-5cdf-4e83-b9f6-a28de3d238a3",
+      "playername": "1cannkrd",
+      "wager": 64000
+    },
+    {
+      "uuid": "cae64373-fda7-49a0-8a63-7b45f44fb372",
+      "playername": "DaytonaHD",
+      "wager": 15
+    },
+    {
+      "uuid": "6d3211f1-045e-47fd-a975-606e9527a502",
+      "playername": "The_Krsone",
+      "wager": 112030
+    },
+    {
+      "uuid": "dc3a10ca-445e-438d-8263-0b820d1e9b19",
+      "playername": "Gandiix1",
+      "wager": 1792000
+    },
+    {
+      "uuid": "926d142b-f698-48a2-bf1c-c59b6a9d34ca",
+      "playername": "brosforhoues",
+      "wager": 128050
+    },
+    {
+      "uuid": "af5c7c42-1fa3-3e4a-a4c6-203de699c8a7",
+      "playername": "!deike2333",
+      "wager": 64005
+    },
+    {
+      "uuid": "a5e3eb8f-fab3-41b7-8c6c-89984f79370c",
+      "playername": "moosfuge88",
+      "wager": 5
+    },
+    {
+      "uuid": "8cae423f-227a-458d-a8bd-af6093735b30",
+      "playername": "Poko121212",
+      "wager": 128005
+    },
+    {
+      "uuid": "7fb574d9-4759-465a-a2b8-a7f578b83c91",
+      "playername": "BistduGut",
+      "wager": 10
+    },
+    {
+      "uuid": "11a8a364-2ad2-4927-b2f3-5683ff1e1673",
+      "playername": "OrtmeloneHD",
+      "wager": 64005
+    },
+    {
+      "uuid": "4dc299fd-c036-4672-b7a4-275dc4e87c65",
+      "playername": "L3g1t_Linus",
+      "wager": 12930030
+    },
+    {
+      "uuid": "6800165d-495c-4a5b-a89d-6750a8830c4d",
+      "playername": "Reda92ii",
+      "wager": 1088015
+    },
+    {
+      "uuid": "dcf1f737-dc0f-4978-a077-e15ffc0414c8",
+      "playername": "00GoldenLord",
+      "wager": 128005
+    },
+    {
+      "uuid": "5ffb07a8-7434-4d14-9189-3258d88ee89c",
+      "playername": "HappyMaxi",
+      "wager": 128000
+    },
+    {
+      "uuid": "84887509-957b-48f3-8e12-c43e0f630d3a",
+      "playername": "SpaceSino",
+      "wager": 16000
+    },
+    {
+      "uuid": "41340400-364e-48fc-8996-1ab2f047c5f0",
+      "playername": "AnxiousLeqend",
+      "wager": 5
+    },
+    {
+      "uuid": "c59ba197-ed6e-4683-a621-b4d2cb957f8c",
+      "playername": "AzureWave710720",
+      "wager": 128000
+    },
+    {
+      "uuid": "c0edf295-dcea-4229-8bae-10db64a46289",
+      "playername": "EinCrazyMarkus",
+      "wager": 192005
+    },
+    {
+      "uuid": "61a2a939-b675-4362-80ab-ac7e03991035",
+      "playername": "ShadowCrafter108",
+      "wager": 5
+    },
+    {
+      "uuid": "7e90a1e2-2fbd-3ebd-b702-632ed617aba5",
+      "playername": "!DJDrift555",
+      "wager": 5
+    },
+    {
+      "uuid": "5f3a2e40-79f5-4c43-aa70-8865c5153603",
+      "playername": "Schullaufgabe",
+      "wager": 64010
+    },
+    {
+      "uuid": "56643ad8-af51-3be1-a83b-27b87e3c58be",
+      "playername": "!TabooMango1442",
+      "wager": 1024000
+    },
+    {
+      "uuid": "5dc0d583-f7fb-3324-9f60-c33280d2a9ca",
+      "playername": "!LateSalmon4855",
+      "wager": 5
+    },
+    {
+      "uuid": "ecd0b8c5-6962-34d5-bc86-5163800c4fd3",
+      "playername": "!FlatMuffin5813",
+      "wager": 5
+    },
+    {
+      "uuid": "ac2ca074-560d-41d3-b0d2-1d5c8dc8091e",
+      "playername": "NeonPradige",
+      "wager": 672000
+    },
+    {
+      "uuid": "b439e6ec-1bc9-4324-83c8-6ea5a113d65f",
+      "playername": "Ibogoat",
+      "wager": 14005
+    },
+    {
+      "uuid": "0761e6e0-04d9-4961-91d5-84d3757446a7",
+      "playername": "Manu_76yyyy",
+      "wager": 2816025
+    },
+    {
+      "uuid": "c6331790-2777-49f9-a064-94b802cc72b3",
+      "playername": "monkeyman273",
+      "wager": 256005
+    },
+    {
+      "uuid": "b04c37bf-2b58-4d1e-9c49-303658739c8d",
+      "playername": "ItemCasino_CB2",
+      "wager": 384000
+    },
+    {
+      "uuid": "ed79f896-35be-4589-98b9-98b55f296013",
+      "playername": "zloveSupreme07",
+      "wager": 32005
+    },
+    {
+      "uuid": "885283e0-a7a8-4b6c-a46a-94eb011539ba",
+      "playername": "Ripax5677",
+      "wager": 64005
+    },
+    {
+      "uuid": "4b5b0fd2-a9fc-47a5-9ed6-f7a895ea3ecc",
+      "playername": "TheFuub",
+      "wager": 5
+    },
+    {
+      "uuid": "ecc2bc1e-33e8-476b-800d-bc903c0a5d1b",
+      "playername": "EinfachDilex",
+      "wager": 3072010
+    },
+    {
+      "uuid": "de2b3043-41e2-47e9-bcf5-fb7c7b27dae7",
+      "playername": "Timsterhipster",
+      "wager": 256000
+    },
+    {
+      "uuid": "def4a111-42f9-3323-9429-3c788032e854",
+      "playername": "!FiscalManx8725",
+      "wager": 5
+    },
+    {
+      "uuid": "10f6ce41-cbdf-3ce2-bd7d-af1a9052956c",
+      "playername": "!HappyCash8706",
+      "wager": 5
+    },
+    {
+      "uuid": "4cfc5e34-ba61-32fb-9c55-0ead7a0d076f",
+      "playername": "!SnapTundra4017",
+      "wager": 5
+    },
+    {
+      "uuid": "7a0edf20-2eca-3548-910f-573e0a20bb2d",
+      "playername": "!FastNest7431",
+      "wager": 5
+    },
+    {
+      "uuid": "9d9b5730-1e02-4e3c-aaac-143e390b20ac",
+      "playername": "F0W",
+      "wager": 256005
+    },
+    {
+      "uuid": "0ba75d87-7b03-3420-b50e-d67405095fd2",
+      "playername": "!KindaAlloy6744",
+      "wager": 5
+    },
+    {
+      "uuid": "1f7ba7e9-03da-3067-882b-dcbd398ae2a9",
+      "playername": "!ModernCase5266",
+      "wager": 5
+    },
+    {
+      "uuid": "31d0ce55-9613-30fe-8931-f25d8590254c",
+      "playername": "!LemonyAce9625",
+      "wager": 5
+    },
+    {
+      "uuid": "6a76230f-998a-3c3c-89c6-b07da43b5e14",
+      "playername": "!DaredShark7798",
+      "wager": 5
+    },
+    {
+      "uuid": "cf0a7346-7fec-309d-9603-8c74c7ce197a",
+      "playername": "!QuaintHarp9293",
+      "wager": 5
+    },
+    {
+      "uuid": "15775d56-ceda-3165-84b0-c87cf2b85eaf",
+      "playername": "!ModelClamp1898",
+      "wager": 5
+    },
+    {
+      "uuid": "da5d1840-0e19-3003-8a8e-847225b3c782",
+      "playername": "!PoppyImp1811",
+      "wager": 5
+    },
+    {
+      "uuid": "d6ea2dcd-6168-372a-a19c-004a4d9d9185",
+      "playername": "!CleanSeven5230",
+      "wager": 5
+    },
+    {
+      "uuid": "dd9aeffe-390f-3d6b-bcb5-81e9afd2702f",
+      "playername": "!ProudStar2968",
+      "wager": 5
+    },
+    {
+      "uuid": "e75658a0-b0c9-319e-a36f-b219e77c3685",
+      "playername": "!MovedLake2178",
+      "wager": 5
+    },
+    {
+      "uuid": "43a31095-8f1c-3323-86bc-3f0c06dc8551",
+      "playername": "!LiveTripod1627",
+      "wager": 5
+    },
+    {
+      "uuid": "e23cc36f-eddf-4215-bc93-62d50dea4051",
+      "playername": "skreef",
+      "wager": 512005
+    },
+    {
+      "uuid": "5c2068fb-31f9-4f16-98c4-9c9998599ec5",
+      "playername": "AlphAKinG19",
+      "wager": 512005
+    },
+    {
+      "uuid": "2949426b-4654-4ee6-8f72-3203c0def131",
+      "playername": "XXTOMXX1111",
+      "wager": 832010
+    },
+    {
+      "uuid": "c6f8b1b3-55f9-4ef1-9ed8-e542d40bd5b5",
+      "playername": "RitterMax",
+      "wager": 128005
+    },
+    {
+      "uuid": "434e5fab-7226-4396-abde-1f61e5f7383b",
+      "playername": "Cyxs_",
+      "wager": 8005
+    },
+    {
+      "uuid": "f6b26c5b-cac8-3834-97a1-05d28db1b60f",
+      "playername": "!DesperadoBot",
+      "wager": 5
+    },
+    {
+      "uuid": "548286ab-3703-4e0a-b98f-368db60e4278",
+      "playername": "SHENG_CASINO",
+      "wager": 15
+    },
+    {
+      "uuid": "b9ae9643-7d1f-481c-9093-3985fc919500",
+      "playername": "LHTHEONE",
+      "wager": 45
+    },
+    {
+      "uuid": "3fb639fc-928d-40e4-b2cf-cfc8aaa95798",
+      "playername": "marvbrot",
+      "wager": 256010
+    },
+    {
+      "uuid": "6849c251-f17d-4f2c-82f2-3fe018d4618a",
+      "playername": "tusk2dust",
+      "wager": 5
+    },
+    {
+      "uuid": "aac80c9d-46c4-4036-9c6a-cc63664f9df8",
+      "playername": "Fischdrift",
+      "wager": 5
+    },
+    {
+      "uuid": "6e2b0862-74ef-3e27-b254-019a69a2a4bc",
+      "playername": "!lucapdm",
+      "wager": 25
+    },
+    {
+      "uuid": "a43f7dbd-16db-441d-8af8-bb80cb6c3097",
+      "playername": "EnolaCasino",
+      "wager": 5
+    },
+    {
+      "uuid": "454ba50a-43f6-46b8-800e-7a5bced44e43",
+      "playername": "Toxic_Casino",
+      "wager": 512000
+    },
+    {
+      "uuid": "b7df0077-6ad5-41af-9bc2-b38e5f356844",
+      "playername": "PowerOle23",
+      "wager": 256015
+    },
+    {
+      "uuid": "e7d57cf3-a372-4706-96aa-f52d53466f98",
+      "playername": "FizzyBubbele0",
+      "wager": 5
+    },
+    {
+      "uuid": "455ada56-39cd-4dd3-aea1-0ed985561813",
+      "playername": "xXZeroColaXx",
+      "wager": 128005
+    },
+    {
+      "uuid": "862c6c3e-b011-3359-bb12-5d783afece17",
+      "playername": "!Aschlexx",
+      "wager": 512000
+    },
+    {
+      "uuid": "dcad5767-a86d-48dc-9305-3e295be6a033",
+      "playername": "Sagori83",
+      "wager": 5152020
+    },
+    {
+      "uuid": "57eec277-4adf-4594-a97d-20a9d1e39180",
+      "playername": "ellas5k",
+      "wager": 1536005
+    },
+    {
+      "uuid": "88443e90-6424-4699-b6cd-430379d61499",
+      "playername": "S3nt3",
+      "wager": 1024015
+    },
+    {
+      "uuid": "62cd4f78-1b6a-4c6f-8dd9-3f4a02fc25b3",
+      "playername": "Heltocc",
+      "wager": 4832005
+    },
+    {
+      "uuid": "d159f70c-e22a-41f4-bdde-264f0e21e613",
+      "playername": "pxxr_",
+      "wager": 5
+    },
+    {
+      "uuid": "13b5c8ca-e377-39c3-bf4f-24a6317f34c5",
+      "playername": "!Baureihe52",
+      "wager": 5
+    },
+    {
+      "uuid": "4d3d6f60-fd4c-4194-8b00-028816f32795",
+      "playername": "PooMooDoo",
+      "wager": 48000
+    },
+    {
+      "uuid": "ee7c330d-c3bc-4949-95eb-ef8ff1ad2021",
+      "playername": "M7UQE",
+      "wager": 512005
+    },
+    {
+      "uuid": "fa98b30b-931e-41b9-966f-73aced872a89",
+      "playername": "ArturGamed",
+      "wager": 10
+    },
+    {
+      "uuid": "5c8ed072-945a-47ac-8fb8-f8fe53f1c5b7",
+      "playername": "Bauschti",
+      "wager": 128000
+    },
+    {
+      "uuid": "af13f708-ba7e-43b0-981e-ca717c91c23f",
+      "playername": "WlzoX_",
+      "wager": 5
+    },
+    {
+      "uuid": "0cad4823-76ed-4ebd-9879-663cf95984a0",
+      "playername": "Unverpackt",
+      "wager": 66005
+    },
+    {
+      "uuid": "f4cd0046-d100-4091-b0d5-879239fd2583",
+      "playername": "Minikuchen__",
+      "wager": 512005
+    },
+    {
+      "uuid": "04d99b96-41f2-4120-a41d-fa48c4ec6eca",
+      "playername": "ewasahbe1310",
+      "wager": 512000
+    },
+    {
+      "uuid": "4baeb542-47b2-4dbc-838f-b3dd6b721064",
+      "playername": "abdu_y_",
+      "wager": 5
+    },
+    {
+      "uuid": "28d18a8d-3096-4e7c-a295-19fce61d8bbd",
+      "playername": "ManLionsCity",
+      "wager": 5
+    },
+    {
+      "uuid": "22999cb3-b797-424c-957c-40308f5285a7",
+      "playername": "LuisDev",
+      "wager": 10005
+    }
+    ]; // ** ENDE DER NEUESTEN SPIELERDATEN **
+    
+    
+    // --- AUTHENTIFIZIERUNGSDATEN (NEU: Daten werden aus accounts.json geladen) ---
+    let validAccounts = []; // Speichert die geladenen Accounts
+    const LOGIN_KEY = 'holostats_logged_in';
+    const ACCOUNTS_FILE = 'accounts.json'; // Dateiname der Zugangsdaten
+
+    /**
+     * NEU: Lädt die Benutzerdaten aus der accounts.json Datei.
+     * Muss über einen Webserver aufgerufen werden, sonst schlägt fetch() fehl!
+     */
+    async function loadAccounts() {
+        try {
+            const response = await fetch(ACCOUNTS_FILE);
+            if (!response.ok) {
+                 // Fehlerbehandlung für nicht geladene oder nicht gefundene Datei
+                displayMessage(`FEHLER: Konnte die Datei "${ACCOUNTS_FILE}" (Status: ${response.status}) nicht laden. Stellen Sie sicher, dass die Seite über einen Webserver (http://) aufgerufen wird.`, 'error');
+                return false;
+            }
+            validAccounts = await response.json();
+            return true;
+        } catch (error) {
+            console.error('Fehler beim Laden der Accounts:', error);
+            displayMessage(`KRITISCHER FEHLER: Die Datei "${ACCOUNTS_FILE}" ist fehlerhaft oder konnte nicht geladen werden. Prüfen Sie die JSON-Syntax.`, 'error');
+            return false;
+        }
+    }
+    
+    /**
+     * Führt die Login-Prüfung durch.
+     */
+    function checkLogin() {
+        const usernameInput = document.getElementById('login-username').value;
+        const passwordInput = document.getElementById('login-password').value;
+        const loginMessage = document.getElementById('login-message');
+
+        loginMessage.style.display = 'none';
+        
+        // NEU: Prüfung gegen die geladenen Accounts in der validAccounts-Liste
+        const accountFound = validAccounts.find(account => 
+            account.username === usernameInput && account.password === passwordInput
+        );
+
+        if (accountFound) {
+            // Erfolg
+            sessionStorage.setItem(LOGIN_KEY, 'true');
+            document.getElementById('login-modal-overlay').style.display = 'none';
+            document.querySelector('.container').style.display = 'block'; // Zeige Hauptinhalt
+
+            // Initialisiere die App nach erfolgreichem Login
+            initializeApp(); 
+            
+        } else {
+            // Fehler
+            loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
+            loginMessage.style.display = 'block';
+        }
+    }
+    // --- ENDE AUTHENTIFIZIERUNG ---
+
+    
+    // --- SOUND-FUNKTIONEN (ANGEPASST) ---
+    // Definiert den Pfad zu Ihrer lokalen MP3-Datei
+    const CLICK_SOUND_URL = './buttonclick.mp3';
+    
+    // Audio-Objekt nur für den Klick-Sound
+    const clickAudio = new Audio(CLICK_SOUND_URL);
+    
+    /**
+     * Spielt den Klick-Sound ab (nur für Spieler-Elemente).
+     */
+    function playClickSound() {
+        // Stellt sicher, dass der Sound immer von vorne abgespielt wird
+        clickAudio.currentTime = 0;
+        clickAudio.volume = 0.7; // Lautstärke beibehalten
+    
+        // play() gibt eine Promise zurück, die Fehler bei Autoplay-Blockierung behandelt
+        clickAudio.play().catch(e => console.warn("Click-Sound konnte nicht abgespielt werden (wahrscheinlich Autoplay blockiert):", e));
+    }
+    
+    // --- ENDE SOUND-FUNKTIONEN ---
+    
+    
+    // --- HILFSFUNKTIONEN ---
+    
+    /**
+     * Bereinigt den Spielernamen für die Mineskin-API, indem ein führendes '!' entfernt wird.
+     */
+    function cleanPlayerNameForSkin(playerName) {
+        // Entfernt ein führendes '!', falls vorhanden.
+        return playerName.startsWith('!') ? playerName.substring(1) : playerName;
+    }
+
+    /**
+     * Formatiert eine Zahl mit Tausender-Trennzeichen (deutsch).
+     */
+    function formatNumber(num) {
+        return (typeof num === 'number' && !isNaN(num)) ? num.toLocaleString('de-DE') : 'N/A';
+    }
+    
+    /**
+     * Schließt das Detail-Modal.
+     */
+    function closePlayerDetails() {
+        const modal = document.getElementById('player-detail-modal');
+        modal.style.display = 'none';
+        // Sound beim Schließen entfernt
+    }
+    
+    /**
+     * Zeigt eine Erfolgs- oder Fehlermeldung an.
+     */
+    function displayMessage(message, type = 'success') {
+        const errorMessage = document.getElementById('error-message');
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        if (type === 'success') {
+            errorMessage.style.backgroundColor = '#d4edda';
+            errorMessage.style.color = '#155724';
+        } else {
+            errorMessage.style.backgroundColor = '#f2dede';
+            errorMessage.style.color = '#a94442';
+        }
+    }
+
+    /**
+     * Erstellt und zeigt eine Spielerkarte an.
+     */
+    function createPlayerCard(player, resultsContainer) {
+        const card = document.createElement('div');
+        card.className = 'player-card';
+        card.onclick = () => {
+            showPlayerDetails(player.playername); 
+            playClickSound(); // Sound beim Klicken auf Karte
+        };
+        
+        // Bereinigter Name für die Skin-URL
+        const cleanName = cleanPlayerNameForSkin(player.playername);
+
+        // Skin URL für die Karte (Kopf)
+        const skinUrl = `https://mineskin.eu/head/${cleanName}/64`;
+        
+        const img = document.createElement('img');
+        img.src = skinUrl;
+        img.alt = `Skin-Kopf von ${player.playername}`;
+    
+        const nameHeading = document.createElement('h3');
+        nameHeading.textContent = player.playername;
+        
+        const divider = document.createElement('div');
+        divider.className = 'divider';
+        
+        const wagerText = document.createElement('p');
+        wagerText.innerHTML = `<b>Umsatz:</b> <br>${formatNumber(player.wager)}`;
+        
+        card.appendChild(img);
+        card.appendChild(nameHeading);
+        card.appendChild(divider);
+        card.appendChild(wagerText);
+        resultsContainer.appendChild(card);
+    }
+
+    // --- VORSCHLAGS-LOGIK ---
+
+    /**
+     * Sortiert Spieler nach Wager absteigend und gibt die Top N zurück.
+     */
+    function getTopPlayers(count) {
+        return [...playerStats]
+            .sort((a, b) => b.wager - a.wager)
+            .slice(0, count);
+    }
+
+    /**
+     * Zeigt die Top 5 Spieler als anklickbare Vorschläge an.
+     */
+    function displayTopSuggestions() {
+        const topPlayers = getTopPlayers(5);
+        const container = document.getElementById('suggestions-container');
+        container.style.display = 'block';
+        container.innerHTML = '<h4>⭐ Top 5 Spieler (Nach Umsatz)</h4><div class="suggestion-list"></div>';
+        const list = container.querySelector('.suggestion-list');
+
+        topPlayers.forEach(player => {
+            const span = document.createElement('span');
+            span.className = 'suggestion-player';
+            span.textContent = player.playername;
+            span.onclick = () => setInputAndSearch(player.playername);
+            list.appendChild(span);
+        });
+    }
+
+    /**
+     * Zeigt dynamische Vorschläge basierend auf der Sucheingabe.
+     */
+    function displayDynamicSuggestions(searchTerm) {
+        const dynamicContainer = document.getElementById('dynamic-suggestions-container');
+        dynamicContainer.innerHTML = ''; 
+
+        if (searchTerm.length < 2) {
+            dynamicContainer.style.display = 'none';
+            displayTopSuggestions();
+            return;
+        }
+
+        const exactMatch = playerStats.find(p => p.playername.toLowerCase() === searchTerm);
+        
+        // Finde ähnliche Spieler (bis zu 8, schließe exakten Match aus, falls vorhanden)
+        const similarPlayers = playerStats.filter(p => 
+            p.playername.toLowerCase().includes(searchTerm) && p.playername.toLowerCase() !== searchTerm
+        ).slice(0, 8); 
+
+        if (exactMatch || similarPlayers.length > 0) {
+            dynamicContainer.style.display = 'block';
+            dynamicContainer.innerHTML = '<h4>Ähnliche Spielernamen (Klicken zum Suchen)</h4><div class="suggestion-list"></div>';
+            const list = dynamicContainer.querySelector('.suggestion-list');
+
+            // Exakter Match zuerst anzeigen (wenn er nicht schon gesucht wurde)
+            if (exactMatch) {
+                const span = document.createElement('span');
+                span.className = 'suggestion-player';
+                span.textContent = exactMatch.playername + " (Exakt)";
+                span.style.backgroundColor = '#4CAF50';
+                span.onclick = () => setInputAndSearch(exactMatch.playername);
+                list.appendChild(span);
+            }
+
+            // Dann ähnliche Spieler
+            similarPlayers.forEach(player => {
+                const span = document.createElement('span');
+                span.className = 'suggestion-player';
+                span.textContent = player.playername;
+                span.onclick = () => setInputAndSearch(player.playername);
+                list.appendChild(span);
+            });
+            document.getElementById('suggestions-container').style.display = 'none';
+        } else {
+            dynamicContainer.style.display = 'none';
+            displayTopSuggestions(); // Zeige Top 5, wenn keine dynamischen Treffer
+        }
+    }
+
+
+    // --- SUCHE UND DETAILS ---
+
+    /**
+     * Setzt den Suchwert und startet die Suche. Wird von den Vorschlägen genutzt.
+     */
+    function setInputAndSearch(playerName) {
+        document.getElementById('search-input').value = playerName;
+        searchPlayers(true);
+        playClickSound() // Sound beim Klicken auf Vorschlag
+    }
+    
+    /**
+     * Behandelt Tastatureingaben im Suchfeld.
+     */
+    function handleSearchInput(event) {
+        const input = document.getElementById('search-input');
+        const searchTerm = input.value.toLowerCase().trim();
+
+        if (event && event.type === 'keyup') {
+            if (event.key === 'Enter') {
+                searchPlayers(true);
+            } else {
+                // Bei jeder anderen Eingabe: zeige dynamische Vorschläge
+                document.getElementById('results-container').innerHTML = '';
+                document.getElementById('error-message').style.display = 'none';
+                displayDynamicSuggestions(searchTerm);
+            }
+        }
+    }
+
+    /**
+     * Sucht nach Spielern basierend auf der Eingabe (exakter Match oder Teilstring-Match).
+     */
+    function searchPlayers(isFullSearch = false) {
+        const input = document.getElementById('search-input');
+        const searchTerm = input.value.toLowerCase().trim();
+        const resultsContainer = document.getElementById('results-container');
+        const errorMessage = document.getElementById('error-message');
+        const dynamicContainer = document.getElementById('dynamic-suggestions-container');
+        const topContainer = document.getElementById('suggestions-container');
+        
+        resultsContainer.innerHTML = '';
+        errorMessage.style.display = 'none';
+        dynamicContainer.style.display = 'none';
+        topContainer.style.display = 'none';
+
+        if (searchTerm.length === 0) {
+            displayMessage('Bitte einen Spielernamen eingeben.', 'error');
+            displayTopSuggestions();
+            return;
+        }
+
+        // 1. Exakter Match (Case-Insensitive)
+        let foundPlayers = playerStats.filter(p => p.playername.toLowerCase() === searchTerm);
+        
+        // 2. Teilstring-Match (nur bei Vollsuche)
+        if (foundPlayers.length === 0 && isFullSearch) {
+            foundPlayers = playerStats.filter(p => p.playername.toLowerCase().includes(searchTerm));
+        }
+        
+        if (foundPlayers.length > 0) {
+            foundPlayers
+                .sort((a, b) => b.wager - a.wager) // Sortieren nach Wager
+                .forEach(player => createPlayerCard(player, resultsContainer));
+            displayMessage(`${foundPlayers.length} Spieler für "${input.value}" gefunden.`, 'success');
+        } else {
+            displayMessage(`Kein Spieler mit dem Namen "${input.value}" gefunden.`, 'error');
+            displayTopSuggestions();
+        }
+    }
+
+    /**
+     * Sucht den Spieler und öffnet das Detail-Modal.
+     */
+    function showPlayerDetails(playerName) {
+        const player = playerStats.find(p => p.playername === playerName);
+        const detailContent = document.getElementById('detail-content');
+        const modal = document.getElementById('player-detail-modal');
+
+        if (!player) {
+            displayMessage(`Fehler: Spieler '${playerName}' wurde nicht in den Daten gefunden.`, 'error');
+            return;
+        }
+        
+        // Bereinigter Name für die Skin-URL
+        const cleanName = cleanPlayerNameForSkin(player.playername);
+
+        // UUID und NameMC URL
+        const nameMcUrl = `https://de.namemc.com/profile/${player.uuid}`;
+        
+        // Skin URL für das Detail-Modal (volle Ansicht, verwendet bereinigten Namen)
+        const detailSkinUrl = `https://mineskin.eu/skin/${cleanName}/128`;
+        
+        detailContent.innerHTML = `
+            <h2>${player.playername}</h2>
+            <img src="${detailSkinUrl}" alt="Voller Skin von ${player.playername}">
+            <p><b>UUID:</b> ${player.uuid}</p>
+            <p><b>Gesamtwager:</b> ${formatNumber(player.wager)}</p>
+            
+            <a href="${nameMcUrl}" target="_blank">Profil auf NameMC ansehen</a>
+        `;
+
+        modal.style.display = 'block';
+    }
+
+
+    // --- INITIALISIERUNG ---
+    
+    /**
+     * Initialisiert die Hauptanwendung, nachdem der Login erfolgreich war.
+     */
+    function initializeApp() {
+        // Entfernt Hover-Sounds vom Suchfeld und Button
+        const searchInput = document.getElementById('search-input');
+        if (searchInput.onmouseenter) searchInput.onmouseenter = null;
+        
+        const searchButton = document.getElementById('search-button');
+        if (searchButton.onmouseenter) searchButton.onmouseenter = null;
+
+        if (playerStats.length > 0) {
+             displayMessage(`Daten von ${playerStats.length} Spielern geladen. Sie können nun suchen oder einen vorgeschlagenen Spieler wählen.`, 'success');
+             // Zeige beim Start die Top 5 Spieler an
+             displayTopSuggestions();
+        } else {
+             displayMessage('⚠️ Wichtig: Es wurden keine Spielerdaten gefunden. Bitte die Daten prüfen.', 'error');
+        }
+    }
+
+
+    // Schließt das Detail-Modal, wenn außerhalb des Inhalts geklickt wird
+    window.onclick = function(event) {
+        const detailModal = document.getElementById('player-detail-modal');
+        if (event.target === detailModal) {
+            closePlayerDetails();
+        }
+    }
+    
+    // Haupt-DOMContentLoaded-Handler zur Authentifizierung
+    document.addEventListener('DOMContentLoaded', async () => { 
+        
+        // NEU: 1. Zuerst Accounts laden
+        const accountsLoaded = await loadAccounts();
+        if (!accountsLoaded) {
+            // Wenn Accounts nicht geladen werden konnten, das Login-Overlay anzeigen und warten
+            document.getElementById('login-modal-overlay').style.display = 'flex';
+            return;
+        }
+        
+        // 2. Prüfen, ob bereits eingeloggt
+        const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true';
+        const container = document.querySelector('.container');
+        const loginOverlay = document.getElementById('login-modal-overlay');
+
+        if (isLoggedIn) {
+            // Bereits eingeloggt
+            loginOverlay.style.display = 'none';
+            container.style.display = 'block'; // Zeige Hauptinhalt
+            initializeApp();
+        } else {
+            // Zeige Login-Overlay
+            loginOverlay.style.display = 'flex';
+            // Setze den Fokus auf das Eingabefeld
+            document.getElementById('login-username').focus();
+        }
+    });
+
+</script>
+</body>
+</html>
+
+
