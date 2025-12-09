@@ -1,26 +1,1470 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <title>Admin-Seite</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holostats Spielerstatistik-Suche</title>
+    <style>
+        /* === Allgemeiner Stil und Dunkles Thema === */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e; /* Dunkler Hintergrund */
+            color: #f0f0f0; /* Helle Textfarbe */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+        }
+        .container {
+            display: none; /* Standardmäßig versteckt */
+            width: 90%;
+            max-width: 700px;
+            background: #2d2d30; /* Dunkle Container-Fläche */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h1 {
+            color: #4CAF50; /* Akzentfarbe Grün */
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 2em;
+        }
+        #current-date {
+            text-align: right;
+            font-size: 0.8em;
+            color: #aaa;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #3a3a3d;
+            padding-bottom: 10px;
+        }
+        
+        /* === LOGIN MODAL STYLES === */
+        #login-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1e1e1e;
+            display: none; 
+            justify-content: center;
+            align-items: center;
+            z-index: 101; 
+        }
+
+        #login-form-container {
+            background-color: #2d2d30;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            text-align: center;
+            width: 90%;
+            max-width: 350px;
+        }
+
+        #login-form-container h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        #login-form-container p {
+            color: #aaa;
+        }
+
+        #login-username, #login-password {
+            width: calc(100% - 30px);
+            padding: 12px 15px;
+            margin: 10px 0;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background-color: #3a3a3d;
+            color: #f0f0f0;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        #login-username:focus, #login-password:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        #login-form-container button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.2s;
+        }
+
+        #login-form-container button:hover {
+            background-color: #43A047;
+        }
+        
+        /* === Suchfeld-Design (Suchfenster) === */
+        #search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            position: relative;
+        }
+        #search-input {
+            padding: 12px 15px;
+            font-size: 1.1em;
+            border: 2px solid #555;
+            border-radius: 8px;
+            flex-grow: 1;
+            background-color: #3a3a3d;
+            color: #f0f0f0;
+            transition: border-color 0.3s;
+        }
+        #search-input:focus {
+            border-color: #4CAF50; /* Akzentfarbe bei Fokus */
+            outline: none;
+        }
+        #search-button {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #search-button:hover {
+            background-color: #43A047;
+        }
+        
+        /* === Vorschlags-Container (Top 5 & Dynamisch) === */
+        #suggestions-container, #dynamic-suggestions-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #3a3a3d;
+            border-left: 5px solid #4CAF50; /* Grüner Akzent */
+        }
+        #suggestions-container h4, #dynamic-suggestions-container h4 {
+            margin-top: 0;
+            color: #4CAF50; 
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        .suggestion-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .suggestion-player {
+            background-color: #555;
+            color: #fff;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-weight: bold;
+        }
+        .suggestion-player:hover {
+            background-color: #4CAF50;
+            transform: translateY(-2px);
+        }
+
+        /* === Ergebnis-Karten === */
+        #results-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .player-card {
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 8px;
+            width: 160px;
+            text-align: center;
+            background: #3a3a3d;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer; 
+        }
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5), 0 0 10px #4CAF50;
+        }
+        .player-card img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%; /* Rundes Profilbild */
+            border: 3px solid #4CAF50;
+            margin-bottom: 10px;
+            image-rendering: pixelated;
+        }
+        .player-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.2em;
+            color: #e0e0e0;
+            word-break: break-all;
+        }
+        .player-card p {
+            margin: 0;
+            font-size: 0.95em;
+            color: #bbb;
+        }
+        .divider {
+            margin: 10px 0;
+            border-top: 1px solid #444;
+        }
+        
+        /* === Meldungen und Fehler === */
+        #error-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: none; /* Initial versteckt */
+        }
+        /* Erfolgsmeldung */
+        #error-message[style*="background-color: #d4edda"] { 
+            background-color: #384239 !important;
+            border: 1px solid #4CAF50;
+            color: #4CAF50 !important;
+        }
+        /* Fehlermeldung */
+        #error-message[style*="background-color: #f2dede"] { 
+            background-color: #5d3f42 !important;
+            border: 1px solid #d9534f;
+            color: #d9534f !important;
+        }
+
+        /* === DETAIL MODAL STYLES === */
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 100; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.8); 
+        }
+        .modal-content {
+            background-color: #3a3a3d;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 450px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #fff;
+        }
+        #detail-content img {
+            width: 128px; 
+            height: auto;
+            image-rendering: pixelated;
+            margin: 15px auto 25px auto;
+            border: 4px solid #4CAF50;
+            border-radius: 50%;
+        }
+        #detail-content h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 15px;
+            font-size: 1.8em;
+        }
+        #detail-content p {
+            margin: 12px 0;
+            text-align: left;
+            padding: 5px 10px;
+            font-size: 1.05em;
+            background-color: #2d2d30;
+            border-radius: 4px;
+        }
+        #detail-content b {
+            color: #fff;
+        }
+        #detail-content a {
+            display: block;
+            margin-top: 25px;
+            padding: 12px;
+            background-color: #007bff; /* Sekundäre Akzentfarbe Blau */
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        #detail-content a:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <script>
-        // Annahme: Sie haben die checkPagePermissions Funktion in info.html verfügbar
 
-        document.addEventListener('DOMContentLoaded', () => {
-             // Diese Seite erfordert die Rolle 'Admin'
-            if (checkPagePermissions('Admin', 'app (2).html')) {
-                // Nur wenn Admin, wird dieser Code ausgeführt
-                document.body.style.display = 'block';
-                console.log("Admin Zugriff gewährt.");
-            } else {
-                // Umleitung wurde bereits in checkPagePermissions durchgeführt
-                document.body.style.display = 'none';
+<div id="login-modal-overlay">
+    <div id="login-form-container">
+        <h2>Zugriff erforderlich</h2>
+        <p>Bitte melden Sie sich an, um die Holostats-Daten einzusehen.</p>
+        <input type="text" id="login-username" placeholder="Benutzername">
+        <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()">
+        <button onclick="checkLogin()">Anmelden</button>
+        <p id="login-message" style="color: #d9534f; margin-top: 10px; display: none;"></p>
+    </div>
+</div>
+<div class="container">
+    <h1><span style="color: white;">Sunny_Casino</span> - Spieler Umsatz suchen</h1>
+    
+    <p id="current-date">Daten-Stand: 07.12.2025</p>
+
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Spielernamen eingeben..." onkeyup="handleSearchInput(event)">
+        <button id="search-button" onclick="searchPlayers(true)">Suchen</button>
+    </div>
+    
+    <div id="dynamic-suggestions-container" style="display: none;">
+        </div>
+
+    <div id="suggestions-container">
+        </div>
+
+    <p id="error-message"></p>
+    
+    <div id="results-container">
+        </div>
+</div>
+
+<div id="player-detail-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closePlayerDetails()">&times;</span>
+        <div id="detail-content">
+            </div>
+    </div>
+</div>
+<script>
+    // ** START DER NEUESTEN SPIELERDATEN **
+    let playerStats = [
+    {
+      "uuid": "2143da9f-503b-4e4a-835a-d1d7f37a0af1",
+      "playername": "JasonNewAcc",
+      "wager": 4904301
+    },
+    {
+      "uuid": "3afc41d9-6ac7-41d1-b7c2-8286ce21765d",
+      "playername": "xNotNamex",
+      "wager": 7864090
+    },
+    {
+      "uuid": "895d190d-77d7-4c85-b79b-bcd6768011ca",
+      "playername": "Lilly_197",
+      "wager": 3022045
+    },
+    {
+      "uuid": "1038f0a9-4431-490a-b07c-c3b5222b259c",
+      "playername": "3infach_Craz7",
+      "wager": 9644035
+    },
+    {
+      "uuid": "2e809eab-3e83-4632-9743-d061c119b59f",
+      "playername": "Yxlukas",
+      "wager": 13346075
+    },
+    {
+      "uuid": "467e9ab0-b048-4307-b5fd-1ea110f45817",
+      "playername": "lblenni",
+      "wager": 256010
+    },
+    {
+      "uuid": "a490eea8-725d-4140-9ac7-68bd751229de",
+      "playername": "1real_nox",
+      "wager": 1244210
+    },
+    {
+      "uuid": "9c1e2e4e-650b-4018-a22d-6197eca0a49f",
+      "playername": "1Verfehlter",
+      "wager": 1596185
+    },
+    {
+      "uuid": "9d593273-a33d-40de-9e66-78ff12991e7e",
+      "playername": "ces_cot",
+      "wager": 65
+    },
+    {
+      "uuid": "9bda69ad-3ebe-42e2-a48f-96fa6f3a4351",
+      "playername": "KenRyugujiYT",
+      "wager": 5
+    },
+    {
+      "uuid": "42b0dfc2-40d9-44d3-8678-5091f15afde7",
+      "playername": "BiBo_Th3_Ripp3r",
+      "wager": 1660235
+    },
+    {
+      "uuid": "f2ed72bb-31ef-42c3-8456-372c85aa739b",
+      "playername": "Orb_Store",
+      "wager": 5
+    },
+    {
+      "uuid": "52ffcd1b-7cb4-48e7-82de-03a41afa061d",
+      "playername": "pusplocke",
+      "wager": 1962145
+    },
+    {
+      "uuid": "77706451-4eaa-4061-9e03-169e27cee023",
+      "playername": "Oxication_HD",
+      "wager": 2432015
+    },
+    {
+      "uuid": "fe10c7c9-83f4-4603-a423-d5cdcd1f2def",
+      "playername": "RiryC001",
+      "wager": 5
+    },
+    {
+      "uuid": "068ff8c2-9918-411d-9593-d2b7e2fd371d",
+      "playername": "Jere0258",
+      "wager": 20010
+    },
+    {
+      "uuid": "0e7c2bab-cf1b-4d3c-954f-e2a11cd0b582",
+      "playername": "zNight649",
+      "wager": 83098080
+    },
+    {
+      "uuid": "cab5bcd2-7b88-4a1d-94ba-dbaffc1a56f2",
+      "playername": "xAlserak",
+      "wager": 15128155
+    },
+    {
+      "uuid": "a39d4373-60ad-4e18-852b-e0796dedef62",
+      "playername": "Premium_man_",
+      "wager": 5248075
+    },
+    {
+      "uuid": "7e9774da-dd78-3fde-bbbb-61b84a5c979d",
+      "playername": "!RobLoxxGhosT",
+      "wager": 2352020
+    },
+    {
+      "uuid": "3a5309af-6510-4445-916a-660aaeb0e76e",
+      "playername": "Lattenrost1234",
+      "wager": 12608075
+    },
+    {
+      "uuid": "27c8b333-4954-32d7-a27c-12e4c61b58da",
+      "playername": "!Russivan639",
+      "wager": 920015
+    },
+    {
+      "uuid": "d2362403-231e-4d2e-b26c-0ad7a8a24b80",
+      "playername": "FriksGames",
+      "wager": 17848320
+    },
+    {
+      "uuid": "8dca34b2-9500-4d01-a510-a53037f20579",
+      "playername": "Oxiiiii_42",
+      "wager": 10
+    },
+    {
+      "uuid": "21b987f7-2e45-4417-823c-2a9922635047",
+      "playername": "1Kxksen",
+      "wager": 2005
+    },
+    {
+      "uuid": "75f31271-ea69-4ad4-b275-884dedb6d357",
+      "playername": "salina3534",
+      "wager": 9514055
+    },
+    {
+      "uuid": "a380117b-7213-44b8-bb8d-1e0d3071aa19",
+      "playername": "ItzZ_PauleXx",
+      "wager": 104035
+    },
+    {
+      "uuid": "440e3388-4cc4-4d7f-b5cd-048a5e9b8eea",
+      "playername": "versabberter",
+      "wager": 3426060
+    },
+    {
+      "uuid": "79852977-c186-4c74-ba6a-186cec4c953a",
+      "playername": "CryzZ11",
+      "wager": 2246040
+    },
+    {
+      "uuid": "7854f1fd-3050-41c7-99f4-60ad0d6eec25",
+      "playername": "ItzZ_Popeye",
+      "wager": 17858235
+    },
+    {
+      "uuid": "5c2a3eee-ab92-4ff8-b71f-416c995ba97c",
+      "playername": "zdobeq",
+      "wager": 832170
+    },
+    {
+      "uuid": "d0560923-c832-4c51-8053-d4869aef69ca",
+      "playername": "RealShiva",
+      "wager": 512005
+    },
+    {
+      "uuid": "62a7ebe6-c142-42e7-b639-dc0d58236a2e",
+      "playername": "Teufelswesen",
+      "wager": 384000
+    },
+    {
+      "uuid": "51597d23-214a-47a0-9fe6-2427e013efb8",
+      "playername": "Trogoso",
+      "wager": 8146085
+    },
+    {
+      "uuid": "67da9ce1-b83d-49ae-9df6-146d26212f22",
+      "playername": "Silberjason",
+      "wager": 136040
+    },
+    {
+      "uuid": "4a8fcd88-c3e0-4bc8-8e76-7cb825095c83",
+      "playername": "meerkatinthehat",
+      "wager": 20
+    },
+    {
+      "uuid": "966f6fef-a5ce-3486-aa85-3e43f265336b",
+      "playername": "!uzzi193159",
+      "wager": 155
+    },
+    {
+      "uuid": "e278048c-993f-4dda-adce-d29e93887aaa",
+      "playername": "Null_FPS",
+      "wager": 256015
+    },
+    {
+      "uuid": "05a43700-011f-4ea5-b3b6-e7d189758271",
+      "playername": "4real2k",
+      "wager": 1664010
+    },
+    {
+      "uuid": "6ec4de13-0deb-4b08-b0d1-1f27dbb9fff4",
+      "playername": "Rxffel",
+      "wager": 6025
+    },
+    {
+      "uuid": "d774b1f9-5078-439a-a267-17d6a5b02f5d",
+      "playername": "Telephos85",
+      "wager": 3492015
+    },
+    {
+      "uuid": "98bd03cf-ac4c-4bcc-82a4-19e74c7d7ea2",
+      "playername": "Nectaner",
+      "wager": 16010
+    },
+    {
+      "uuid": "c1565fda-3110-4549-904b-8cd07d7a464a",
+      "playername": "Agent007_",
+      "wager": 38270
+    },
+    {
+      "uuid": "7b097e9c-6269-4f4e-8cad-910bfa64a675",
+      "playername": "DrInk3653",
+      "wager": 3584005
+    },
+    {
+      "uuid": "b1eeae81-97cc-4798-a908-9848cf35953d",
+      "playername": "XZSupaA_Gecko",
+      "wager": 5
+    },
+    {
+      "uuid": "f460c89e-c955-456c-8d3a-fecae5fd6d88",
+      "playername": "1Lxca",
+      "wager": 130005
+    },
+    {
+      "uuid": "bce9a4da-6993-4066-b4ac-51ea75b24092",
+      "playername": "BoBderBaumester",
+      "wager": 384005
+    },
+    {
+      "uuid": "4be759a2-a416-4e35-b1d8-7b61deb6ccb1",
+      "playername": "JustHackl",
+      "wager": 5
+    },
+    {
+      "uuid": "61a62498-35a3-4437-9746-7ce258e77464",
+      "playername": "Lumania2020",
+      "wager": 768000
+    },
+    {
+      "uuid": "63a2f0d3-70a5-4c4f-a609-ada33451c8d6",
+      "playername": "zFlevo",
+      "wager": 4000
+    },
+    {
+      "uuid": "f04cc68f-cf1d-45d5-bf9c-0f2f1410d5da",
+      "playername": "mayumyi",
+      "wager": 256000
+    },
+    {
+      "uuid": "02b57fac-b8be-4693-90ca-50be497b7945",
+      "playername": "9Sleepyy",
+      "wager": 11278170
+    },
+    {
+      "uuid": "8dc50d76-b7cc-406e-8ecf-01bbfb45f4e1",
+      "playername": "LytnoGG",
+      "wager": 192060
+    },
+    {
+      "uuid": "1478210a-6b94-4486-bb9b-bfc8c1a786db",
+      "playername": "Crazylaser46",
+      "wager": 490090
+    },
+    {
+      "uuid": "33510a1b-0aff-4cd5-8f8a-62dfdce109c7",
+      "playername": "Stepmarvin_",
+      "wager": 1542010
+    },
+    {
+      "uuid": "b85224c9-60bb-4d5b-8623-a778176c6b59",
+      "playername": "KurzVorGucci",
+      "wager": 128005
+    },
+    {
+      "uuid": "4da4007c-d36e-4e51-85e3-b9032fc3a158",
+      "playername": "Alterschwede45",
+      "wager": 640255
+    },
+    {
+      "uuid": "b0d05b0a-1433-4f09-82ae-45e7a95d2a16",
+      "playername": "ReLaXeD_YT",
+      "wager": 1024000
+    },
+    {
+      "uuid": "10dd715e-c489-400d-8024-5f5440840685",
+      "playername": "Marcel1UP",
+      "wager": 384120
+    },
+    {
+      "uuid": "56ed648d-9fa2-4027-93e4-32c6e87c1967",
+      "playername": "NiemandKilltMich",
+      "wager": 18602010
+    },
+    {
+      "uuid": "0869cafa-4ceb-47ac-93ac-20993c9a02c9",
+      "playername": "BerndDasBrot2",
+      "wager": 1512030
+    },
+    {
+      "uuid": "0b94f4e3-2f1a-45ad-9ea1-d2b83e881783",
+      "playername": "yasin112",
+      "wager": 2005
+    },
+    {
+      "uuid": "affd6ad8-58c3-4e93-be9f-d4ba32fdebfa",
+      "playername": "NightWolfLG",
+      "wager": 256005
+    },
+    {
+      "uuid": "19c19880-6b67-49bc-b691-c24c6c3ab97f",
+      "playername": "DerTechnoGod",
+      "wager": 64040
+    },
+    {
+      "uuid": "fd9ba1a8-5bc1-47b2-871c-974c105f31db",
+      "playername": "ItsEmily17",
+      "wager": 10
+    },
+    {
+      "uuid": "c1cc9cbc-5458-43f3-87a0-b9c3c3a4f661",
+      "playername": "NoxxyLP",
+      "wager": 10
+    },
+    {
+      "uuid": "501a7b6c-a791-4c9b-b676-9f6b8c408734",
+      "playername": "gerritgl",
+      "wager": 130010
+    },
+    {
+      "uuid": "e9dff5fa-6609-4b1d-a260-4111425beace",
+      "playername": "GRIPEYgoatsAY",
+      "wager": 2816005
+    },
+    {
+      "uuid": "265b5ece-c141-44b8-b245-2ecb9d09170a",
+      "playername": "MappiLP2005",
+      "wager": 640000
+    },
+    {
+      "uuid": "bc9d562d-3d5c-4b11-ba35-1f4fedef7b1c",
+      "playername": "OchMarloooon",
+      "wager": 128015
+    },
+    {
+      "uuid": "bddef550-44f9-446a-bf44-945a5dc5d33b",
+      "playername": "Max_Scx",
+      "wager": 58045
+    },
+    {
+      "uuid": "7de7c311-7c74-4096-9d21-d8df43464a5b",
+      "playername": "DeathGamer_",
+      "wager": 125
+    },
+    {
+      "uuid": "7ef097f6-0e77-4028-9c04-95d0b7a33380",
+      "playername": "_LeGeSu_",
+      "wager": 25
+    },
+    {
+      "uuid": "1924eeea-8ff9-4080-97e2-7e9b047a0636",
+      "playername": "JustJxn",
+      "wager": 5
+    },
+    {
+      "uuid": "fec5687e-646a-4e30-ab01-3a9a8f6ac4d2",
+      "playername": "vAkenoHimejima",
+      "wager": 512005
+    },
+    {
+      "uuid": "81e347c9-43a4-4d91-ba82-d2b71f0b4900",
+      "playername": "Blend325",
+      "wager": 55
+    },
+    {
+      "uuid": "a5255238-3015-4dfd-bb2f-405bb979764c",
+      "playername": "Tensukyy",
+      "wager": 5
+    },
+    {
+      "uuid": "29f656bb-597f-445c-afd6-e7b4b04962bd",
+      "playername": "Znaq0",
+      "wager": 896000
+    },
+    {
+      "uuid": "dd0e8429-67e5-4205-bf9b-00396d766e1b",
+      "playername": "Azugreift",
+      "wager": 352010
+    },
+    {
+      "uuid": "55fcaf19-9b23-41dd-9d67-a0dc735b65ba",
+      "playername": "Traez12",
+      "wager": 8015
+    },
+    {
+      "uuid": "e496b078-5f28-4bb0-b33d-1a076992fdd9",
+      "playername": "Godemode007",
+      "wager": 524015
+    },
+    {
+      "uuid": "bf91df5c-fdf7-4025-b76c-197825d576a0",
+      "playername": "Bananenjoe_07",
+      "wager": 5
+    },
+    {
+      "uuid": "5c5d6722-052c-44bd-8737-cccc3b13f30f",
+      "playername": "1Nokon",
+      "wager": 5
+    },
+    {
+      "uuid": "27791361-92f2-42c4-bfd1-6592ff2edeb4",
+      "playername": "Windbreathing",
+      "wager": 5
+    },
+    {
+      "uuid": "a70f6e8e-0e9e-4769-8803-1de200be6d0d",
+      "playername": "1Nagato",
+      "wager": 5
+    },
+    {
+      "uuid": "f39377c8-bbf4-44a0-870f-ff0b91457f8b",
+      "playername": "EasyJukiii",
+      "wager": 4920015
+    },
+    {
+      "uuid": "ae240436-8086-42bd-bbf6-a51bcda9e536",
+      "playername": "DrShade007",
+      "wager": 134000
+    },
+    {
+      "uuid": "1dcc3b99-adbe-35f0-9df6-faae7729dcc2",
+      "playername": "!CeDDric22",
+      "wager": 24005
+    },
+    {
+      "uuid": "81187374-bfcb-47b3-a721-419166e06c29",
+      "playername": "phvlpp",
+      "wager": 5
+    },
+    {
+      "uuid": "02f8adc4-3c91-4169-a1a5-5b417784e828",
+      "playername": "DerKlotz",
+      "wager": 5
+    },
+    {
+      "uuid": "39b69885-f3ef-4e0b-9ab3-9ec5aa80b4eb",
+      "playername": "GamerTimmy2020",
+      "wager": 192035
+    },
+    {
+      "uuid": "ad66449b-d6da-4e9b-945e-0f5d066d9e6c",
+      "playername": "rednightx",
+      "wager": 25
+    },
+    {
+      "uuid": "68abbcaf-78b8-4e07-aeca-b840e2cbd74c",
+      "playername": "Crazy_Einhorn",
+      "wager": 15
+    },
+    {
+      "uuid": "f91001d1-6a1e-4bda-9a5f-a41fdb04a002",
+      "playername": "T_Eintausend",
+      "wager": 30
+    },
+    {
+      "uuid": "39e0e4c8-8d08-406b-bc95-e4c0473d462c",
+      "playername": "Klausi1910",
+      "wager": 5
+    },
+    {
+      "uuid": "a05cba81-bb64-4024-a181-e4f0c0b636a9",
+      "playername": "DragonFelix_",
+      "wager": 40
+    },
+    {
+      "uuid": "3f6585b5-364f-4efd-985c-cc7c179d4db5",
+      "playername": "_IceFire_",
+      "wager": 10
+    },
+    {
+      "uuid": "50526fdf-d953-4ac5-b3c5-4d8efb9ead8f",
+      "playername": "Radditz010",
+      "wager": 384000
+    },
+    {
+      "uuid": "73ade809-80ff-4b90-8d62-bd4550b686c9",
+      "playername": "TANZVERTOB",
+      "wager": 256005
+    },
+    {
+      "uuid": "59cf7bfa-a22a-4027-a529-f2b945ecdbf9",
+      "playername": "GreenPlasmaTV",
+      "wager": 262065
+    },
+    {
+      "uuid": "a7341b75-cfe2-49c5-b9a8-3405566e1df0",
+      "playername": "Ghambio",
+      "wager": 5
+    },
+    {
+      "uuid": "3bbeb5b7-ad84-3f00-b023-1f12589a1001",
+      "playername": "!Maxi95359",
+      "wager": 4
+    },
+    {
+      "uuid": "6dfccad2-3e17-4d43-8af6-8a9249e72d4c",
+      "playername": "Edeimudi",
+      "wager": 5
+    },
+    {
+      "uuid": "bda4af21-17db-440e-a24d-a5dee81e3b06",
+      "playername": "AirHits4Valle",
+      "wager": 5
+    },
+    {
+      "uuid": "c8584c33-9ea5-4948-929f-3e9e82fce8eb",
+      "playername": "1Matixem",
+      "wager": 5
+    },
+    {
+      "uuid": "51087845-01b6-4565-b0d0-74ef323f930e",
+      "playername": "Lugiuss",
+      "wager": 122015
+    },
+    {
+      "uuid": "0805c507-561d-462e-86cf-9a4cfae89451",
+      "playername": "EljeroW",
+      "wager": 15
+    },
+    {
+      "uuid": "8c94ac33-5bd7-498d-8333-e0dbe8644d7d",
+      "playername": "TheBlauBlock",
+      "wager": 5
+    },
+    {
+      "uuid": "c6a6d4a3-c1e7-46e4-845c-71baa0bbd6a1",
+      "playername": "suboyu",
+      "wager": 1536005
+    },
+    {
+      "uuid": "1850ca86-8803-41e9-b2c7-1ba2dad4fdca",
+      "playername": "Nono_2686",
+      "wager": 244010
+    },
+    {
+      "uuid": "c94c02f1-e270-4bed-8d23-ef53090ce55e",
+      "playername": "Mickey9919",
+      "wager": 105
+    },
+    {
+      "uuid": "293da0f1-59ee-4245-a821-750dbf1b5208",
+      "playername": "TD52",
+      "wager": 5
+    },
+    {
+      "uuid": "aec0bfdb-c974-4f9a-8066-ffb9ef584a97",
+      "playername": "Ahmmo_189",
+      "wager": 482010
+    },
+    {
+      "uuid": "21b9d75c-2b1b-4688-8b0f-e59188f6c382",
+      "playername": "Its_Chriss",
+      "wager": 192000
+    },
+    {
+      "uuid": "82586818-0a1d-4ebf-9530-24ab6e8d8dcd",
+      "playername": "Traumblau",
+      "wager": 5
+    },
+    {
+      "uuid": "38a111c5-4016-4ca6-9477-77b515354619",
+      "playername": "Kuttendeckel90",
+      "wager": 384000
+    },
+    {
+      "uuid": "c2ecae0f-2453-487a-84b1-ef8d6e2053c0",
+      "playername": "ppmonster123",
+      "wager": 512025
+    },
+    {
+      "uuid": "86ec28c9-78a1-4a81-9cd4-5a02023877b8",
+      "playername": "leqedRisk",
+      "wager": 32000
+    },
+    {
+      "uuid": "04d84937-3b6a-4f64-a27d-c3f2eb0f715e",
+      "playername": "FazeLui",
+      "wager": 216005
+    },
+    {
+      "uuid": "92fbf49e-9528-4b6c-aa5c-bd5e440f0996",
+      "playername": "PritFrit",
+      "wager": 35
+    },
+    {
+      "uuid": "632982d0-f715-42f5-ac7b-340980a8238d",
+      "playername": "Spraqzy",
+      "wager": 5
+    },
+    {
+      "uuid": "49d47ce7-5223-4f6f-b995-15494a558550",
+      "playername": "The_Flieger_",
+      "wager": 134005
+    },
+    {
+      "uuid": "52e0e5d2-d7ee-4a28-a477-3792ddf71a39",
+      "playername": "aeroalbert",
+      "wager": 5
+    },
+    {
+      "uuid": "d5cc309f-3aeb-48e2-a2f4-4c5f17827c5f",
+      "playername": "GlatsiGHG",
+      "wager": 16000
+    },
+    {
+      "uuid": "01248734-ed63-4e2e-a626-08193df5b6c4",
+      "playername": "teyru1",
+      "wager": 20
+    },
+    {
+      "uuid": "3ebbedd2-2b66-4123-8e75-d1e6c516cf74",
+      "playername": "Axtari",
+      "wager": 256005
+    },
+    {
+      "uuid": "c53f05f5-f6bc-4f13-9b2c-393a5f64b755",
+      "playername": "Sir_Kirschi",
+      "wager": 1024005
+    },
+    {
+      "uuid": "a16aedd4-8f57-40a1-81c0-0d719383f3d8",
+      "playername": "Just_Zoe_9",
+      "wager": 5
+    },
+    {
+      "uuid": "ac25f18e-dde4-4d96-8231-1462f16ce40d",
+      "playername": "22Perkz",
+      "wager": 768015
+    },
+    {
+      "uuid": "5b30d27f-a533-4708-9456-93ed9563293e",
+      "playername": "IgorDerDraht",
+      "wager": 6144005
+    },
+    {
+      "uuid": "7c05f3cb-154e-4c1c-839c-7efec20f35e0",
+      "playername": "Botshop_MW",
+      "wager": 92005
+    },
+    {
+      "uuid": "c4946c06-cff2-4130-9650-5858cbff3bfd",
+      "playername": "Ocean_Riad",
+      "wager": 2005
+    },
+    {
+      "uuid": "bd71f93c-2979-405c-9cb9-1ea077986da1",
+      "playername": "Celina118",
+      "wager": 5
+    },
+    {
+      "uuid": "c1747948-3434-4b2c-8e30-10a4ec5983c9",
+      "playername": "Mxrcooo",
+      "wager": 5
+    },
+    {
+      "uuid": "548286ab-3703-4e0a-b98f-368db60e4278",
+      "playername": "SHENG_CASINO",
+      "wager": 15
+    },
+    {
+      "uuid": "b9ae9643-7d1f-481c-9093-3985fc919500",
+      "playername": "LHTHEONE",
+      "wager": 45
+    },
+    {
+      "uuid": "3fb639fc-928d-40e4-b2cf-cfc8aaa95798",
+      "playername": "marvbrot",
+      "wager": 256010
+    },
+    {
+      "uuid": "6849c251-f17d-4f2c-82f2-3fe018d4618a",
+      "playername": "tusk2dust",
+      "wager": 5
+    },
+    {
+      "uuid": "aac80c9d-46c4-4036-9c6a-cc63664f9df8",
+      "playername": "Fischdrift",
+      "wager": 5
+    },
+    {
+      "uuid": "6e2b0862-74ef-3e27-b254-019a69a2a4bc",
+      "playername": "!lucapdm",
+      "wager": 25
+    },
+    {
+      "uuid": "a43f7dbd-16db-4841-b8ef-f14d89e248ed",
+      "playername": "JustJxn_",
+      "wager": 222005
+    },
+    {
+      "uuid": "5e13524b-6f81-4246-886f-22f3e098ed2d",
+      "playername": "Yannick1909_",
+      "wager": 15
+    },
+    {
+      "uuid": "7a871d87-3d92-4e92-802c-7b7074744473",
+      "playername": "FriesenJung04",
+      "wager": 256015
+    }
+  ];
+    // ** ENDE DER NEUESTEN SPIELERDATEN **
+    
+    // --- KONSTANTEN UND VARIABLEN FÜR AUTHENTIFIZIERUNG ---
+    const LOGIN_KEY = 'userLoggedIn';
+    const ACCOUNTS_FILE = 'accounts.json';
+    let validAccounts = []; // Speichert die geladenen Konten
+
+    // --- ZENTRALE BERECHTIGUNGSFUNKTIONEN (NEU) ---
+
+    /**
+     * Prüft, ob der aktuelle Benutzer die erforderliche Rolle hat.
+     * @param {string | string[]} requiredRoles - Die benötigte(n) Rolle(n) (z.B. 'Admin' oder ['Admin', 'User']).
+     * @param {string} redirectPage - Die Seite, zu der bei fehlender Berechtigung weitergeleitet wird.
+     * @returns {boolean} True, wenn der Zugriff erlaubt ist, sonst False.
+     */
+    function checkPagePermissions(requiredRoles, redirectPage = 'index.html') {
+        const userRole = sessionStorage.getItem('userRole');
+        const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true'; 
+        
+        // Konvertiere einzelne Rolle zu einem Array zur einfacheren Prüfung
+        const requiredRolesArray = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
+
+        // 1. NICHT EINGELOGGT ODER ROLLE FEHLT: Zur Login-Seite
+        if (!isLoggedIn || !userRole) {
+            console.warn('Nicht eingeloggt oder Rolle fehlt. Umleitung zur Login-Seite.');
+            window.location.href = redirectPage; 
+            return false;
+        }
+
+        // 2. FALSCHE ROLLE: Zeige Fehlermeldung und leite um
+        if (requiredRolesArray.length > 0 && !requiredRolesArray.includes(userRole)) {
+            console.error(`Zugriff verweigert. Rolle '${userRole}' hat keinen Zugriff.`);
+            alert('Zugriff verweigert. Sie haben nicht die erforderlichen Berechtigungen für diese Seite.');
+            window.location.href = redirectPage; // Leitet zur Login-Seite zurück
+            return false;
+        }
+
+        // 3. ZUGRIFF ERLAUBT
+        return true; 
+    }
+
+    /**
+     * Lädt die Zugangsdaten aus der externen accounts.json Datei.
+     */
+    async function loadAccounts() {
+        try {
+            const response = await fetch(ACCOUNTS_FILE);
+            if (!response.ok) {
+                displayMessage(`Fehler beim Laden von ${ACCOUNTS_FILE}. Status: ${response.status}`, 'error');
+                return false;
             }
-        });
-    </script>
+            const data = await response.json();
+            validAccounts = data.accounts || []; // Daten speichern
+            return true;
+        } catch (e) {
+            displayMessage(`Datei "${ACCOUNTS_FILE}" ist fehlerhaft oder konnte nicht geladen werden. Prüfen Sie die JSON-Syntax.`, 'error');
+            return false;
+        }
+    }
 
-    <h1>Willkommen, Administrator!</h1>
-    <p>Hier sind vertrauliche Informationen.</p>
+    /**
+     * Führt die Login-Prüfung durch (für das Login-Modal, falls es hier angezeigt wird).
+     */
+    function checkLogin() {
+        const usernameInput = document.getElementById('login-username').value;
+        const passwordInput = document.getElementById('login-password').value;
+        const loginMessage = document.getElementById('login-message');
+        loginMessage.style.display = 'none';
+
+        const accountFound = validAccounts.find(account => 
+            account.username === usernameInput && account.password === passwordInput 
+        ); 
+
+        if (accountFound) {
+            // Erfolg
+            sessionStorage.setItem(LOGIN_KEY, 'true'); 
+            sessionStorage.setItem('userRole', accountFound.role); // ✨ NEU: Rolle speichern
+            
+            document.getElementById('login-modal-overlay').style.display = 'none';
+            document.querySelector('.container').style.display = 'block'; 
+            
+            // Nach erfolgreichem Login prüfen, ob die Rollen für diese Seite passen
+            if (checkPagePermissions(['Admin', 'User'], 'index.html')) {
+                initializeApp();
+            }
+        } else {
+            // Fehler
+            loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
+            loginMessage.style.display = 'block';
+        }
+    }
+
+    // --- STANDARD-FUNKTIONEN (UNVERÄNDERT) ---
+
+    // Audio-Objekt nur für den Klick-Sound
+    const CLICK_SOUND_URL = './buttonclick.mp3'; 
+    const clickAudio = new Audio(CLICK_SOUND_URL);
+
+    function playClickSound() {
+        if (!clickAudio) return;
+        clickAudio.currentTime = 0; // Stellt den Sound auf Anfang zurück, damit er immer sofort abspielt
+        clickAudio.play().catch(e => console.warn("Audio Playback blockiert:", e));
+    }
+
+    /**
+     * Formatiert eine Zahl mit Tausender-Trennern und fügt " €" hinzu.
+     */
+    function formatNumber(num) {
+        if (typeof num !== 'number') return num;
+        // Erzeugt einen deutschen Formatierer
+        return num.toLocaleString('de-DE') + ' €'; 
+    }
+
+    /**
+     * Erzeugt eine URL für den Minecraft Skin Kopf.
+     */
+    function cleanPlayerNameForSkin(name) {
+        // Entfernt führende Ausrufezeichen
+        if (name.startsWith('!')) {
+            return name.substring(1);
+        }
+        return name;
+    }
+
+    /**
+     * Zeigt eine Meldung im Fehlerbereich an.
+     */
+    function displayMessage(message, type = 'success') {
+        const errorMessage = document.getElementById('error-message');
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+
+        // Stile basierend auf dem Typ setzen
+        if (type === 'error') {
+            errorMessage.style.backgroundColor = '#f2dede'; 
+            errorMessage.style.color = '#a94442';
+        } else { // success oder default
+            errorMessage.style.backgroundColor = '#d4edda'; 
+            errorMessage.style.color = '#155724';
+        }
+        
+        // Nach 5 Sekunden ausblenden
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 5000);
+    }
+    
+    /**
+     * Erstellt eine Ergebnis-Karte für einen Spieler.
+     */
+    function createPlayerCard(player) {
+        const resultsContainer = document.getElementById('results-container');
+        const card = document.createElement('div');
+        card.className = 'player-card';
+        card.onclick = () => { 
+            playClickSound(); 
+            displayPlayerDetails(player); 
+        };
+
+        const cleanName = cleanPlayerNameForSkin(player.playername);
+        const skinUrl = `https://mineskin.eu/head/${cleanName}/64`;
+        
+        const img = document.createElement('img');
+        img.src = skinUrl;
+        img.alt = `Skin-Kopf von ${player.playername}`;
+
+        const nameHeading = document.createElement('h3');
+        nameHeading.textContent = player.playername;
+
+        const divider = document.createElement('div');
+        divider.className = 'divider';
+
+        const wagerText = document.createElement('p');
+        wagerText.innerHTML = `<b>Umsatz:</b> <br>${formatNumber(player.wager)}`;
+
+        card.appendChild(img);
+        card.appendChild(nameHeading);
+        card.appendChild(divider);
+        card.appendChild(wagerText);
+
+        resultsContainer.appendChild(card);
+    }
+
+    // --- VORSCHLAGS-LOGIK --- 
+    function getTopPlayers(count) {
+        return [...playerStats]
+        .sort((a, b) => b.wager - a.wager)
+        .slice(0, count);
+    }
+
+    function displayTopSuggestions() {
+        const topPlayers = getTopPlayers(5);
+        const container = document.getElementById('suggestions-container');
+        container.style.display = 'block';
+        container.innerHTML = '<h4>⭐ Top 5 Spieler (Nach Umsatz)</h4><div class="suggestion-list"></div>';
+        const list = container.querySelector('.suggestion-list');
+
+        topPlayers.forEach(player => {
+            const span = document.createElement('span');
+            span.className = 'suggestion-player';
+            span.textContent = player.playername;
+            span.onclick = () => {
+                playClickSound();
+                document.getElementById('search-input').value = player.playername; // Füllt das Suchfeld
+                searchPlayers(true); // Führt die Suche aus
+            };
+            list.appendChild(span);
+        });
+    }
+
+    function displayDynamicSuggestions(searchTerm) {
+        const dynamicContainer = document.getElementById('dynamic-suggestions-container');
+        dynamicContainer.innerHTML = '';
+        
+        if (searchTerm.length < 2) {
+            dynamicContainer.style.display = 'none';
+            displayTopSuggestions();
+            return;
+        }
+
+        const filteredPlayers = playerStats.filter(player => 
+            player.playername.toLowerCase().includes(searchTerm)
+        ).slice(0, 10); // Nur die ersten 10 Treffer
+
+        if (filteredPlayers.length > 0) {
+            dynamicContainer.style.display = 'block';
+            dynamicContainer.innerHTML = `<h4>🔍 Vorschläge (${filteredPlayers.length} gefunden)</h4><div class="suggestion-list"></div>`;
+            const list = dynamicContainer.querySelector('.suggestion-list');
+
+            filteredPlayers.forEach(player => {
+                const span = document.createElement('span');
+                span.className = 'suggestion-player';
+                span.textContent = player.playername;
+                span.onclick = () => {
+                    playClickSound();
+                    document.getElementById('search-input').value = player.playername;
+                    searchPlayers(true); 
+                };
+                list.appendChild(span);
+            });
+            document.getElementById('suggestions-container').style.display = 'none';
+        } else {
+             dynamicContainer.style.display = 'none';
+             document.getElementById('suggestions-container').style.display = 'none'; 
+        }
+    }
+
+    function handleSearchInput(event) {
+        const input = document.getElementById('search-input');
+        const searchTerm = input.value.toLowerCase().trim();
+        
+        if (event && event.type === 'keyup') {
+            if (event.key === 'Enter') {
+                searchPlayers(true);
+            } else {
+                document.getElementById('results-container').innerHTML = '';
+                document.getElementById('error-message').style.display = 'none';
+                displayDynamicSuggestions(searchTerm);
+            }
+        }
+    }
+
+    function searchPlayers(isFullSearch = false) {
+        const input = document.getElementById('search-input');
+        const searchTerm = input.value.toLowerCase().trim();
+        const resultsContainer = document.getElementById('results-container');
+        const errorMessage = document.getElementById('error-message');
+        const dynamicContainer = document.getElementById('dynamic-suggestions-container');
+        const topContainer = document.getElementById('suggestions-container');
+
+        resultsContainer.innerHTML = '';
+        errorMessage.style.display = 'none';
+        dynamicContainer.style.display = 'none';
+
+        if (searchTerm === "") {
+            topContainer.style.display = 'block';
+            displayTopSuggestions();
+            return;
+        }
+
+        const exactMatch = playerStats.find(player => player.playername.toLowerCase() === searchTerm);
+        let results = [];
+
+        if (exactMatch) {
+            results.push(exactMatch);
+            displayMessage(`Spieler '${exactMatch.playername}' gefunden!`, 'success');
+        } else if (isFullSearch) {
+             // Nur bei explizitem Klick auf Suchen nach Teilstring suchen
+            results = playerStats.filter(player => 
+                player.playername.toLowerCase().includes(searchTerm)
+            );
+            if (results.length > 0) {
+                 displayMessage(`${results.length} Spieler mit '${input.value}' im Namen gefunden.`, 'success');
+            } else {
+                 displayMessage(`Spielername '${input.value}' nicht gefunden.`, 'error');
+            }
+        } else {
+            // Bei initialer Lücke oder wenn keine vollständige Suche ausgeführt wird
+            displayMessage(`Bitte geben Sie den genauen Namen ein oder wählen Sie einen Vorschlag.`, 'error');
+        }
+
+        if (results.length > 0) {
+            results.forEach(createPlayerCard);
+            topContainer.style.display = 'none'; 
+        } else {
+            topContainer.style.display = 'block'; 
+            displayTopSuggestions();
+        }
+    }
+
+
+    // --- DETAIL MODAL FUNKTIONEN ---
+
+    function displayPlayerDetails(player) {
+        const modal = document.getElementById('player-detail-modal');
+        const content = document.getElementById('detail-content');
+        content.innerHTML = ''; // Inhalt leeren
+
+        const cleanName = cleanPlayerNameForSkin(player.playername);
+        const skinUrl = `https://mineskin.eu/face/${cleanName}/128`; // Größerer Skin
+        
+        content.innerHTML = `
+            <img src="${skinUrl}" alt="Skin-Kopf von ${player.playername}">
+            <h2>${player.playername}</h2>
+            <p><b>Gesamtwager:</b> ${formatNumber(player.wager)}</p>
+            <p><b>UUID:</b> ${player.uuid}</p>
+            <p><b>Session Rolle:</b> ${sessionStorage.getItem('userRole') || 'Unbekannt'}</p>
+            <a href="https://namemc.com/profile/${player.uuid}" target="_blank">NameMC Profil öffnen</a>
+        `;
+
+        modal.style.display = "block";
+    }
+
+    function closePlayerDetails() {
+        document.getElementById('player-detail-modal').style.display = "none";
+    }
+
+    // Schließt das Detail-Modal, wenn außerhalb des Inhalts geklickt wird
+    window.onclick = function(event) {
+        const detailModal = document.getElementById('player-detail-modal');
+        if (event.target === detailModal) {
+            closePlayerDetails();
+        }
+    }
+    
+    // --- HAUPT-INITIALISIERUNG ---
+    
+    function initializeApp() {
+         // Zeigt die Top 5 Spieler an
+        if (playerStats.length > 0) {
+             displayTopSuggestions();
+        } else {
+            displayMessage('⚠️ Wichtig: Es wurden keine Spielerdaten gefunden. Bitte die Daten prüfen.', 'error');
+        }
+    }
+    
+    // Haupt-DOMContentLoaded-Handler zur Authentifizierung
+    document.addEventListener('DOMContentLoaded', async () => { 
+        
+        // 1. Zuerst Accounts laden
+        const accountsLoaded = await loadAccounts();
+        if (!accountsLoaded) {
+            // Wenn Accounts nicht geladen werden konnten, das Login-Overlay anzeigen und warten
+            document.getElementById('login-modal-overlay').style.display = 'flex';
+            return;
+        }
+        
+        // 2. NEU: Rollen- und Login-Prüfung für die Hauptseite (app (2).html)
+        // Erlaube nur Benutzern mit der Rolle 'Admin' oder 'User' Zugriff
+        if (!checkPagePermissions(['Admin', 'User'], 'index.html')) {
+             // Wenn Prüfung fehlschlägt, wurde bereits zur index.html umgeleitet.
+             return; 
+        }
+
+        // 3. Wenn die Prüfung erfolgreich war (Benutzer ist eingeloggt und hat die Rolle), 
+        // wird der Container angezeigt und die App initialisiert.
+        document.getElementById('login-modal-overlay').style.display = 'none';
+        document.querySelector('.container').style.display = 'block'; 
+        initializeApp();
+    });
+
+</script>
 </body>
 </html>
