@@ -10,8 +10,8 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #1e1e1e;
-            color: #f0f0f0;
+            background-color: #1e1e1e; /* Dunkler Hintergrund */
+            color: #f0f0f0; /* Helle Textfarbe */
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -19,282 +19,1678 @@
             padding-top: 50px;
         }
         .container {
-            display: none;
+            display: none; /* NEU: Standardmäßig versteckt */
             width: 90%;
             max-width: 700px;
-            background: #2d2d30;
+            background: #2d2d30; /* Dunkle Container-Fläche */
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         h1 {
-            color: #4CAF50;
+            color: #4CAF50; /* Akzentfarbe Grün */
             text-align: center;
+            margin-bottom: 5px;
+            font-size: 2em;
         }
-        /* ... weitere Stile ... */
-        
-        /* NEUE STILE FÜR ADMIN-MENÜ UND ANFRAGE */
-        #admin-menu {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px solid #4CAF50;
-            border-radius: 8px;
-            background-color: #3a3a3d;
-            display: none; /* Standardmäßig versteckt */
-        }
-        .request-item {
-            border-bottom: 1px solid #555;
-            padding: 10px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .request-item:last-child {
-            border-bottom: none;
-        }
-        .request-details {
-            flex-basis: 60%;
-        }
-        .request-actions {
-            flex-basis: 35%;
+        #current-date {
             text-align: right;
+            font-size: 0.8em;
+            color: #aaa;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #3a3a3d;
+            padding-bottom: 10px;
         }
-        .request-actions textarea {
+        
+        /* === LOGIN MODAL STYLES (NEU) === */
+        #login-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1e1e1e; /* Hintergrundfarbe des Bodys */
+            display: none; /* Wird über JS bei Bedarf auf 'flex' gesetzt */
+            justify-content: center;
+            align-items: center;
+            z-index: 101; /* Über allen anderen Elementen */
+        }
+
+        #login-form-container {
+            background-color: #2d2d30;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            text-align: center;
             width: 90%;
-            margin-top: 5px;
-            background-color: #1e1e1e;
-            color: #f0f0f0;
+            max-width: 350px;
+        }
+
+        #login-form-container h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        #login-form-container p {
+            color: #aaa;
+        }
+
+        #login-username, #login-password {
+            width: calc(100% - 30px);
+            padding: 12px 15px;
+            margin: 10px 0;
             border: 1px solid #555;
-            padding: 5px;
-            border-radius: 4px;
+            border-radius: 6px;
+            background-color: #3a3a3d;
+            color: #f0f0f0;
+            font-size: 1em;
+            box-sizing: border-box;
         }
-        .btn-approve, .btn-reject {
-            padding: 8px 15px;
-            margin-left: 5px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
+        #login-username:focus, #login-password:focus {
+            border-color: #4CAF50;
+            outline: none;
         }
-        .btn-approve {
+
+        #login-form-container button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
             background-color: #4CAF50;
             color: white;
-        }
-        .btn-reject {
-            background-color: #f44336;
-            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.2s;
         }
 
-        /* Stil für die Anfrage-Sektion (für Rolle 'self') */
-        #request-access-section {
-            margin-top: 20px;
+        #login-form-container button:hover {
+            background-color: #43A047;
+        }
+        
+        /* === Suchfeld-Design (Suchfenster) === */
+        #search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            position: relative;
+        }
+        #search-input {
+            padding: 12px 15px;
+            font-size: 1.1em;
+            border: 2px solid #555;
+            border-radius: 8px;
+            flex-grow: 1;
+            background-color: #3a3a3d;
+            color: #f0f0f0;
+            transition: border-color 0.3s;
+        }
+        #search-input:focus {
+            border-color: #4CAF50; /* Akzentfarbe bei Fokus */
+            outline: none;
+        }
+        #search-button {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #search-button:hover {
+            background-color: #43A047;
+        }
+        
+        /* === Vorschlags-Container (Top 5 & Dynamisch) === */
+        #suggestions-container, #dynamic-suggestions-container {
+            margin-bottom: 20px;
             padding: 15px;
-            border: 1px solid #555;
             border-radius: 8px;
             background-color: #3a3a3d;
-            display: none; /* Standardmäßig versteckt */
+            border-left: 5px solid #4CAF50; /* Grüner Akzent */
+        }
+        #suggestions-container h4, #dynamic-suggestions-container h4 {
+            margin-top: 0;
+            color: #4CAF50; 
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        .suggestion-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .suggestion-player {
+            background-color: #555;
+            color: #fff;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-weight: bold;
+        }
+        .suggestion-player:hover {
+            background-color: #4CAF50;
+            transform: translateY(-2px);
         }
 
-        /* Stil für Lade-Icon */
-        .loading-icon {
-            width: 30px;
-            height: 30px;
-            vertical-align: middle;
-            margin-right: 10px;
+        /* === Ergebnis-Karten === */
+        #results-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .player-card {
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 8px;
+            width: 160px;
+            text-align: center;
+            background: #3a3a3d;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer; 
+        }
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5), 0 0 10px #4CAF50;
+        }
+        .player-card img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%; /* Rundes Profilbild */
+            border: 3px solid #4CAF50;
+            margin-bottom: 10px;
+            image-rendering: pixelated;
+        }
+        .player-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.2em;
+            color: #e0e0e0;
+            word-break: break-all;
+        }
+        .player-card p {
+            margin: 0;
+            font-size: 0.95em;
+            color: #bbb;
+        }
+        .divider {
+            margin: 10px 0;
+            border-top: 1px solid #444;
+        }
+        
+        /* === Meldungen und Fehler === */
+        #error-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: none; /* Initial versteckt */
+        }
+        /* Erfolgsmeldung */
+        #error-message[style*="background-color: #d4edda"] { 
+            background-color: #384239 !important;
+            border: 1px solid #4CAF50;
+            color: #4CAF50 !important;
+        }
+        /* Fehlermeldung */
+        #error-message[style*="background-color: #f2dede"] { 
+            background-color: #5d3f42 !important;
+            border: 1px solid #d9534f;
+            color: #d9534f !important;
+        }
+
+        /* === DETAIL MODAL STYLES === */
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 100; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.8); 
+        }
+        .modal-content {
+            background-color: #3a3a3d;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 450px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #fff;
+        }
+        #detail-content img {
+            width: 128px; 
+            height: auto;
+            image-rendering: pixelated;
+            margin: 15px auto 25px auto;
+            border: 4px solid #4CAF50;
+            border-radius: 50%;
+        }
+        #detail-content h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 15px;
+            font-size: 1.8em;
+        }
+        #detail-content p {
+            margin: 12px 0;
+            text-align: left;
+            padding: 5px 10px;
+            font-size: 1.05em;
+            background-color: #2d2d30;
+            border-radius: 4px;
+        }
+        #detail-content b {
+            color: #fff;
+        }
+        #detail-content a {
+            display: block;
+            margin-top: 25px;
+            padding: 12px;
+            background-color: #007bff; /* Sekundäre Akzentfarbe Blau */
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        #detail-content a:hover {
+            background-color: #0056b3;
         }
     </style>
-    </head>
+</head>
 <body>
 
-<div id="login-modal-overlay" style="display: none; /* initial hidden */">
+<div id="login-modal-overlay">
+    <div id="login-form-container">
+        <h2>Zugriff erforderlich</h2>
+        <p>Bitte melden Sie sich an, um die Holostats-Daten einzusehen.</p>
+        <input type="text" id="login-username" placeholder="Benutzername">
+        <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()">
+        <button onclick="checkLogin()">Anmelden</button>
+        <p id="login-message" style="color: #d9534f; margin-top: 10px; display: none;"></p>
     </div>
-
+</div>
 <div class="container">
-    <h1>Holostats Spielerstatistik-Suche</h1>
+    <h1><span style="color: white;">Sunny_Casino</span> - Spieler Umsatz suchen</h1>
+    
+    <p id="current-date">Daten-Stand: 07.12.2025</p>
 
-    <div id="admin-menu">
-        <h2>Zugriffsanfragen</h2>
-        <div id="request-list">
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Spielernamen eingeben..." onkeyup="handleSearchInput(event)">
+        <button id="search-button" onclick="searchPlayers(true)">Suchen</button>
+    </div>
+    
+    <div id="dynamic-suggestions-container" style="display: none;">
+        </div>
+
+    <div id="suggestions-container">
+        </div>
+
+    <p id="error-message"></p>
+    
+    <div id="results-container">
+        </div>
+</div>
+
+<div id="player-detail-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closePlayerDetails()">&times;</span>
+        <div id="detail-content">
             </div>
     </div>
-    
-    <div id="player-data-display">
-        <p>Geben Sie einen Spielernamen ein, um dessen Statistik zu sehen.</p>
-        <input type="text" id="player-search" placeholder="Spielername">
-        <button onclick="searchPlayer()">Suchen</button>
-        <div id="search-results"></div>
-    </div>
-    
-    <div id="request-access-section">
-        <h3>Zugriff auf andere Spielerdaten anfordern</h3>
-        <input type="text" id="request-target-player" placeholder="Spielername für den Zugriff">
-        <textarea id="request-reason" placeholder="Grund für die Anfrage (erforderlich)" rows="3"></textarea>
-        <button onclick="submitAccessRequest()">Anfrage senden</button>
-        <p id="request-message" style="color: yellow; margin-top: 10px;"></p>
-    </div>
-    
-    </div>
-
+</div>
 <script>
-    // Konstanten beibehalten
-    const LOGIN_KEY = 'isLoggedIn';
-    const CURRENT_USER_KEY = 'currentUser';
-    const TARGET_PAGE = 'app (2).html'; 
-
-    // MOCK-ACCOUNTS (Ihre neue Struktur)
-    const MOCK_ACCOUNTS = [
-        { "username": "JasonNewAcc", "password": "1234", "role": "admin" },
-        { "username": "Lattenrost1234", "password": "1234", "role": "moderator" },
-        { "username": "Admin", "password": "passwort_sicher", "role": "admin" },
-        { "username": "TestUser", "password": "test", "role": "self" }
+    // ** START DER NEUESTEN SPIELERDATEN **
+    let playerStats = [
+    {
+      "uuid": "2143da9f-503b-4e4a-835a-d1d7f37a0af1",
+      "playername": "JasonNewAcc",
+      "wager": 4904301
+    },
+    {
+      "uuid": "3afc41d9-6ac7-41d1-b7c2-8286ce21765d",
+      "playername": "xNotNamex",
+      "wager": 7864090
+    },
+    {
+      "uuid": "895d190d-77d7-4c85-b79b-bcd6768011ca",
+      "playername": "Lilly_197",
+      "wager": 3022045
+    },
+    {
+      "uuid": "1038f0a9-4431-490a-b07c-c3b5222b259c",
+      "playername": "3infach_Craz7",
+      "wager": 9644035
+    },
+    {
+      "uuid": "2e809eab-3e83-4632-9743-d061c119b59f",
+      "playername": "Yxlukas",
+      "wager": 13346075
+    },
+    {
+      "uuid": "467e9ab0-b048-4307-b5fd-1ea110f45817",
+      "playername": "lblenni",
+      "wager": 256010
+    },
+    {
+      "uuid": "a490eea8-725d-4140-9ac7-68bd751229de",
+      "playername": "1real_nox",
+      "wager": 1244210
+    },
+    {
+      "uuid": "9c1e2e4e-650b-4018-a22d-6197eca0a49f",
+      "playername": "1Verfehlter",
+      "wager": 1596185
+    },
+    {
+      "uuid": "9d593273-a33d-40de-9e66-78ff12991e7e",
+      "playername": "ces_cot",
+      "wager": 65
+    },
+    {
+      "uuid": "9bda69ad-3ebe-42e2-a48f-96fa6f3a4351",
+      "playername": "KenRyugujiYT",
+      "wager": 5
+    },
+    {
+      "uuid": "42b0dfc2-40d9-44d3-8678-5091f15afde7",
+      "playername": "BiBo_Th3_Ripp3r",
+      "wager": 1660235
+    },
+    {
+      "uuid": "f2ed72bb-31ef-42c3-8456-372c85aa739b",
+      "playername": "Orb_Store",
+      "wager": 5
+    },
+    {
+      "uuid": "52ffcd1b-7cb4-48e7-82de-03a41afa061d",
+      "playername": "pusplocke",
+      "wager": 1962145
+    },
+    {
+      "uuid": "77706451-4eaa-4061-9e03-169e27cee023",
+      "playername": "Oxication_HD",
+      "wager": 2432015
+    },
+    {
+      "uuid": "fe10c7c9-83f4-4603-a423-d5cdcd1f2def",
+      "playername": "RiryC001",
+      "wager": 5
+    },
+    {
+      "uuid": "068ff8c2-9918-411d-9593-d2b7e2fd371d",
+      "playername": "Jere0258",
+      "wager": 20010
+    },
+    {
+      "uuid": "0e7c2bab-cf1b-4d3c-954f-e2a11cd0b582",
+      "playername": "zNight649",
+      "wager": 83098080
+    },
+    {
+      "uuid": "cab5bcd2-7b88-4a1d-94ba-dbaffc1a56f2",
+      "playername": "xAlserak",
+      "wager": 15128155
+    },
+    {
+      "uuid": "a39d4373-60ad-4e18-852b-e0796dedef62",
+      "playername": "Premium_man_",
+      "wager": 5248075
+    },
+    {
+      "uuid": "7e9774da-dd78-3fde-bbbb-61b84a5c979d",
+      "playername": "!RobLoxxGhosT",
+      "wager": 2352020
+    },
+    {
+      "uuid": "3a5309af-6510-4445-916a-660aaeb0e76e",
+      "playername": "Lattenrost1234",
+      "wager": 12608075
+    },
+    {
+      "uuid": "27c8b333-4954-32d7-a27c-12e4c61b58da",
+      "playername": "!Russivan639",
+      "wager": 920015
+    },
+    {
+      "uuid": "d2362403-231e-4d2e-b26c-0ad7a8a24b80",
+      "playername": "FriksGames",
+      "wager": 17848320
+    },
+    {
+      "uuid": "8dca34b2-9500-4d01-a510-a53037f20579",
+      "playername": "Oxiiiii_42",
+      "wager": 10
+    },
+    {
+      "uuid": "21b987f7-2e45-4417-823c-2a9922635047",
+      "playername": "1Kxksen",
+      "wager": 2005
+    },
+    {
+      "uuid": "75f31271-ea69-4ad4-b275-884dedb6d357",
+      "playername": "salina3534",
+      "wager": 9514055
+    },
+    {
+      "uuid": "a380117b-7213-44b8-bb8d-1e0d3071aa19",
+      "playername": "ItzZ_PauleXx",
+      "wager": 104035
+    },
+    {
+      "uuid": "440e3388-4cc4-4d7f-b5cd-048a5e9b8eea",
+      "playername": "versabberter",
+      "wager": 3426060
+    },
+    {
+      "uuid": "79852977-c186-4c74-ba6a-186cec4c953a",
+      "playername": "CryzZ11",
+      "wager": 2246040
+    },
+    {
+      "uuid": "7854f1fd-3050-41c7-99f4-60ad0d6eec25",
+      "playername": "ItzZ_Popeye",
+      "wager": 17858235
+    },
+    {
+      "uuid": "5c2a3eee-ab92-4ff8-b71f-416c995ba97c",
+      "playername": "zdobeq",
+      "wager": 832170
+    },
+    {
+      "uuid": "d0560923-c832-4c51-8053-d4869aef69ca",
+      "playername": "RealShiva",
+      "wager": 512005
+    },
+    {
+      "uuid": "62a7ebe6-c142-42e7-b639-dc0d58236a2e",
+      "playername": "Teufelswesen",
+      "wager": 384000
+    },
+    {
+      "uuid": "51597d23-214a-47a0-9fe6-2427e013efb8",
+      "playername": "Trogoso",
+      "wager": 8146085
+    },
+    {
+      "uuid": "67da9ce1-b83d-49ae-9df6-146d26212f22",
+      "playername": "Silberjason",
+      "wager": 136040
+    },
+    {
+      "uuid": "4a8fcd88-c3e0-4bc8-8e76-7cb825095c83",
+      "playername": "meerkatinthehat",
+      "wager": 20
+    },
+    {
+      "uuid": "966f6fef-a5ce-3486-aa85-3e43f265336b",
+      "playername": "!uzzi193159",
+      "wager": 155
+    },
+    {
+      "uuid": "e278048c-993f-4dda-adce-d29e93887aaa",
+      "playername": "Null_FPS",
+      "wager": 256015
+    },
+    {
+      "uuid": "05a43700-011f-4ea5-b3b6-e7d189758271",
+      "playername": "4real2k",
+      "wager": 1664010
+    },
+    {
+      "uuid": "6ec4de13-0deb-4b08-b0d1-1f27dbb9fff4",
+      "playername": "Rxffel",
+      "wager": 6025
+    },
+    {
+      "uuid": "d774b1f9-5078-439a-a267-17d6a5b02f5d",
+      "playername": "Telephos85",
+      "wager": 3492015
+    },
+    {
+      "uuid": "98bd03cf-ac4c-4bcc-82a4-19e74c7d7ea2",
+      "playername": "Nectaner",
+      "wager": 16010
+    },
+    {
+      "uuid": "c1565fda-3110-4549-904b-8cd07d7a464a",
+      "playername": "Agent007_",
+      "wager": 38270
+    },
+    {
+      "uuid": "7b097e9c-6269-4f4e-8cad-910bfa64a675",
+      "playername": "DrInk3653",
+      "wager": 3584005
+    },
+    {
+      "uuid": "b1eeae81-97cc-4798-a908-9848cf35953d",
+      "playername": "XZSupaA_Gecko",
+      "wager": 5
+    },
+    {
+      "uuid": "f460c89e-c955-456c-8d3a-fecae5fd6d88",
+      "playername": "1Lxca",
+      "wager": 130005
+    },
+    {
+      "uuid": "bce9a4da-6993-4066-b4ac-51ea75b24092",
+      "playername": "BoBderBaumester",
+      "wager": 384005
+    },
+    {
+      "uuid": "4be759a2-a416-4e35-b1d8-7b61deb6ccb1",
+      "playername": "JustHackl",
+      "wager": 5
+    },
+    {
+      "uuid": "61a62498-35a3-4437-9746-7ce258e77464",
+      "playername": "Lumania2020",
+      "wager": 768000
+    },
+    {
+      "uuid": "63a2f0d3-70a5-4c4f-a609-ada33451c8d6",
+      "playername": "zFlevo",
+      "wager": 4000
+    },
+    {
+      "uuid": "f04cc68f-cf1d-45d5-bf9c-0f2f1410d5da",
+      "playername": "mayumyi",
+      "wager": 256000
+    },
+    {
+      "uuid": "02b57fac-b8be-4693-90ca-50be497b7945",
+      "playername": "9Sleepyy",
+      "wager": 11278170
+    },
+    {
+      "uuid": "8dc50d76-b7cc-406e-8ecf-01bbfb45f4e1",
+      "playername": "LytnoGG",
+      "wager": 192060
+    },
+    {
+      "uuid": "1478210a-6b94-4486-bb9b-bfc8c1a786db",
+      "playername": "Crazylaser46",
+      "wager": 490090
+    },
+    {
+      "uuid": "33510a1b-0aff-4cd5-8f8a-62dfdce109c7",
+      "playername": "Stepmarvin_",
+      "wager": 1542010
+    },
+    {
+      "uuid": "b85224c9-60bb-4d5b-8623-a778176c6b59",
+      "playername": "KurzVorGucci",
+      "wager": 128005
+    },
+    {
+      "uuid": "4da4007c-d36e-4e51-85e3-b9032fc3a158",
+      "playername": "Alterschwede45",
+      "wager": 640255
+    },
+    {
+      "uuid": "b0d05b0a-1433-4f09-82ae-45e7a95d2a16",
+      "playername": "ReLaXeD_YT",
+      "wager": 1024000
+    },
+    {
+      "uuid": "9ce71af3-f8be-4d98-a1ee-84f2e969729e",
+      "playername": "Farfuss293",
+      "wager": 9350115
+    },
+    {
+      "uuid": "9a630acf-e2a8-4851-b427-35830297878e",
+      "playername": "OkBinStili",
+      "wager": 876035
+    },
+    {
+      "uuid": "e0233016-36a8-40ad-a9d4-9b3c9acc47b4",
+      "playername": "xJazeek",
+      "wager": 16135
+    },
+    {
+      "uuid": "f06b9822-5c24-4a0b-8a57-4dcd5640e256",
+      "playername": "UndeadDuck",
+      "wager": 128000
+    },
+    {
+      "uuid": "983b1a4a-9f5d-4e76-8fb3-ee3459066851",
+      "playername": "Em1n3e7",
+      "wager": 64005
+    },
+    {
+      "uuid": "0b12bb65-2f18-408a-a004-87e756bdb83e",
+      "playername": "Verhunted",
+      "wager": 130005
+    },
+    {
+      "uuid": "b4e86782-c1b5-4fbe-8e37-24410ddb49d2",
+      "playername": "Luksch007x",
+      "wager": 11008000
+    },
+    {
+      "uuid": "15fef32b-8f3b-457d-a005-adb89baa490c",
+      "playername": "IchGehOOC",
+      "wager": 512055
+    },
+    {
+      "uuid": "1eabc4cd-f6de-4038-b67b-9b0aa0840247",
+      "playername": "mcpack22",
+      "wager": 5
+    },
+    {
+      "uuid": "b05acf76-7fc9-43d2-a16b-12e78a4d4bd1",
+      "playername": "Gaming__Buddy",
+      "wager": 15
+    },
+    {
+      "uuid": "687102df-08c8-47fe-8771-1bb03ebfdb8e",
+      "playername": "Amelie1up",
+      "wager": 128090
+    },
+    {
+      "uuid": "10dd715e-c489-400d-8024-5f5440840685",
+      "playername": "Marcel1UP",
+      "wager": 384120
+    },
+    {
+      "uuid": "56ed648d-9fa2-4027-93e4-32c6e87c1967",
+      "playername": "NiemandKilltMich",
+      "wager": 18602010
+    },
+    {
+      "uuid": "0869cafa-4ceb-47ac-93ac-20993c9a02c9",
+      "playername": "BerndDasBrot2",
+      "wager": 1512030
+    },
+    {
+      "uuid": "0b94f4e3-2f1a-45ad-9ea1-d2b83e881783",
+      "playername": "yasin112",
+      "wager": 2005
+    },
+    {
+      "uuid": "affd6ad8-58c3-4e93-be9f-d4ba32fdebfa",
+      "playername": "NightWolfLG",
+      "wager": 256005
+    },
+    {
+      "uuid": "19c19880-6b67-49bc-b691-c24c6c3ab97f",
+      "playername": "DerTechnoGod",
+      "wager": 64040
+    },
+    {
+      "uuid": "fd9ba1a8-5bc1-47b2-871c-974c105f31db",
+      "playername": "ItsEmily17",
+      "wager": 10
+    },
+    {
+      "uuid": "c1cc9cbc-5458-43f3-87a0-b9c3c369e931",
+      "playername": "Emilian141",
+      "wager": 1370225
+    },
+    {
+      "uuid": "9e65449f-1035-43a9-a790-a7d519b40092",
+      "playername": "Trexus06",
+      "wager": 5
+    },
+    {
+      "uuid": "7e3b567d-6254-4f40-848f-3d84346e2363",
+      "playername": "DerLordDerSeelen",
+      "wager": 128005
+    },
+    {
+      "uuid": "1f86f3b7-76fe-4f81-9b16-92d4317f0e69",
+      "playername": "PhipsiTV",
+      "wager": 16000
+    },
+    {
+      "uuid": "8b5155f9-e31d-444f-a033-a3d8b5c9603f",
+      "playername": "MaxGamer_15",
+      "wager": 384010
+    },
+    {
+      "uuid": "74888941-2a9c-4572-8805-4927d2c385b2",
+      "playername": "RedBullTrinker",
+      "wager": 5
+    },
+    {
+      "uuid": "501a7b6c-a791-4c9b-b676-9f6b8c408734",
+      "playername": "gerritgl",
+      "wager": 130010
+    },
+    {
+      "uuid": "e9dff5fa-6609-4b1d-a260-4111425beace",
+      "playername": "GRIPEYgoatsAY",
+      "wager": 2816005
+    },
+    {
+      "uuid": "265b5ece-c141-44b8-b245-2ecb9d09170a",
+      "playername": "MappiLP2005",
+      "wager": 640000
+    },
+    {
+      "uuid": "bc9d562d-3d5c-4b11-ba35-1f4fedef7b1c",
+      "playername": "OchMarloooon",
+      "wager": 128015
+    },
+    {
+      "uuid": "bddef550-44f9-446a-bf44-945a5dc5d33b",
+      "playername": "Max_Scx",
+      "wager": 58045
+    },
+    {
+      "uuid": "7de7c311-7c74-4096-9d21-d8df43464a5b",
+      "playername": "DeathGamer_",
+      "wager": 125
+    },
+    {
+      "uuid": "7ef097f6-0e77-4028-9c04-95d0b7a33380",
+      "playername": "_LeGeSu_",
+      "wager": 25
+    },
+    {
+      "uuid": "1924eeea-8ff9-4080-97e2-7e1ee479ffec",
+      "playername": "ScopezLuki6996",
+      "wager": 2050
+    },
+    {
+      "uuid": "77b539c7-3fd9-479c-9c71-f92500053916",
+      "playername": "Einself_Gaming",
+      "wager": 5
+    },
+    {
+      "uuid": "8c593a89-2ccf-4402-a74b-c742e882412e",
+      "playername": "JustLucaX",
+      "wager": 5
+    },
+    {
+      "uuid": "fec5687e-646a-4e30-ab01-3a9a8f6ac4d2",
+      "playername": "vAkenoHimejima",
+      "wager": 512005
+    },
+    {
+      "uuid": "81e347c9-43a4-4d91-ba82-d2b71f0b4900",
+      "playername": "Blend325",
+      "wager": 55
+    },
+    {
+      "uuid": "a5255238-3015-4dfd-bb2f-405bb979764c",
+      "playername": "Tensukyy",
+      "wager": 5
+    },
+    {
+      "uuid": "29f656bb-597f-445c-afd6-e7b4b04962bd",
+      "playername": "Znaq0",
+      "wager": 896000
+    },
+    {
+      "uuid": "dd0e8429-67e5-4205-bf9b-00396d766e1b",
+      "playername": "Azugreift",
+      "wager": 352010
+    },
+    {
+      "uuid": "55fcaf19-9b23-41dd-9d67-a0dc735b65ba",
+      "playername": "Traez12",
+      "wager": 8015
+    },
+    {
+      "uuid": "e496b078-5f28-4bb0-b33d-1a076992fdd9",
+      "playername": "Godemode007",
+      "wager": 524015
+    },
+    {
+      "uuid": "bf91df5c-fdf7-4025-b76c-191c00cf3819",
+      "playername": "MakaDoktor1019",
+      "wager": 128000
+    },
+    {
+      "uuid": "43202246-8149-43c3-8ccf-7033d65b746c",
+      "playername": "zNilsHD",
+      "wager": 10
+    },
+    {
+      "uuid": "5c5d6722-052c-44bd-8737-cccc3b13f30f",
+      "playername": "1Nokon",
+      "wager": 5
+    },
+    {
+      "uuid": "27791361-92f2-42c4-bfd1-6592ff2edeb4",
+      "playername": "Windbreathing",
+      "wager": 5
+    },
+    {
+      "uuid": "a70f6e8e-0e9e-4769-8803-1de200be6d0d",
+      "playername": "1Nagato",
+      "wager": 5
+    },
+    {
+      "uuid": "f39377c8-bbf4-44a0-870f-ff0b91457f8b",
+      "playername": "EasyJukiii",
+      "wager": 4920015
+    },
+    {
+      "uuid": "ae240436-8086-42bd-bbf6-a51bcda9e536",
+      "playername": "DrShade007",
+      "wager": 134000
+    },
+    {
+      "uuid": "1dcc3b99-adbe-35f0-9df6-faae7729dcc2",
+      "playername": "!CeDDric22",
+      "wager": 24005
+    },
+    {
+      "uuid": "81187374-bfcb-47b3-a721-419166e06c29",
+      "playername": "phvlpp",
+      "wager": 5
+    },
+    {
+      "uuid": "02f8adc4-3c91-4169-a1a5-5b417784e828",
+      "playername": "DerKloLecker1234",
+      "wager": 296025
+    },
+    {
+      "uuid": "b24a0497-26cf-4673-b201-92f440d999ec",
+      "playername": "Yannik13601",
+      "wager": 5
+    },
+    {
+      "uuid": "39b69885-f3ef-4e0b-9ab3-9ec5aa80b4eb",
+      "playername": "GamerTimmy2020",
+      "wager": 192035
+    },
+    {
+      "uuid": "ad66449b-d6da-4e9b-945e-0f5d066d9e6c",
+      "playername": "rednightx",
+      "wager": 25
+    },
+    {
+      "uuid": "68abbcaf-78b8-4e07-aeca-b840e2cbd74c",
+      "playername": "Crazy_Einhorn",
+      "wager": 15
+    },
+    {
+      "uuid": "f91001d1-6a1e-4bda-9a5f-a41fdb04a002",
+      "playername": "T_Eintausend",
+      "wager": 30
+    },
+    {
+      "uuid": "39e0e4c8-8d08-406b-bc95-e4c0473d462c",
+      "playername": "Klausi1910",
+      "wager": 5
+    },
+    {
+      "uuid": "a05cba81-bb64-4024-a181-e4f0c0b636a9",
+      "playername": "DragonFelix_",
+      "wager": 40
+    },
+    {
+      "uuid": "3f6585b5-364f-4efd-985c-cc7c179d4db5",
+      "playername": "_IceFire_",
+      "wager": 10
+    },
+    {
+      "uuid": "50526fdf-d953-4ac5-b3c5-4d8efb9ead8f",
+      "playername": "Radditz03",
+      "wager": 10
+    },
+    {
+      "uuid": "f27f89d4-12b3-4b81-8238-c9382eec9a75",
+      "playername": "Milo0607",
+      "wager": 256010
+    },
+    {
+      "uuid": "73ade809-80ff-4b90-8d62-bd4550b686c9",
+      "playername": "TANZVERTOB",
+      "wager": 256005
+    },
+    {
+      "uuid": "59cf7bfa-a22a-4027-a529-f2b945ecdbf9",
+      "playername": "GreenPlasmaTV",
+      "wager": 262065
+    },
+    {
+      "uuid": "a7341b75-cfe2-49c5-b9a8-3405566e1df0",
+      "playername": "Ghambio",
+      "wager": 5
+    },
+    {
+      "uuid": "3bbeb5b7-ad84-3f00-b023-1f12589a1001",
+      "playername": "!Maxi95359",
+      "wager": 400045
+    },
+    {
+      "uuid": "9fbef760-4848-4df0-94d0-621376f80996",
+      "playername": "123kuchen",
+      "wager": 10
+    },
+    {
+      "uuid": "f9dea61f-bcf5-4b4a-b8f3-0ba1ca8e870d",
+      "playername": "voyzeg",
+      "wager": 5
+    },
+    {
+      "uuid": "89464a34-2c0f-4757-b45f-9e0423f03fa3",
+      "playername": "IceCreamZocker",
+      "wager": 5
+    },
+    {
+      "uuid": "0e99f82e-abae-3377-bc0a-d40ef442d79a",
+      "playername": "!Luca6474",
+      "wager": 32005
+    },
+    {
+      "uuid": "93780024-52c2-4ecc-89f1-a04799f378ba",
+      "playername": "B0B_TheFarmer",
+      "wager": 5
+    },
+    {
+      "uuid": "74f57d04-70db-468a-9b3e-480442b87b06",
+      "playername": "Mewtu32",
+      "wager": 16000
+    },
+    {
+      "uuid": "44008ee2-a855-38e7-bb5d-dd14e6c2959e",
+      "playername": "!mustafa2002106",
+      "wager": 30
+    },
+    {
+      "uuid": "ea9b1b08-098b-3180-bc66-4eaa3a98ab4e",
+      "playername": "!gof1k",
+      "wager": 96010
+    },
+    {
+      "uuid": "6ff73979-f361-4331-b5e2-ffaf7de2eadf",
+      "playername": "UrpilZ",
+      "wager": 128000
+    },
+    {
+      "uuid": "de553425-276e-4a32-9273-d5d36e2f698e",
+      "playername": "123123maxi",
+      "wager": 10
+    },
+    {
+      "uuid": "0805c507-561d-462e-86cf-9a4cfae89451",
+      "playername": "EljeroW",
+      "wager": 15
+    },
+    {
+      "uuid": "8c94ac33-5bd7-498d-8333-e0dbe8644d7d",
+      "playername": "TheBlauBlock",
+      "wager": 5
+    },
+    {
+      "uuid": "c6a6d4a3-c1e7-46e4-845c-71baa0bbd6a1",
+      "playername": "suboyu",
+      "wager": 1536005
+    },
+    {
+      "uuid": "1850ca86-8803-41e9-b2c7-1ba2dad4fdca",
+      "playername": "Nono_2686",
+      "wager": 244010
+    },
+    {
+      "uuid": "c94c02f1-e270-4bed-8d23-ef53090ce55e",
+      "playername": "Mickey9919",
+      "wager": 105
+    },
+    {
+      "uuid": "293da0f1-59ee-4245-a821-750dbf1b5208",
+      "playername": "TD52",
+      "wager": 5
+    },
+    {
+      "uuid": "aec0bfdb-c974-4f9a-8066-ffb9ef584a97",
+      "playername": "Ahmmo_189",
+      "wager": 482010
+    },
+    {
+      "uuid": "21b9d75c-2b1b-4688-8b0f-e591889d38b5",
+      "playername": "Obstig",
+      "wager": 256005
+    },
+    {
+      "uuid": "37dd68c0-ee30-424b-a96d-3176d6f93288",
+      "playername": "D_e_r_k_r_a_n_k_e",
+      "wager": 15
+    },
+    {
+      "uuid": "82586818-0a1d-4ebf-9530-24ab6e8d8dcd",
+      "playername": "Traumblau",
+      "wager": 5
+    },
+    {
+      "uuid": "38a111c5-4016-4ca6-9477-77b515354619",
+      "playername": "Kuttendeckel90",
+      "wager": 384000
+    },
+    {
+      "uuid": "c2ecae0f-2453-487a-84b1-ef8d6e2053c0",
+      "playername": "ppmonster123",
+      "wager": 512025
+    },
+    {
+      "uuid": "86ec28c9-78a1-4a81-9cd4-5a02023877b8",
+      "playername": "leqedRisk",
+      "wager": 32000
+    },
+    {
+      "uuid": "04d84937-3b6a-4f64-a27d-c3f2eb0f715e",
+      "playername": "FazeLui",
+      "wager": 216005
+    },
+    {
+      "uuid": "92fbf49e-9528-4b6c-aa5c-bd5e440f0996",
+      "playername": "PritFrit",
+      "wager": 35
+    },
+    {
+      "uuid": "632982d0-f715-42f5-ac7b-340980a8238d",
+      "playername": "Spraqzy",
+      "wager": 5
+    },
+    {
+      "uuid": "49d47ce7-5223-4f6f-b990-82678f11921d",
+      "playername": "M3R1S_49",
+      "wager": 5
+    },
+    {
+      "uuid": "a87e75f3-c556-43b6-b183-4929344238e5",
+      "playername": "FazeLina",
+      "wager": 10
+    },
+    {
+      "uuid": "52e0e5d2-d7ee-4a28-a477-3792ddf71a39",
+      "playername": "aeroalbert",
+      "wager": 5
+    },
+    {
+      "uuid": "d5cc309f-3aeb-48e2-a2f4-4c5f17827c5f",
+      "playername": "GlatsiGHG",
+      "wager": 16000
+    },
+    {
+      "uuid": "01248734-ed63-4e2e-a626-08193df5b6c4",
+      "playername": "teyru1",
+      "wager": 20
+    },
+    {
+      "uuid": "3ebbedd2-2b66-4123-8e75-d1e6c516cf74",
+      "playername": "Axtari",
+      "wager": 256005
+    },
+    {
+      "uuid": "c53f05f5-f6bc-4f13-9b2c-393a5f64b755",
+      "playername": "Sir_Kirschi",
+      "wager": 1024005
+    },
+    {
+      "uuid": "a16aedd4-8f57-40a1-81c0-0d719383f3d8",
+      "playername": "Just_Zoe_9",
+      "wager": 5
+    },
+    {
+      "uuid": "ac25f18e-dde4-4d96-8231-1462f16ce40d",
+      "playername": "22Perkz",
+      "wager": 768015
+    },
+    {
+      "uuid": "5b30d27f-a533-4708-9456-93e6032b970a",
+      "playername": "unidreow",
+      "wager": 5
+    },
+    {
+      "uuid": "aa48f2eb-18fb-489d-bbfe-5111b7d54020",
+      "playername": "xXDerEchteProXX",
+      "wager": 20
+    },
+    {
+      "uuid": "7c05f3cb-154e-4c1c-839c-7efec20f35e0",
+      "playername": "Botshop_MW",
+      "wager": 92005
+    },
+    {
+      "uuid": "c4946c06-cff2-4130-9650-5858cbff3bfd",
+      "playername": "Ocean_Riad",
+      "wager": 2005
+    },
+    {
+      "uuid": "bd71f93c-2979-405c-9cb9-1ea077986da1",
+      "playername": "Celina118",
+      "wager": 5
+    },
+    {
+      "uuid": "c1747948-3434-4b2c-8e30-10a4ec5983c9",
+      "playername": "Mxrcooo",
+      "wager": 5
+    },
+    {
+      "uuid": "2db1e134-1265-48a6-9239-eebcae4cdf39",
+      "playername": "Sanation44",
+      "wager": 5
+    },
+    {
+      "uuid": "fc64a0f4-f89f-496e-8c5d-b798328694ce",
+      "playername": "DoctorSeuss4129",
+      "wager": 80015
+    },
+    {
+      "uuid": "90fc6d08-d40b-47cb-b24e-85cc99c27d76",
+      "playername": "Noxiiiiiii",
+      "wager": 5
+    },
+    {
+      "uuid": "f14549d0-f7b3-49d4-aced-0a6941e9f2dd",
+      "playername": "7ZeroFire",
+      "wager": 1080005
+    },
+    {
+      "uuid": "975d8705-080b-42a3-9289-15873db3929e",
+      "playername": "DasRoteG",
+      "wager": 15
+    },
+    {
+      "uuid": "6800165d-495c-4a5b-a89d-6750a8830c4d",
+      "playername": "Reda92ii",
+      "wager": 1088015
+    },
+    {
+      "uuid": "dcf1f737-dc0f-4978-a077-e15ffc0414c8",
+      "playername": "00GoldenLord",
+      "wager": 128005
+    },
+    {
+      "uuid": "5ffb07a8-7434-4d14-9189-3258d88ee89c",
+      "playername": "HappyMaxi",
+      "wager": 128000
+    },
+    {
+      "uuid": "84887509-957b-48f3-8e12-c43e0f630d3a",
+      "playername": "SpaceSino",
+      "wager": 16000
+    },
+    {
+      "uuid": "41340400-364e-48fc-8996-1ab2f047c5f0",
+      "playername": "AnxiousLeqend",
+      "wager": 5
+    },
+    {
+      "uuid": "c59ba197-ed6e-4683-a621-b4d2cb957f8c",
+      "playername": "AzureWave710720",
+      "wager": 128000
+    },
+    {
+      "uuid": "c0edf295-dcea-4229-8bae-10db64a46289",
+      "playername": "EinCrazyMarkus",
+      "wager": 192005
+    },
+    {
+      "uuid": "61a2a939-b675-4362-80ab-ac7e0399126a",
+      "playername": "BaluDerBaum",
+      "wager": 20
+    },
+    {
+      "uuid": "548286ab-3703-4e0a-b98f-368db60e4278",
+      "playername": "SHENG_CASINO",
+      "wager": 15
+    },
+    {
+      "uuid": "b9ae9643-7d1f-481c-9093-3985fc919500",
+      "playername": "LHTHEONE",
+      "wager": 45
+    },
+    {
+      "uuid": "3fb639fc-928d-40e4-b2cf-cfc8aaa95798",
+      "playername": "marvbrot",
+      "wager": 256010
+    },
+    {
+      "uuid": "6849c251-f17d-4f2c-82f2-3fe018d4618a",
+      "playername": "tusk2dust",
+      "wager": 5
+    },
+    {
+      "uuid": "aac80c9d-46c4-4036-9c6a-cc63664f9df8",
+      "playername": "Fischdrift",
+      "wager": 5
+    },
+    {
+      "uuid": "6e2b0862-74ef-3e27-b254-019a69a2a4bc",
+      "playername": "!lucapdm",
+      "wager": 25
+    },
+    {
+      "uuid": "a43f7dbd-16db-441d-8af8-bb80cb6c3097",
+      "playername": "EnolaCasino",
+      "wager": 5
+    },
+    {
+      "uuid": "20d88560-6071-4545-9851-933393b3f218",
+      "playername": "Moriarx330",
+      "wager": 5
+    },
+    {
+      "uuid": "e0b83648-735f-40e8-97ff-20af1e32d56c",
+      "playername": "Mxnuel",
+      "wager": 25
+    }
+    // HINWEIS: Weitere Spielerdaten hier fortsetzen, falls vorhanden.
     ];
-    
-    // MOCK-Daten für Anfragen (im sessionStorage gespeichert)
-    const REQUESTS_KEY = 'pendingRequests';
-    
-    function loadAccounts() {
-        // Simuliert das Laden der Konten, wie in Ihrer Originaldatei
-        window.validAccounts = MOCK_ACCOUNTS;
-        return true; 
-    }
-    
-    // --- NEUE FUNKTIONEN ---
 
-    // 1. Rollen- und Datenanzeige-Logik
-    function initializeApp() {
-        const currentUser = JSON.parse(sessionStorage.getItem(CURRENT_USER_KEY));
-        
-        // Admin- oder Moderator-spezifische UI
-        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'moderator')) {
-            document.getElementById('admin-menu').style.display = 'block';
-            loadPendingRequests();
-        } else if (currentUser && currentUser.role === 'self') {
-            // Logik für Rolle 'self'
-            // Standardmäßig nur Suche nach sich selbst erlauben
-            document.getElementById('request-access-section').style.display = 'block';
+    // ** ENDE DER NEUESTEN SPIELERDATEN **
+
+    // --- KONSTANTEN ---
+    const LOGIN_KEY = 'isLoggedIn';
+    const ACCOUNTS_FILE = './user_accounts.json'; // NEU: Pfad zur JSON-Datei mit den Konten
+    let validAccounts = []; // NEU: Array für die geladenen Konten
+
+    // --- HILFSFUNKTIONEN ---
+
+    /**
+     * Lädt die Benutzerkonten aus der JSON-Datei.
+     * @returns {Promise<boolean>} True, wenn die Accounts erfolgreich geladen wurden, sonst False.
+     */
+    async function loadAccounts() {
+        try {
+            const response = await fetch(ACCOUNTS_FILE);
+            if (!response.ok) {
+                // Wenn die Datei nicht gefunden wird oder ein anderer Fehler auftritt, 
+                // eine Fehlermeldung anzeigen und False zurückgeben
+                displayMessage(`⚠️ Fehler beim Laden der Kontodaten (${response.status} ${response.statusText}).`, 'error');
+                return false;
+            }
+            const data = await response.json();
+            // Optional: Hier könnten Sie die Datenstruktur prüfen, falls nötig
+            validAccounts = data.accounts || []; // Angenommen, die Datei hat das Format { "accounts": [...] }
+            return true;
+        } catch (error) {
+            console.error('Fehler beim Fetchen oder Parsen der Accounts-Datei:', error);
+            // Spezifische Meldung für JSON-Fehler
+            displayMessage(`⚠️ Datei "${ACCOUNTS_FILE}" ist fehlerhaft oder konnte nicht geladen werden. Prüfen Sie die JSON-Syntax.`, 'error'); 
+            return false;
+        }
+    }
+
+    /**
+     * Führt die Login-Prüfung durch.
+     */
+    function checkLogin() {
+        const usernameInput = document.getElementById('login-username').value;
+        const passwordInput = document.getElementById('login-password').value;
+        const loginMessage = document.getElementById('login-message');
+        loginMessage.style.display = 'none';
+
+        // NEU: Prüfung gegen die geladenen Accounts in der validAccounts-Liste
+        const accountFound = validAccounts.find(account => 
+            account.username === usernameInput && account.password === passwordInput
+        );
+
+        if (accountFound) {
+            // Erfolg
+            sessionStorage.setItem(LOGIN_KEY, 'true');
+            document.getElementById('login-modal-overlay').style.display = 'none';
+            document.querySelector('.container').style.display = 'block'; // Zeige Hauptinhalt
             
-            // In der echten Anwendung würden Sie hier prüfen, ob der 'self'-User bereits 
-            // Zugriff auf andere Spieler hat (z.B. über ein weiteres 'sessionStorage'-Feld)
-            // oder das Suchfeld einschränken.
-            document.getElementById('player-search').value = currentUser.username;
-            document.getElementById('player-search').disabled = true; // Suchfeld auf eigenen Namen fixieren
-            document.getElementById('player-data-display').querySelector('p').textContent = `Willkommen, ${currentUser.username}. Sie sehen nur Ihre eigenen Umsätze.`;
+            // Initialisiere die App nach erfolgreichem Login
+            initializeApp();
+        } else {
+            // Fehler
+            loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
+            loginMessage.style.display = 'block';
         }
-
-        // ... Rest Ihrer initializeApp Logik ...
-    }
-    
-    // 2. Anfragen-Logik (für Rolle 'self')
-    function submitAccessRequest() {
-        const currentUser = JSON.parse(sessionStorage.getItem(CURRENT_USER_KEY));
-        const targetPlayer = document.getElementById('request-target-player').value.trim();
-        const reason = document.getElementById('request-reason').value.trim();
-        const messageElement = document.getElementById('request-message');
-
-        if (currentUser.role !== 'self') {
-             messageElement.textContent = 'Fehler: Nur die Rolle "self" kann Anfragen senden.';
-             messageElement.style.color = 'red';
-             return;
-        }
-
-        if (!targetPlayer || !reason) {
-            messageElement.textContent = 'Bitte geben Sie sowohl einen Zielspieler als auch einen Grund an.';
-            messageElement.style.color = 'red';
-            return;
-        }
-
-        // Mock-Speicherung der Anfrage
-        const pendingRequests = JSON.parse(sessionStorage.getItem(REQUESTS_KEY) || '[]');
-        
-        const newRequest = {
-            id: Date.now(),
-            requester: currentUser.username,
-            targetPlayer: targetPlayer,
-            reason: reason,
-            date: new Date().toLocaleDateString('de-DE')
-        };
-        
-        pendingRequests.push(newRequest);
-        sessionStorage.setItem(REQUESTS_KEY, JSON.stringify(pendingRequests));
-        
-        messageElement.textContent = `Anfrage für Spieler ${targetPlayer} wurde gesendet. Ein Administrator wird sie prüfen.`;
-        messageElement.style.color = '#4CAF50';
-        
-        // Eingabefelder leeren
-        document.getElementById('request-target-player').value = '';
-        document.getElementById('request-reason').value = '';
     }
 
-    // 3. Admin-Menü Logik (für Rolle 'admin'/'moderator')
-    function loadPendingRequests() {
-        const requestListElement = document.getElementById('request-list');
-        const pendingRequests = JSON.parse(sessionStorage.getItem(REQUESTS_KEY) || '[]');
-        requestListElement.innerHTML = ''; 
+    // --- ENDE AUTHENTIFIZIERUNG ---
 
-        if (pendingRequests.length === 0) {
-            requestListElement.innerHTML = '<p>Keine offenen Zugriffsanfragen.</p>';
-            return;
-        }
+    // --- SOUND-FUNKTIONEN (ANGEPASST) ---
+    // Definiert den Pfad zu Ihrer lokalen MP3-Datei
+    const CLICK_SOUND_URL = './buttonclick.mp3';
+    // Audio-Objekt nur für den Klick-Sound
+    const clickAudio = new Audio(CLICK_SOUND_URL);
 
-        // Fügen Sie das von Ihnen angehängte Bild als Lade-Icon hinzu
-        requestListElement.innerHTML = `<p><img src="waiting-icon-gif-5.jpg-f27abb9b-f032-43c9-974a-10897721deb0" alt="Lädt..." class="loading-icon">Neue Anfragen (${pendingRequests.length}) warten auf Genehmigung:</p>`;
-
-        pendingRequests.forEach(request => {
-            const requestItem = document.createElement('div');
-            requestItem.className = 'request-item';
-            requestItem.dataset.id = request.id;
-            
-            requestItem.innerHTML = `
-                <div class="request-details">
-                    <strong>Von:</strong> ${request.requester}<br>
-                    <strong>Zugriff auf:</strong> ${request.targetPlayer}<br>
-                    <strong>Grund:</strong> ${request.reason} 
-                </div>
-                <div class="request-actions">
-                    <textarea id="reason-${request.id}" placeholder="Grund für Genehmigung/Ablehnung (Pflichtfeld)" required></textarea>
-                    <button class="btn-approve" onclick="handleAccessRequest(${request.id}, 'approve')">Genehmigen</button>
-                    <button class="btn-reject" onclick="handleAccessRequest(${request.id}, 'reject')">Ablehnen</button>
-                </div>
-            `;
-            requestListElement.appendChild(requestItem);
+    /**
+     * Spielt den Klick-Sound ab (nur für Spieler-Elemente).
+     */
+    function playClickSound() {
+        // Stellt sicher, dass der Sound immer von vorne abgespielt wird
+        clickAudio.currentTime = 0;
+        clickAudio.volume = 0.7; // Lautstärke beibehalten
+        // play() gibt eine Promise zurück, um Fehler zu behandeln
+        clickAudio.play().catch(error => {
+            // Diesen Fehler können wir ignorieren, da er meistens durch 
+            // Browser-Auto-Play-Beschränkungen verursacht wird (z.B. der Nutzer 
+            // hat noch nicht mit der Seite interagiert).
+            // console.warn("Klick-Sound konnte nicht abgespielt werden:", error);
         });
     }
 
-    // 4. Verarbeitung von Genehmigungen/Ablehnungen
-    function handleAccessRequest(requestId, action) {
-        const reasonInput = document.getElementById(`reason-${requestId}`);
-        const adminReason = reasonInput.value.trim();
+    /**
+     * Formatiert eine große Zahl als Währung (z.B. 12.345.678)
+     * @param {number} number - Die zu formatierende Zahl.
+     * @returns {string} Die formatierte Zahl als String.
+     */
+    function formatNumber(number) {
+        if (typeof number !== 'number') return 'N/A';
+        return number.toLocaleString('de-DE');
+    }
 
-        if (!adminReason) {
-            alert('Bitte geben Sie einen Grund für die ' + (action === 'approve' ? 'Genehmigung' : 'Ablehnung') + ' an.');
+    /**
+     * Bereinigt den Spielernamen für die Mineskin-URL (ersetzt ! durch _).
+     * Mineskin kann keine Sonderzeichen wie '!' im URL-Pfad verarbeiten.
+     * @param {string} playerName - Der ursprüngliche Spielername.
+     * @returns {string} Der für die Skin-URL bereinigte Name.
+     */
+    function cleanPlayerNameForSkin(playerName) {
+        return playerName.replace(/!/g, '_');
+    }
+
+    /**
+     * Zeigt eine Meldung (Erfolg oder Fehler) an.
+     * @param {string} message - Der anzuzeigende Text.
+     * @param {('success'|'error')} type - Der Typ der Meldung.
+     */
+    function displayMessage(message, type) {
+        const errorElement = document.getElementById('error-message');
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+
+        if (type === 'success') {
+            errorElement.style.backgroundColor = '#d4edda'; // Helles Grün/Erfolg
+            errorElement.style.color = '#155724';
+        } else if (type === 'error') {
+            errorElement.style.backgroundColor = '#f2dede'; // Helles Rot/Fehler
+            errorElement.style.color = '#a94442';
+        }
+        
+        // Nach 5 Sekunden ausblenden
+        setTimeout(() => {
+            errorElement.style.display = 'none';
+        }, 5000);
+    }
+
+    // --- HAUPT-LOGIK ---
+
+    /**
+     * Sucht Spieler basierend auf dem Suchfeld-Inhalt.
+     * @param {boolean} isManualSearch - True, wenn die Suche manuell per Button/Enter ausgelöst wurde.
+     */
+    function searchPlayers(isManualSearch = false) {
+        const searchInput = document.getElementById('search-input');
+        const query = searchInput.value.trim().toLowerCase();
+        const resultsContainer = document.getElementById('results-container');
+        resultsContainer.innerHTML = '';
+        document.getElementById('error-message').style.display = 'none'; // Fehlermeldung verbergen
+        document.getElementById('dynamic-suggestions-container').style.display = 'none'; // Dynamische Vorschläge verbergen
+
+        if (query.length < 3 && isManualSearch) {
+            displayMessage('Bitte geben Sie mindestens 3 Zeichen für die Suche ein.', 'error');
             return;
         }
 
-        let pendingRequests = JSON.parse(sessionStorage.getItem(REQUESTS_KEY) || '[]');
-        const requestIndex = pendingRequests.findIndex(r => r.id === requestId);
+        if (query === '' && isManualSearch) {
+             displayMessage('Bitte geben Sie einen Spielernamen ein.', 'error');
+             return;
+        }
         
-        if (requestIndex !== -1) {
-            const [request] = pendingRequests.splice(requestIndex, 1);
-            
-            // Protokollierung/Verarbeitung der Entscheidung (Mock)
-            console.log(`Anfrage von ${request.requester} für ${request.targetPlayer} wurde ${action === 'approve' ? 'GENEHMIGT' : 'ABGELEHNT'}. Admin-Grund: ${adminReason}`);
-            
-            // In einer echten App:
-            // Wenn 'approve', würden Sie die Rechte des 'requester' in der Datenbank/auf dem Server aktualisieren.
-            
-            sessionStorage.setItem(REQUESTS_KEY, JSON.stringify(pendingRequests));
-            loadPendingRequests(); // Liste aktualisieren
-            
-            alert(`Anfrage ${requestId} wurde erfolgreich ${action === 'approve' ? 'genehmigt' : 'abgelehnt'}.`);
+        if (query === '' && !isManualSearch) {
+            // Wenn das Suchfeld leer ist und es keine manuelle Suche ist (z.B. nach Löschen des Textes)
+            displayTopSuggestions();
+            return;
+        }
+
+        const filteredPlayers = playerStats.filter(player => 
+            player.playername.toLowerCase().includes(query)
+        );
+
+        if (filteredPlayers.length === 0) {
+            if (isManualSearch) {
+                displayMessage(`Keine Ergebnisse für "${query}" gefunden.`, 'error');
+                displayTopSuggestions(); // Zeige Top-Vorschläge, wenn manuelle Suche fehlschlägt
+            } else {
+                // Bei dynamischer Suche, keine Meldung, aber verstecke Ergebnisse
+            }
+        } else {
+            filteredPlayers.sort((a, b) => b.wager - a.wager); // Sortieren nach Umsatz (absteigend)
+            filteredPlayers.forEach(player => createPlayerCard(player));
+            if (isManualSearch) {
+                 displayMessage(`Suche erfolgreich! ${filteredPlayers.length} Spieler für "${query}" gefunden.`, 'success');
+            }
         }
     }
     
-    // --- Bestehende Logik angepasst ---
+    /**
+     * Behandelt die Eingabe im Suchfeld für dynamische Vorschläge.
+     */
+    function handleSearchInput(event) {
+        const query = event.target.value.trim().toLowerCase();
+        
+        if (event.key === 'Enter') {
+            searchPlayers(true); // Manuelle Suche auslösen
+            return;
+        }
+
+        // Bei leerer Eingabe die Top-Vorschläge anzeigen und dynamische Vorschläge verstecken
+        if (query.length === 0) {
+            document.getElementById('results-container').innerHTML = ''; // Ergebnisse leeren
+            document.getElementById('dynamic-suggestions-container').style.display = 'none';
+            document.getElementById('suggestions-container').style.display = 'block';
+            return;
+        }
+        
+        // Dynamische Suche erst ab 3 Zeichen (oder mehr, je nach Datenmenge)
+        if (query.length >= 3) {
+            displayDynamicSuggestions(query);
+            document.getElementById('suggestions-container').style.display = 'none'; // Top-Vorschläge verbergen
+        } else {
+             // Unter 3 Zeichen, dynamische Vorschläge wieder verstecken und Top-Vorschläge zeigen
+            document.getElementById('dynamic-suggestions-container').style.display = 'none';
+            document.getElementById('results-container').innerHTML = '';
+            document.getElementById('suggestions-container').style.display = 'block';
+        }
+    }
     
-    // Schließen des Modals durch Klicken außerhalb des Inhalts
+    /**
+     * Erstellt und zeigt dynamische Vorschläge basierend auf der aktuellen Eingabe.
+     * @param {string} query - Der Suchstring.
+     */
+    function displayDynamicSuggestions(query) {
+        const dynamicContainer = document.getElementById('dynamic-suggestions-container');
+        dynamicContainer.innerHTML = ''; 
+
+        // Spieler filtern, deren Name mit der Abfrage beginnt (für bessere Relevanz)
+        const suggestions = playerStats.filter(player => 
+            player.playername.toLowerCase().startsWith(query.toLowerCase())
+        ).slice(0, 5); // Max. 5 Vorschläge
+
+        if (suggestions.length > 0) {
+            const heading = document.createElement('h4');
+            heading.textContent = `Dynamische Vorschläge für "${query}" (klicken zum Suchen):`;
+            dynamicContainer.appendChild(heading);
+
+            const list = document.createElement('div');
+            list.className = 'suggestion-list';
+            
+            suggestions.forEach(player => {
+                const button = document.createElement('span');
+                button.className = 'suggestion-player';
+                button.textContent = player.playername;
+                button.onclick = () => {
+                    document.getElementById('search-input').value = player.playername; // Fülle Suchfeld
+                    searchPlayers(true); // Führe Suche aus
+                };
+                list.appendChild(button);
+            });
+            dynamicContainer.appendChild(list);
+            dynamicContainer.style.display = 'block';
+            document.getElementById('results-container').innerHTML = ''; // Lösche vorherige Ergebnisse
+        } else {
+            dynamicContainer.style.display = 'none';
+        }
+    }
+
+    /**
+     * Erstellt eine Spielerkarte im Ergebnis-Container.
+     * @param {Object} player - Das Spielerobjekt.
+     */
+    function createPlayerCard(player) {
+        const resultsContainer = document.getElementById('results-container');
+        const card = document.createElement('div');
+        card.className = 'player-card';
+        card.onclick = () => {
+            playClickSound(); // Sound abspielen beim Klicken auf Karte
+            showPlayerDetails(player);
+        };
+
+        // Bereinigter Name für die Skin-URL
+        const cleanName = cleanPlayerNameForSkin(player.playername);
+        
+        // Skin URL für die Karte (Kopf)
+        const skinUrl = `https://mineskin.eu/head/${cleanName}/64`;
+        
+        const img = document.createElement('img');
+        img.src = skinUrl;
+        img.alt = `Skin-Kopf von ${player.playername}`;
+
+        const nameHeading = document.createElement('h3');
+        nameHeading.textContent = player.playername;
+
+        const divider = document.createElement('div');
+        divider.className = 'divider';
+
+        const wagerText = document.createElement('p');
+        wagerText.innerHTML = `<b>Umsatz:</b> <br>${formatNumber(player.wager)}`;
+
+        card.appendChild(img);
+        card.appendChild(nameHeading);
+        card.appendChild(divider);
+        card.appendChild(wagerText);
+
+        resultsContainer.appendChild(card);
+    }
+
+    // --- VORSCHLAGS-LOGIK ---
+
+    /**
+     * Sortiert Spieler nach Wager (Umsatz) absteigend und zeigt die Top 5 an.
+     */
+    function displayTopSuggestions() {
+        const sortedPlayers = [...playerStats].sort((a, b) => b.wager - a.wager);
+        const top5 = sortedPlayers.slice(0, 5);
+
+        const suggestionsContainer = document.getElementById('suggestions-container');
+        suggestionsContainer.innerHTML = '';
+        suggestionsContainer.style.display = 'block'; 
+
+        const heading = document.createElement('h4');
+        heading.textContent = '🔥 Top 5 Spieler (Klicken zum Suchen):';
+        suggestionsContainer.appendChild(heading);
+
+        const list = document.createElement('div');
+        list.className = 'suggestion-list';
+
+        top5.forEach(player => {
+            const button = document.createElement('span');
+            button.className = 'suggestion-player';
+            button.textContent = player.playername;
+            button.onclick = () => {
+                document.getElementById('search-input').value = player.playername; // Fülle Suchfeld
+                searchPlayers(true); // Führe Suche aus
+            };
+            list.appendChild(button);
+        });
+
+        suggestionsContainer.appendChild(list);
+    }
+
+    // --- DETAIL-MODAL LOGIK ---
+
+    /**
+     * Zeigt das Detail-Modal für einen Spieler an.
+     * @param {Object} player - Das Spielerobjekt.
+     */
+    function showPlayerDetails(player) {
+        const modal = document.getElementById('player-detail-modal');
+        const content = document.getElementById('detail-content');
+        
+        // Bereinigter Name für die Skin-URL
+        const cleanName = cleanPlayerNameForSkin(player.playername);
+        // Skin URL für das Detail-Modal (Ganzkörper)
+        const skinUrl = `https://mineskin.eu/skin/${cleanName}/128`; 
+
+        content.innerHTML = `
+            <img src="${skinUrl}" alt="Skin von ${player.playername}">
+            <h2>${player.playername}</h2>
+            <p><b>UUID:</b> ${player.uuid}</p>
+            <p><b>Gesamter Umsatz:</b> ${formatNumber(player.wager)}</p>
+            <p><b>Rang:</b> ${getPlayerRank(player)}</p>
+            <a href="https://namemc.com/profile/${player.uuid}" target="_blank">NameMC Profil ansehen</a>
+        `;
+
+        modal.style.display = 'block';
+    }
+
+    /**
+     * Schließt das Detail-Modal.
+     */
+    function closePlayerDetails() {
+        const modal = document.getElementById('player-detail-modal');
+        modal.style.display = 'none';
+    }
+    
+    /**
+     * Ermittelt den Rang des Spielers basierend auf dem Umsatz. (Beispiel-Logik)
+     * @param {Object} player - Das Spielerobjekt.
+     * @returns {string} Der Rang des Spielers.
+     */
+    function getPlayerRank(player) {
+        if (player.wager >= 10000000) return 'Diamond VIP';
+        if (player.wager >= 5000000) return 'Gold VIP';
+        if (player.wager >= 1000000) return 'Silver VIP';
+        if (player.wager >= 100000) return 'Bronze VIP';
+        return 'Spieler';
+    }
+    
+    /**
+     * Initialisiert die App nach erfolgreichem Login.
+     */
+    function initializeApp() {
+        // Beim Start die Top 5 Spieler anzeigen
+        displayTopSuggestions();
+        if (playerStats.length === 0) {
+             displayMessage('⚠️ Wichtig: Es wurden keine Spielerdaten gefunden. Bitte die Daten prüfen.', 'error');
+        }
+    }
+
+    // Schließt das Detail-Modal, wenn außerhalb des Inhalts geklickt wird
     window.onclick = function(event) {
-        // ... (unverändert) ...
+        const detailModal = document.getElementById('player-detail-modal');
+        if (event.target === detailModal) {
+            closePlayerDetails();
+        }
     }
     
     // Haupt-DOMContentLoaded-Handler zur Authentifizierung
@@ -317,20 +1713,14 @@
             // Bereits eingeloggt
             loginOverlay.style.display = 'none';
             container.style.display = 'block'; // Zeige Hauptinhalt
-            initializeApp(); // Ruft die neue Logik auf
+            initializeApp();
         } else {
             // Zeige Login-Overlay
             loginOverlay.style.display = 'flex';
             // Setze den Fokus auf das Eingabefeld
-            // document.getElementById('login-username').focus(); // Wird in index.html gemacht
+            document.getElementById('login-username').focus();
         }
     });
-
-    // Platzhalter für die Suchfunktion, um Fehler zu vermeiden
-    function searchPlayer() {
-        const playerName = document.getElementById('player-search').value;
-        document.getElementById('search-results').innerHTML = `<p>Simulierte Daten für: <strong>${playerName}</strong>. (Implementierung der echten Daten fehlt)</p>`;
-    }
 
 </script>
 </body>
