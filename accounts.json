@@ -3,27 +3,22 @@
     {
       "username": "JasonNewAcc",
       "password": "1234",
-      "role": "Admin"
+      "role": "admin"
     },
     {
       "username": "Lattenrost1234",
       "password": "1234",
-      "role": "Admin"
+      "role": "moderator"
     },
     {
       "username": "Admin",
       "password": "passwort_sicher",
-      "role": "Admin"
+      "role": "admin"
     },
     {
       "username": "TestUser",
       "password": "test",
-      "role": "Self"
-    },
-    {
-      "username": "Moderator2",
-      "password": "modpass",
-      "role": "Moderator"
+      "role": "self"
     }
   ]
 }
