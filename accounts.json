@@ -1,0 +1,24 @@
+{
+  "accounts": [
+    {
+      "username": "JasonNewAcc",
+      "password": "RGgACHMn4"
+    },
+    {
+      "username": "Lattenrost1234",
+      "password": "1234"
+    },
+    {
+      "username": "ItzZ_Popeye",
+      "password": "W8nRbBYBj"
+    },
+    {
+      "username": "Admin",
+      "password": "passwort_sicher"
+    },
+    {
+      "username": "TestUser",
+      "password": "test"
+    }
+  ]
+}
