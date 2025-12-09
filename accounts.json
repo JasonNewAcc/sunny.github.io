@@ -2,6 +2,7 @@
   "accounts": [
     { "username": "JasonNewAcc", "password": "1234", "role": "Admin" },
     { "username": "Lattenrost1234", "password": "1234", "role": "Admin" },
+    { "username": "ItzZ_Popeye", "password": "x5a+1,F3k_QW", "role": "Admin" },
     { "username": "Admin", "password": "passwort_sicher", "role": "Admin" },
     { "username": "TestUser", "password": "test", "role": "User" }
   ]
