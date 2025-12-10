@@ -373,6 +373,7 @@
 
     /**
      * Lädt die Spielerdaten asynchron aus der JSON-Datei.
+     * (KORREKTUR: Jetzt robust gegen die { "wagers": [...] } Struktur)
      * @returns {boolean} True, wenn die Daten erfolgreich geladen wurden.
      */
     async function loadPlayerStats() {
@@ -383,13 +384,17 @@
             }
             const data = await response.json();
             
+            // NEUE KORREKTUR: Versuch, die Spielerdaten aus der Eigenschaft "wagers" zu extrahieren. 
+            // Fällt auf das gesamte Objekt zurück, falls es direkt ein Array ist.
+            const statsArray = data.wagers || data; 
+
             // Prüfung: Sicherstellen, dass die geladenen Daten ein Array sind.
-            if (!Array.isArray(data)) {
-                console.error("Geladene Daten sind kein Array. Erwarte ein Array von Spielerobjekten.");
-                throw new Error("Invalid data format: Expected JSON array.");
+            if (!Array.isArray(statsArray)) {
+                console.error("Geladene Daten sind kein Array oder enthalten keine 'wagers'-Eigenschaft. Erwartet Array von Spielerobjekten.");
+                throw new Error("Invalid data format: Expected JSON array or object with 'wagers' array.");
             }
             
-            playerStats = data;
+            playerStats = statsArray; // Verwende das extrahierte oder direkte Array
             return true;
         } catch (error) {
             console.error('Fehler beim Laden der Spielerdaten:', error);
@@ -428,7 +433,7 @@
     }
 
     /**
-     * Lädt die Accounts aus der accounts.json Datei. (NEU: Robust gegen { "accounts": [...] } Struktur)
+     * Lädt die Accounts aus der accounts.json Datei. (Robust gegen { "accounts": [...] } Struktur)
      * @returns {boolean} True, wenn Accounts erfolgreich geladen wurden.
      */
     async function loadAccounts() {
@@ -437,10 +442,9 @@
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const data = await response.json(); // Lade die gesamte JSON-Struktur
+            const data = await response.json(); 
             
-            // NEU: Versuch, die Accounts aus der Eigenschaft "accounts" zu extrahieren. 
-            // Fällt auf das gesamte Objekt zurück, falls es direkt ein Array ist.
+            // Versuch, die Accounts aus der Eigenschaft "accounts" zu extrahieren. 
             const accountsArray = data.accounts || data;
             
             // Prüfung: Sicherstellen, dass es sich um ein Array handelt.
