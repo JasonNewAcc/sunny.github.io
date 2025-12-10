@@ -19,7 +19,7 @@
             padding-top: 50px;
         }
         .container {
-            display: none; /* NEU: Standardmäßig versteckt */
+            display: none; /* Standardmäßig versteckt */
             width: 90%;
             max-width: 700px;
             background: #2d2d30; /* Dunkle Container-Fläche */
@@ -42,18 +42,18 @@
             padding-bottom: 10px;
         }
         
-        /* === LOGIN MODAL STYLES (NEU) === */
+        /* === LOGIN MODAL STYLES === */
         #login-modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #1e1e1e; /* Hintergrundfarbe des Bodys */
-            display: none; /* Wird über JS bei Bedarf auf 'flex' gesetzt */
+            background-color: #1e1e1e; 
+            display: none; 
             justify-content: center;
             align-items: center;
-            z-index: 101; /* Über allen anderen Elementen */
+            z-index: 101; 
         }
 
         #login-form-container {
@@ -366,7 +366,7 @@
     </div>
 </div>
 <script>
-    // ** START DER SPIELERDATEN-LOGIK ** (Jetzt ausgelagert in statistics.json)
+    // ** START DER SPIELERDATEN-LOGIK **
     // Globale Variable für Spielerstatistiken
     let playerStats = [];
     const STATISTICS_FILE = 'statistics.json'; // Dateiname für die Statistiken
@@ -383,7 +383,7 @@
             }
             const data = await response.json();
             
-            // NEUE PRÜFUNG: Sicherstellen, dass die geladenen Daten ein Array sind.
+            // Prüfung: Sicherstellen, dass die geladenen Daten ein Array sind.
             if (!Array.isArray(data)) {
                 console.error("Geladene Daten sind kein Array. Erwarte ein Array von Spielerobjekten.");
                 throw new Error("Invalid data format: Expected JSON array.");
@@ -393,7 +393,6 @@
             return true;
         } catch (error) {
             console.error('Fehler beim Laden der Spielerdaten:', error);
-            // Nutze die bereits existierende displayMessage Funktion
             displayMessage(`⚠️ Fehler: Spielerdaten aus Datei "${STATISTICS_FILE}" konnten nicht geladen werden oder sind fehlerhaft.`, 'error');
             playerStats = []; // Sicherstellen, dass playerStats im Fehlerfall immer ein Array bleibt
             return false;
@@ -401,7 +400,7 @@
     }
     // ** ENDE DER SPIELERDATEN-LOGIK **
 
-    // --- AUTHENTIFIZIERUNGS-LOGIK (NEU) ---
+    // --- AUTHENTIFIZIERUNGS-LOGIK ---
     const LOGIN_KEY = 'holostats_logged_in';
     const ACCOUNTS_FILE = 'accounts.json';
     let validAccounts = [];
@@ -440,10 +439,9 @@
             }
             validAccounts = await response.json();
             
-            // Optional: Zusätzliche Prüfung, falls accounts.json kein Array ist.
+            // Prüfung, falls accounts.json kein Array ist.
             if (!Array.isArray(validAccounts)) {
                 validAccounts = [];
-                // ZUSÄTZLICHER HINWEIS FÜR DEN BENUTZER IN DER KONSOLE
                 console.warn(`ACHTUNG: Die Datei "${ACCOUNTS_FILE}" wurde geladen, enthält aber kein JSON-Array. Erwartetes Format: [ { "username": "...", "password": "..." }, ... ]`);
                 throw new Error("Invalid data format: Expected JSON array.");
             }
@@ -456,7 +454,7 @@
     }
 
     /**
-     * Führt die Login-Prüfung durch. (Jetzt asynchron)
+     * Führt die Login-Prüfung durch.
      */
     async function checkLogin() { 
         const usernameInput = document.getElementById('login-username').value;
@@ -465,7 +463,7 @@
 
         loginMessage.style.display = 'none';
 
-        // NEU: Prüfung gegen die geladenen Accounts in der validAccounts-Liste
+        // Prüfung gegen die geladenen Accounts in der validAccounts-Liste
         const accountFound = validAccounts.find(account => 
             account.username === usernameInput && account.password === passwordInput 
         );
@@ -476,7 +474,7 @@
             document.getElementById('login-modal-overlay').style.display = 'none';
             document.querySelector('.container').style.display = 'block'; // Zeige Hauptinhalt
             
-            // WICHTIGE KORREKTUR: Warten, bis die Daten geladen sind
+            // Warten, bis die Daten geladen sind
             await initializeApp(); 
         } else {
             // Fehler
@@ -486,22 +484,17 @@
     }
     // --- ENDE AUTHENTIFIZIERUNG ---
 
-    // --- SOUND-FUNKTIONEN (ANGEPASST) ---
-    // Definiert den Pfad zu Ihrer lokalen MP3-Datei
+    // --- SOUND-FUNKTIONEN ---
     const CLICK_SOUND_URL = './buttonclick.mp3'; 
-    // Audio-Objekt nur für den Klick-Sound
     const clickAudio = new Audio(CLICK_SOUND_URL);
 
     /**
      * Spielt den Klick-Sound ab (nur für Spieler-Elemente).
      */
     function playClickSound() {
-        // Stellt sicher, dass der Sound immer von vorne abgespielt wird
         clickAudio.currentTime = 0; 
-        clickAudio.volume = 0.7; // Lautstärke beibehalten
-        // play() gibt eine Promise zurück, die Fehler bei Autoplay-Einschränkungen handhabt
+        clickAudio.volume = 0.7; 
         clickAudio.play().catch(error => {
-            // Wenn der Browser Autoplay blockiert, keine Meldung anzeigen, nur in der Konsole
             console.warn("Autoplay für Sound blockiert oder Fehler beim Abspielen:", error);
         }); 
     }
@@ -509,41 +502,31 @@
 
     /**
      * Formatiert eine Zahl mit Tausender-Trennzeichen.
-     * @param {number} num - Die zu formatierende Zahl.
-     * @returns {string} Die formatierte Zahl.
      */
     function formatNumber(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 
     /**
-     * Bereinigt den Spielernamen für die Mineskin-URL (ersetzt ! durch _).
-     * @param {string} name - Der Spielername.
-     * @returns {string} Der bereinigte Name.
+     * Bereinigt den Spielernamen für die Mineskin-URL.
      */
     function cleanPlayerNameForSkin(name) {
-        // Ersetzt alle '!' durch '_'
         return name.replace(/!/g, '_');
     }
 
     /**
      * Erstellt und zeigt die Detailansicht eines Spielers in einem Modal.
-     * @param {object} player - Das Spielerobjekt.
      */
     function showPlayerDetails(player) {
-        // Spielen Sie den Klick-Sound ab
         playClickSound();
 
         const modal = document.getElementById('player-detail-modal');
         const content = document.getElementById('detail-content');
         content.innerHTML = ''; // Inhalt leeren
 
-        // Bereinigter Name für die Skin-URL
         const cleanName = cleanPlayerNameForSkin(player.playername);
-
-        // Skin URL für die Detailansicht (Body)
         const skinUrl = `https://mineskin.eu/skin/${cleanName}`;
-        const headUrl = `https://mineskin.eu/face/${cleanName}/128`; // Größerer Kopf
+        const headUrl = `https://mineskin.eu/face/${cleanName}/128`; 
 
         const img = document.createElement('img');
         img.src = headUrl;
@@ -581,18 +564,15 @@
 
     /**
      * Erstellt eine Spielerkarte und hängt sie an den Container an.
-     * @param {object} player - Das Spielerobjekt.
      */
     function createPlayerCard(player) {
         const resultsContainer = document.getElementById('results-container');
 
         const card = document.createElement('div');
         card.className = 'player-card';
-        card.onclick = () => { showPlayerDetails(player) }; // Klick-Handler für Details
+        card.onclick = () => { showPlayerDetails(player) }; 
 
-        // Bereinigter Name für die Skin-URL
         const cleanName = cleanPlayerNameForSkin(player.playername);
-        // Skin URL für die Karte (Kopf)
         const skinUrl = `https://mineskin.eu/head/${cleanName}/64`;
 
         const img = document.createElement('img');
@@ -621,7 +601,6 @@
      * Sortiert Spieler nach Wager absteigend und gibt die Top N zurück.
      */
     function getTopPlayers(count) {
-        // Sicherstellen, dass playerStats ein Array ist, bevor sort aufgerufen wird
         if (!Array.isArray(playerStats)) return [];
         
         return [...playerStats]
@@ -656,7 +635,6 @@
 
     /**
      * Zeigt dynamische Vorschläge basierend auf der aktuellen Sucheingabe an.
-     * @param {string} searchTerm - Der aktuelle Suchbegriff.
      */
     function displayDynamicSuggestions(searchTerm) {
         const dynamicContainer = document.getElementById('dynamic-suggestions-container');
@@ -665,12 +643,10 @@
         dynamicContainer.style.display = 'none';
 
         if (searchTerm.length < 2) {
-            // Zeige Top-Vorschläge, wenn Suchbegriff zu kurz
             displayTopSuggestions();
             return;
         }
 
-        // Sicherheitscheck
         if (!Array.isArray(playerStats)) {
             console.error("playerStats ist kein Array. Daten möglicherweise nicht korrekt geladen.");
             return;
@@ -681,7 +657,7 @@
 
         const suggestions = playerStats.filter(player => 
             player.playername.toLowerCase().includes(searchTerm)
-        ).slice(0, 10); // Nur die ersten 10 anzeigen
+        ).slice(0, 10); 
 
         if (suggestions.length > 0) {
             dynamicContainer.innerHTML = '<h4>🔎 Vorschläge</h4><div class="suggestion-list"></div>';
@@ -698,7 +674,6 @@
 
     /**
      * Setzt den Suchbegriff und startet die Suche.
-     * @param {string} name - Der Spielername.
      */
     function setInputAndSearch(name) {
         document.getElementById('search-input').value = name;
@@ -718,16 +693,15 @@
             if (event.key === 'Enter') {
                 searchPlayers(true);
             } else {
-                // Bei jeder anderen Eingabe: zeige dynamische Vorschläge
+                displayDynamicSuggestions(searchTerm);
                 document.getElementById('results-container').innerHTML = '';
                 document.getElementById('error-message').style.display = 'none';
-                displayDynamicSuggestions(searchTerm);
             }
         }
     }
 
     /**
-     * Sucht nach Spielern basierend auf der Eingabe (exakter Match oder Teilstring-Match).
+     * Sucht nach Spielern basierend auf der Eingabe.
      */
     function searchPlayers(isFullSearch = false) {
         const input = document.getElementById('search-input');
@@ -742,7 +716,6 @@
         dynamicContainer.style.display = 'none';
         topContainer.style.display = 'none';
         
-        // Sicherheitscheck
         if (!Array.isArray(playerStats)) {
             displayMessage('⚠️ Spielerdaten sind fehlerhaft oder noch nicht geladen. Versuchen Sie es später erneut.', 'error');
             return;
@@ -751,7 +724,7 @@
 
         if (searchTerm.length === 0) {
             displayMessage('Bitte einen Spielernamen eingeben.', 'error');
-            displayTopSuggestions(); // Zeige Top-Liste wieder an
+            displayTopSuggestions(); 
             return;
         }
 
@@ -760,12 +733,11 @@
             player.playername.toLowerCase() === searchTerm
         );
 
-        // 2. Wenn kein exaktes Match gefunden und es eine volle Suche ist (nicht nur Vorschläge), 
-        // suche nach Teilstring-Match (bis zu 20 Ergebnisse)
+        // 2. Suche nach Teilstring-Match
         if (results.length === 0 && isFullSearch) {
              results = playerStats.filter(player => 
                 player.playername.toLowerCase().includes(searchTerm)
-            ).slice(0, 20); // Limitiere die Ergebnisse
+            ).slice(0, 20); 
         }
 
         if (results.length > 0) {
@@ -773,7 +745,7 @@
             displayMessage(`✅ ${results.length} Ergebnisse für "${input.value}" gefunden.`, 'success');
         } else {
             displayMessage(`❌ Kein Spieler mit dem Namen "${input.value}" gefunden.`, 'error');
-            displayTopSuggestions(); // Zeige Top-Liste wieder an
+            displayTopSuggestions(); 
         }
     }
 
@@ -781,19 +753,16 @@
 
     /**
      * Initialisiert die Anwendung nach erfolgreichem Login.
-     * Lädt die Spielerdaten (asynchron) und zeigt Top-Vorschläge an.
      */
     async function initializeApp() { 
         const dataLoaded = await loadPlayerStats(); // Daten asynchron laden
 
         if (dataLoaded && playerStats.length > 0) {
-            // Zeige beim Start die Top 5 Spieler an
             displayTopSuggestions();
         } else if (dataLoaded && playerStats.length === 0) {
             displayMessage('⚠️ Wichtig: Die Spielerdaten-Datei ist leer. Bitte die Daten prüfen.', 'error');
         }
         
-        // Nach dem Laden (oder Fehlschlagen) der Daten, das Datum aktualisieren (optional, aber gut)
         document.getElementById('current-date').textContent = `Daten-Stand: ${new Date().toLocaleDateString('de-DE')}`;
     }
 
@@ -812,7 +781,6 @@
         // 1. Zuerst Accounts laden
         const accountsLoaded = await loadAccounts();
         if (!accountsLoaded) {
-            // Wenn Accounts nicht geladen werden konnten, das Login-Overlay anzeigen und warten
             document.getElementById('login-modal-overlay').style.display = 'flex';
             return;
         }
@@ -831,7 +799,6 @@
         } else {
             // Zeige Login-Overlay
             loginOverlay.style.display = 'flex';
-            // Setze den Fokus auf das Eingabefeld
             document.getElementById('login-username').focus();
         }
     });
