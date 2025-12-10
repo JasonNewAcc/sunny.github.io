@@ -411,13 +411,10 @@
             
             const statsObject = await response.json();
             
-            // KORREKTUR: Wandelt das geladene Objekt in ein Array von Spielerobjekten um,
-            // falls das JSON-Format ein Objekt ist (z.B. {Name: {...}, ...}), was den 
-            // "is not a function" TypeError behebt.
+            // Korrektur aus dem letzten Schritt: Wandelt das Objekt in ein Array um
             if (statsObject && typeof statsObject === 'object' && !Array.isArray(statsObject)) {
                 playerStats = Object.values(statsObject);
             } else {
-                // Wenn es bereits ein Array ist oder null/undefined, verwende es direkt.
                 playerStats = statsObject; 
             }
             
@@ -567,9 +564,11 @@
 
     /**
      * Sortiert Spieler nach Wager absteigend und gibt die Top N zurück.
+     * ZUSÄTZLICHER CHECK: Filtert ungültige Einträge ohne 'wager'.
      */
     function getTopPlayers(count) {
-        return [...playerStats]
+        return playerStats
+            .filter(p => p && typeof p.wager === 'number') // Nur gültige Einträge mit Zahl für Wager verwenden
             .sort((a, b) => b.wager - a.wager)
             .slice(0, count);
     }
@@ -578,9 +577,11 @@
      * Zeigt die Top 5 Spieler als anklickbare Vorschläge an.
      */
     function displayTopSuggestions() {
-        if (playerStats.length === 0) return; // Keine Vorschläge, wenn keine Daten
-
+        // Hier wird getTopPlayers verwendet, welches bereits filtert.
         const topPlayers = getTopPlayers(5);
+        
+        if (topPlayers.length === 0) return; // Keine Vorschläge, wenn keine gültigen Daten
+
         const container = document.getElementById('suggestions-container');
         container.style.display = 'block';
         container.innerHTML = '<h4>⭐ Top 5 Spieler (Nach Umsatz)</h4><div class="suggestion-list"></div>';
@@ -597,6 +598,7 @@
 
     /**
      * Zeigt dynamische Vorschläge basierend auf der Sucheingabe.
+     * ZUSÄTZLICHER CHECK: Prüft, ob p und p.playername existieren, um den TypeError zu vermeiden.
      */
     function displayDynamicSuggestions(searchTerm) {
         const dynamicContainer = document.getElementById('dynamic-suggestions-container');
@@ -608,11 +610,13 @@
             return;
         }
 
-        const exactMatch = playerStats.find(p => p.playername.toLowerCase() === searchTerm);
+        // KORREKTUR: Null-Check p && p.playername
+        const exactMatch = playerStats.find(p => p && p.playername && p.playername.toLowerCase() === searchTerm);
         
         // Finde ähnliche Spieler (bis zu 8, schließe exakten Match aus, falls vorhanden)
+        // KORREKTUR: Null-Check p && p.playername
         const similarPlayers = playerStats.filter(p => 
-            p.playername.toLowerCase().includes(searchTerm) && p.playername.toLowerCase() !== searchTerm
+            p && p.playername && p.playername.toLowerCase().includes(searchTerm) && p.playername.toLowerCase() !== searchTerm
         ).slice(0, 8); 
 
         if (exactMatch || similarPlayers.length > 0) {
@@ -678,6 +682,7 @@
 
     /**
      * Sucht nach Spielern basierend auf der Eingabe (exakter Match oder Teilstring-Match).
+     * ZUSÄTZLICHER CHECK: Prüft, ob p und p.playername existieren, um den TypeError zu vermeiden.
      */
     function searchPlayers(isFullSearch = false) {
         const input = document.getElementById('search-input');
@@ -704,16 +709,19 @@
         }
 
         // 1. Exakter Match (Case-Insensitive)
-        let foundPlayers = playerStats.filter(p => p.playername.toLowerCase() === searchTerm);
+        // KORREKTUR: Null-Check p && p.playername
+        let foundPlayers = playerStats.filter(p => p && p.playername && p.playername.toLowerCase() === searchTerm);
         
         // 2. Teilstring-Match (nur bei Vollsuche)
         if (foundPlayers.length === 0 && isFullSearch) {
-            foundPlayers = playerStats.filter(p => p.playername.toLowerCase().includes(searchTerm));
+            // KORREKTUR: Null-Check p && p.playername
+            foundPlayers = playerStats.filter(p => p && p.playername && p.playername.toLowerCase().includes(searchTerm));
         }
         
         if (foundPlayers.length > 0) {
+            // Sortieren vor Anzeige (getTopPlayers wird hier nicht verwendet, also hier direkt sortieren)
             foundPlayers
-                .sort((a, b) => b.wager - a.wager) // Sortieren nach Wager
+                .sort((a, b) => (b.wager || 0) - (a.wager || 0)) // Robustes Sortieren, falls wager fehlt
                 .forEach(player => createPlayerCard(player, resultsContainer));
             displayMessage(`${foundPlayers.length} Spieler für "${input.value}" gefunden.`, 'success');
         } else {
@@ -726,7 +734,7 @@
      * Sucht den Spieler und öffnet das Detail-Modal.
      */
     function showPlayerDetails(playerName) {
-        const player = playerStats.find(p => p.playername === playerName);
+        const player = playerStats.find(p => p && p.playername === playerName); // Robuster Check
         const detailContent = document.getElementById('detail-content');
         const modal = document.getElementById('player-detail-modal');
 
@@ -739,7 +747,8 @@
         const cleanName = cleanPlayerNameForSkin(player.playername);
 
         // UUID und NameMC URL
-        const nameMcUrl = `https://de.namemc.com/profile/${player.uuid}`;
+        // Sicherstellen, dass UUID existiert, sonst leere Zeichenkette verwenden
+        const nameMcUrl = `https://de.namemc.com/profile/${player.uuid || ''}`;
         
         // Skin URL für das Detail-Modal (volle Ansicht, verwendet bereinigten Namen)
         const detailSkinUrl = `https://mineskin.eu/skin/${cleanName}/128`;
@@ -747,7 +756,7 @@
         detailContent.innerHTML = `
             <h2>${player.playername}</h2>
             <img src="${detailSkinUrl}" alt="Voller Skin von ${player.playername}">
-            <p><b>UUID:</b> ${player.uuid}</p>
+            <p><b>UUID:</b> ${player.uuid || 'N/A'}</p>
             <p><b>Gesamtwager:</b> ${formatNumber(player.wager)}</p>
             
             <a href="${nameMcUrl}" target="_blank">Profil auf NameMC ansehen</a>
