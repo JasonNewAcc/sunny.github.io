@@ -167,16 +167,16 @@
             font-size: 1em;
         }
         
-        /* KORREKTUR: Top 5 bricht um (flex-wrap: wrap) */
+        /* Top 5 bricht um */
         #suggestions-container .suggestion-list {
             display: flex;
-            flex-wrap: wrap; /* NEU: Lässt Elemente umbrechen */
+            flex-wrap: wrap; 
             gap: 10px;
-            overflow-x: hidden; /* Scrollen ausschalten */
+            overflow-x: hidden; 
             padding-bottom: 0;
         }
 
-        /* Dynamische Vorschläge scrollen weiterhin, falls es zu viele sind */
+        /* Dynamische Vorschläge scrollen */
         #dynamic-suggestions-container .suggestion-list {
             display: flex;
             flex-wrap: nowrap;
@@ -227,37 +227,34 @@
             flex-shrink: 0;
         }
 
-        /* === Meldungen und Fehler (NEU: Verbessertes Design) === */
+        /* === Meldungen und Fehler (Style Bug Fix) === */
         #error-message {
             text-align: center;
             margin-top: 20px;
-            padding: 12px 20px; /* Mehr Padding */
-            border-radius: 8px; /* Größere Rundung */
+            padding: 12px 20px;
+            border-radius: 8px;
             font-weight: bold;
             font-size: 1.1em;
             display: none;
             transition: all 0.3s ease-in-out;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Subtiler Schatten */
-            display: flex;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+            /* WICHTIG: display wird in JS gesetzt, aber die folgenden Linien helfen bei der Zentrierung */
             align-items: center;
             justify-content: center;
             gap: 10px;
         }
         
-        /* Stil für Erfolgsmeldungen */
         .message-success { 
-            background-color: #384239; /* Dunkles Grün */
+            background-color: #384239; 
             border: 1px solid #4CAF50;
-            color: #4CAF50 !important;
+            color: #4CAF50; /* Textfarbe auf Akzentfarbe setzen */
         }
-        /* Stil für Fehlermeldungen */
         .message-error { 
-            background-color: #5d3f42; /* Dunkles Rot */
+            background-color: #5d3f42; 
             border: 1px solid #d9534f;
-            color: #d9534f !important;
+            color: #d9534f; /* Textfarbe auf Fehlerfarbe setzen */
         }
         
-        /* Icons vor der Nachricht */
         .message-icon {
             font-size: 1.2em;
         }
@@ -293,6 +290,10 @@
             margin-bottom: 10px;
             image-rendering: pixelated;
             box-shadow: 0 0 6px rgba(76, 175, 80, 0.4);
+        }
+        .divider {
+            margin: 10px 0;
+            border-top: 1px solid #444;
         }
         
         /* DETAIL MODAL STYLES */
@@ -361,19 +362,32 @@
         #detail-content b {
             color: #fff;
         }
-        #detail-content a {
-            display: block;
+        /* Style für die Links im Modal */
+        .link-group {
+            display: flex;
+            gap: 10px;
             margin-top: 25px;
+        }
+        .link-group a {
+            flex-grow: 1;
             padding: 12px;
-            background-color: #007bff;
             color: white;
             text-decoration: none;
             border-radius: 6px;
             font-weight: bold;
             transition: background-color 0.2s;
         }
-        #detail-content a:hover {
+        .link-group a.skin-link {
+            background-color: #007bff; /* Blau für Skin */
+        }
+        .link-group a.skin-link:hover {
             background-color: #0056b3;
+        }
+        .link-group a.namemc-link {
+            background-color: #3f51b5; /* Lila/Indigo für NameMC */
+        }
+        .link-group a.namemc-link:hover {
+            background-color: #303f9f;
         }
     </style>
 </head>
@@ -469,25 +483,20 @@
     let validAccounts = [];
 
     /**
-     * Zeigt eine Benachrichtigung an und wendet den neuen Stil an.
+     * Zeigt eine Benachrichtigung an und wendet den korrigierten Stil an.
      * @param {string} message - Die anzuzeigende Nachricht.
      * @param {('success'|'error')} type - Der Nachrichtentyp.
      */
     function displayMessage(message, type = 'success') {
         const errorMessage = document.getElementById('error-message');
-        errorMessage.textContent = ''; // Inhalt zuerst leeren
-        errorMessage.style.display = 'flex'; // Neu: Zeige es als Flex-Container
+        errorMessage.textContent = ''; 
+        // WICHTIG: className zuerst setzen, um Styles anzuwenden, dann display auf 'flex'
+        errorMessage.className = type === 'success' ? 'message-success' : 'message-error';
+        errorMessage.style.display = 'flex'; 
         
-        // Icon basierend auf dem Typ setzen
         const icon = document.createElement('span');
         icon.className = 'message-icon';
-        if (type === 'success') {
-            errorMessage.className = 'message-success';
-            icon.textContent = '✅';
-        } else {
-            errorMessage.className = 'message-error';
-            icon.textContent = '❌';
-        }
+        icon.textContent = type === 'success' ? '✅' : '❌';
 
         errorMessage.appendChild(icon);
         errorMessage.appendChild(document.createTextNode(message));
@@ -563,8 +572,13 @@
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 
+    /**
+     * Reinigt den Spielernamen für die Mineskin-API.
+     * Ersetzt Ausrufezeichen durch Unterstriche (häufiges Problem mit Mineskin-URL-Länge/Zeichenkodierung).
+     * @param {string} name 
+     */
     function cleanPlayerNameForSkin(name) {
-        return name.replace(/!/g, '_');
+        return name.replace(/!/g, '_').replace(/ /g, '_'); 
     }
 
     function showPlayerDetails(player) {
@@ -575,8 +589,12 @@
         content.innerHTML = ''; 
 
         const cleanName = cleanPlayerNameForSkin(player.playername);
-        const skinUrl = `https://mineskin.eu/skin/${cleanName}`;
+        
+        // URLs für Skins und Kopf
         const headUrl = `https://mineskin.eu/face/${cleanName}/128`; 
+        const skinUrl = `https://mineskin.eu/skin/${cleanName}`;
+        const namemcUrl = `https://de.namemc.com/profile/${player.playername}.1`;
+
 
         const img = document.createElement('img');
         img.src = headUrl;
@@ -590,17 +608,34 @@
 
         const wagerParagraph = document.createElement('p');
         wagerParagraph.innerHTML = `<b>Gesamtumsatz:</b> ${formatNumber(player.wager)}`;
+        
+        // Link-Container
+        const linkGroup = document.createElement('div');
+        linkGroup.className = 'link-group';
 
+        // Mineskin Link
         const skinLink = document.createElement('a');
         skinLink.href = skinUrl;
         skinLink.target = '_blank';
-        skinLink.textContent = `Skin (Mineskin) ansehen`;
+        skinLink.textContent = `3D Skin ansehen`;
+        skinLink.className = 'skin-link';
+        
+        // NameMC Link (NEU)
+        const namemcLink = document.createElement('a');
+        namemcLink.href = namemcUrl;
+        namemcLink.target = '_blank';
+        namemcLink.textContent = `NameMC Profil`;
+        namemcLink.className = 'namemc-link';
+
+        linkGroup.appendChild(skinLink);
+        linkGroup.appendChild(namemcLink);
+
 
         content.appendChild(img);
         content.appendChild(nameHeading);
         content.appendChild(uuidParagraph);
         content.appendChild(wagerParagraph);
-        content.appendChild(skinLink);
+        content.appendChild(linkGroup); // Füge Link-Gruppe hinzu
 
         modal.style.display = 'flex'; 
     }
@@ -666,6 +701,7 @@
         
         const list = container.querySelector('.suggestion-list');
         topPlayers.forEach(player => {
+            // Kopf-URL mit bereinigtem Namen verwenden (Fix für den Anzeigefehler)
             const cleanName = cleanPlayerNameForSkin(player.playername);
             const headUrl = `https://mineskin.eu/helm/${cleanName}/24`; 
 
@@ -713,7 +749,6 @@
             dynamicContainer.innerHTML = '<h4>🔎 Vorschläge</h4><div class="suggestion-list"></div>';
             const list = dynamicContainer.querySelector('.suggestion-list');
 
-            // Hinzufügen des 'scroll'-Stils für dynamische Vorschläge (falls viele Ergebnisse)
             list.style.flexWrap = 'nowrap';
             list.style.overflowX = 'auto';
 
@@ -757,7 +792,6 @@
                 searchPlayers(true);
             } else {
                 displayDynamicSuggestions(searchTerm);
-                document.getElementById('results-container').innerHTML = '';
                 document.getElementById('error-message').style.display = 'none';
             }
         }
@@ -771,7 +805,7 @@
         const topContainer = document.getElementById('suggestions-container');
 
         resultsContainer.innerHTML = '';
-        document.getElementById('error-message').style.display = 'none'; // Nachricht vor der Suche ausblenden
+        document.getElementById('error-message').style.display = 'none';
         dynamicContainer.style.display = 'none';
         topContainer.style.display = 'none';
         
