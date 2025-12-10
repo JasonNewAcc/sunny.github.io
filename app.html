@@ -5,6 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Holostats Spielerstatistik-Suche</title>
     <style>
+        /* ================================================= */
+        /* === SCHNEEFLOCKEN-EFFEKT (Zum einfachen Löschen) === */
+        /* ================================================= */
+        .snowflake {
+            color: #fff;
+            font-size: 1em;
+            font-family: Arial, sans-serif;
+            text-shadow: 0 0 5px #000;
+            position: fixed;
+            top: -10%;
+            z-index: 9999;
+            user-select: none;
+            cursor: default;
+            animation-name: snowfall;
+            animation-duration: 10s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            pointer-events: none; /* Wichtig: Lässt Klicks durch */
+        }
+        
+        @keyframes snowfall {
+            0% {
+                transform: translate3d(var(--x), 0, 0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate3d(var(--x), 100vh, 0);
+                opacity: 0.5;
+            }
+        }
+
+        /* Verzögerungen und Seitenpositionen */
+        .snowflake:nth-child(1) { left: 10%; animation-delay: 0s; --x: 20px; font-size: 1.2em; }
+        .snowflake:nth-child(2) { left: 20%; animation-delay: 2s; --x: -30px; font-size: 0.8em; }
+        .snowflake:nth-child(3) { left: 30%; animation-delay: 4s; --x: 10px; font-size: 1.5em; }
+        .snowflake:nth-child(4) { left: 40%; animation-delay: 6s; --x: -50px; font-size: 0.9em; }
+        .snowflake:nth-child(5) { left: 50%; animation-delay: 8s; --x: 40px; font-size: 1.3em; }
+        .snowflake:nth-child(6) { left: 60%; animation-delay: 1s; --x: -20px; font-size: 0.7em; }
+        .snowflake:nth-child(7) { left: 70%; animation-delay: 3s; --x: 30px; font-size: 1.1em; }
+        .snowflake:nth-child(8) { left: 80%; animation-delay: 5s; --x: -10px; font-size: 1.4em; }
+        .snowflake:nth-child(9) { left: 90%; animation-delay: 7s; --x: 50px; font-size: 1.0em; }
+        .snowflake:nth-child(10) { left: 5%; animation-delay: 9s; --x: -40px; font-size: 1.6em; }
+        .snowflake:nth-child(11) { left: 15%; animation-delay: 0.5s; --x: 60px; font-size: 0.6em; }
+        /* ================================================= */
+        /* === ENDE SCHNEEFLOCKEN-EFFEKT                   === */
+        /* ================================================= */
+
         /* === Allgemeiner Stil und Dunkles Thema === */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -17,7 +67,6 @@
             align-items: flex-start;
             padding-top: 50px;
             
-            /* Subtile, dunkle Textur als Hintergrund */
             background-color: #1a1a1a;
             background-image: repeating-linear-gradient(45deg, #1e1e1e, #1e1e1e 10px, #222 10px, #222 11px);
         }
@@ -34,11 +83,11 @@
         h1 {
             color: #4CAF50;
             text-align: center;
-            margin-bottom: 5px; /* Abstand oben reduziert */
+            margin-bottom: 5px;
             font-size: 2.2em;
         }
         
-        /* NEU: Kompakterer Info-Header */
+        /* Kompakterer Info-Header */
         #info-header {
             overflow: hidden;
             margin-bottom: 25px;
@@ -46,11 +95,11 @@
             padding-bottom: 10px;
         }
         #player-count {
-            font-weight: normal; /* Weniger auffällig */
+            font-weight: normal; 
             color: #aaa;
             margin: 0;
             display: inline-block;
-            font-size: 0.9em; /* Kleiner */
+            font-size: 0.9em;
             float: left;
         }
         #current-date {
@@ -62,53 +111,29 @@
             float: right;
         }
         
-        /* === LOGIN MODAL STYLES === */
-        #login-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 101;
-        }
-        #login-form-container {
-            background-color: #2d2d30;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-            text-align: center;
-            width: 90%;
-            max-width: 350px;
-            border: 2px solid #4CAF50;
-        }
-        
-        /* === Suchfeld-Design (NEU: Besserer Style) === */
+        /* === Suchfeld-Design === */
         #search-container {
             margin-bottom: 20px;
             display: flex;
             gap: 10px;
             position: relative;
-            background: #3a3a3d; /* Hintergrundfarbe des Containers/Input-Bereichs */
+            background: #3a3a3d;
             border-radius: 8px;
-            padding: 5px; /* Leichter Innenabstand */
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); /* Vertiefungseffekt */
+            padding: 5px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
         }
         #search-input {
-            padding: 10px 15px; /* Etwas weniger padding */
+            padding: 10px 15px;
             font-size: 1.1em;
-            border: none; /* Rahmen entfernt, da er im Container ist */
-            border-radius: 6px; /* Kleinere Rundung */
+            border: none;
+            border-radius: 6px;
             flex-grow: 1;
-            background-color: #2d2d30; /* Dunklerer Input-Hintergrund */
+            background-color: #2d2d30;
             color: #f0f0f0;
             transition: box-shadow 0.3s;
         }
         #search-input:focus {
-            box-shadow: 0 0 5px #4CAF50; /* Grüner Glow bei Fokus */
+            box-shadow: 0 0 5px #4CAF50;
             outline: none;
         }
         #search-button {
@@ -120,7 +145,7 @@
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3); /* Button-Schatten */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         #search-button:hover {
             background-color: #43A047;
@@ -141,17 +166,14 @@
             margin-bottom: 10px;
             font-size: 1em;
         }
-        
-        /* NEU: Vorschläge in einer scrollbaren Zeile */
         .suggestion-list {
             display: flex;
-            flex-wrap: nowrap; /* Wichtig: Verhindert den Umbruch */
+            flex-wrap: nowrap;
             gap: 10px;
-            overflow-x: auto; /* Aktiviert horizontales Scrollen */
-            padding-bottom: 5px; /* Platz für den Scrollbalken */
-            scrollbar-width: thin; /* Firefox */
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: thin;
         }
-        /* Style für den Scrollbar (Webkit: Chrome, Safari) */
         .suggestion-list::-webkit-scrollbar {
             height: 6px;
         }
@@ -165,7 +187,7 @@
         }
 
         .suggestion-player {
-            flex-shrink: 0; /* Wichtig: Verhindert das Schrumpfen */
+            flex-shrink: 0;
             background-color: #555;
             color: #fff;
             padding: 7px 12px;
@@ -192,7 +214,7 @@
             flex-shrink: 0;
         }
 
-        /* === Ergebnis-Karten (Unverändert, aber behoben) === */
+        /* === Ergebnis-Karten === */
         #results-container {
             display: flex;
             flex-wrap: wrap;
@@ -224,22 +246,117 @@
             image-rendering: pixelated;
             box-shadow: 0 0 6px rgba(76, 175, 80, 0.4);
         }
-        /* ... Rest des Card-Styles ... */
+        .player-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.2em;
+            color: #e0e0e0;
+            word-break: break-all;
+        }
+        .player-card p {
+            margin: 0;
+            font-size: 0.95em;
+            color: #bbb;
+        }
+        .divider {
+            margin: 10px 0;
+            border-top: 1px solid #444;
+        }
         
-        /* === Meldungen und Fehler === */
-        #error-message {
+        /* === DETAIL MODAL STYLES (UI-Fix: Zentrierung und Design) === */
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 100; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.85); /* Dunkleres Overlay */
+            display: flex; /* Flexbox für Zentrierung */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #2d2d30; /* Dunklere Farbe passend zum Container */
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 450px;
+            position: relative;
             text-align: center;
-            margin-top: 20px;
-            padding: 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+            border: 1px solid #4CAF50; /* Grüner Rand */
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute; /* Absolute Positionierung innerhalb des Modals */
+            top: 10px;
+            right: 15px;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #fff;
+        }
+        #detail-content img {
+            width: 128px; 
+            height: auto;
+            image-rendering: pixelated;
+            margin: 15px auto 25px auto;
+            border: 3px solid #4CAF50;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+        }
+        #detail-content h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 15px;
+            font-size: 1.8em;
+        }
+        #detail-content p {
+            margin: 12px 0;
+            text-align: left;
+            padding: 5px 10px;
+            font-size: 1.05em;
+            background-color: #3a3a3d; /* Dunklerer Hintergrund für bessere Lesbarkeit */
+            border-radius: 4px;
+        }
+        #detail-content b {
+            color: #fff;
+        }
+        #detail-content a {
+            display: block;
+            margin-top: 25px;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
             border-radius: 6px;
             font-weight: bold;
-            display: none;
+            transition: background-color 0.2s;
         }
-        /* ... Rest des Meldungs-Styles ... */
+        #detail-content a:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
 
+<div class="snowflake">❅</div>
+<div class="snowflake">❆</div>
+<div class="snowflake">❄</div>
+<div class="snowflake">❅</div>
+<div class="snowflake">❆</div>
+<div class="snowflake">❄</div>
+<div class="snowflake">❅</div>
+<div class="snowflake">❆</div>
+<div class="snowflake">❄</div>
+<div class="snowflake">❅</div>
+<div class="snowflake">❆</div>
 <div id="login-modal-overlay">
     <div id="login-form-container">
         <h2>Zugriff erforderlich</h2>
@@ -439,7 +556,7 @@
         content.appendChild(wagerParagraph);
         content.appendChild(skinLink);
 
-        modal.style.display = 'block';
+        modal.style.display = 'flex'; /* Wichtig für die Zentrierung */
     }
 
     function closePlayerDetails() {
@@ -665,6 +782,7 @@
 
     window.onclick = function(event) {
         const detailModal = document.getElementById('player-detail-modal');
+        // Sicherstellen, dass nur beim Klick auf das Overlay geschlossen wird
         if (event.target === detailModal) {
             closePlayerDetails();
         }
