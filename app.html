@@ -443,7 +443,9 @@
             // Optional: Zusätzliche Prüfung, falls accounts.json kein Array ist.
             if (!Array.isArray(validAccounts)) {
                 validAccounts = [];
-                throw new Error("Invalid accounts data format: Expected JSON array.");
+                // ZUSÄTZLICHER HINWEIS FÜR DEN BENUTZER IN DER KONSOLE
+                console.warn(`ACHTUNG: Die Datei "${ACCOUNTS_FILE}" wurde geladen, enthält aber kein JSON-Array. Erwartetes Format: [ { "username": "...", "password": "..." }, ... ]`);
+                throw new Error("Invalid data format: Expected JSON array.");
             }
             return true;
         } catch (error) {
@@ -456,7 +458,7 @@
     /**
      * Führt die Login-Prüfung durch. (Jetzt asynchron)
      */
-    async function checkLogin() { // HIER WURDE 'async' HINZUGEFÜGT
+    async function checkLogin() { 
         const usernameInput = document.getElementById('login-username').value;
         const passwordInput = document.getElementById('login-password').value;
         const loginMessage = document.getElementById('login-message');
@@ -825,7 +827,6 @@
             loginOverlay.style.display = 'none';
             container.style.display = 'block'; // Zeige Hauptinhalt
             
-            // WICHTIG: Hier wurde das await schon in der letzten Version hinzugefügt und ist korrekt.
             await initializeApp(); 
         } else {
             // Zeige Login-Overlay
