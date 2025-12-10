@@ -454,7 +454,7 @@
     }
 
     /**
-     * Führt die Login-Prüfung durch.
+     * Führt die Login-Prüfung durch. (Jetzt asynchron und wartet auf Initialisierung)
      */
     async function checkLogin() { 
         const usernameInput = document.getElementById('login-username').value;
@@ -474,7 +474,7 @@
             document.getElementById('login-modal-overlay').style.display = 'none';
             document.querySelector('.container').style.display = 'block'; // Zeige Hauptinhalt
             
-            // Warten, bis die Daten geladen sind
+            // Warten, bis die Daten geladen sind (KORREKT)
             await initializeApp(); 
         } else {
             // Fehler
@@ -522,7 +522,7 @@
 
         const modal = document.getElementById('player-detail-modal');
         const content = document.getElementById('detail-content');
-        content.innerHTML = ''; // Inhalt leeren
+        content.innerHTML = ''; 
 
         const cleanName = cleanPlayerNameForSkin(player.playername);
         const skinUrl = `https://mineskin.eu/skin/${cleanName}`;
@@ -753,9 +753,10 @@
 
     /**
      * Initialisiert die Anwendung nach erfolgreichem Login.
+     * Stellt sicher, dass die Spielerdaten geladen sind.
      */
     async function initializeApp() { 
-        const dataLoaded = await loadPlayerStats(); // Daten asynchron laden
+        const dataLoaded = await loadPlayerStats(); // Warten auf das Laden der Daten
 
         if (dataLoaded && playerStats.length > 0) {
             displayTopSuggestions();
@@ -795,6 +796,8 @@
             loginOverlay.style.display = 'none';
             container.style.display = 'block'; // Zeige Hauptinhalt
             
+            // KORREKTUR: HIER MUSS AUF DIE INITIALISIERUNG GEWARTET WERDEN, 
+            // um Race Conditions zu vermeiden, wenn der Nutzer die Seite neu lädt.
             await initializeApp(); 
         } else {
             // Zeige Login-Overlay
