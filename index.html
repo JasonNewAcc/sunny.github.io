@@ -3,183 +3,432 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Holostats</title>
+    <title>Holostats Spielerstatistik-Suche</title>
+    <style>
+        /* === Allgemeiner Stil und Dunkles Thema === */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e; /* Dunkler Hintergrund */
+            color: #f0f0f0; /* Helle Textfarbe */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+        }
+        .container {
+            display: none; /* NEU: Standardmäßig versteckt */
+            width: 90%;
+            max-width: 700px;
+            background: #2d2d30; /* Dunkle Container-Fläche */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h1 {
+            color: #4CAF50; /* Akzentfarbe Grün */
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 2em;
+        }
+        #current-date {
+            text-align: right;
+            font-size: 0.8em;
+            color: #aaa;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #3a3a3d;
+            padding-bottom: 10px;
+        }
+        
+        /* === LOGIN MODAL STYLES (NEU) === */
+        #login-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1e1e1e; /* Hintergrundfarbe des Bodys */
+            display: none; /* Wird über JS bei Bedarf auf 'flex' gesetzt */
+            justify-content: center;
+            align-items: center;
+            z-index: 101; /* Über allen anderen Elementen */
+        }
 
-   <style>  
-/* === Allgemeiner Seitenstil === */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #1e1e1e;
-    color: #f0f0f0;
-    min-height: 100vh;
+        #login-form-container {
+            background-color: #2d2d30;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            text-align: center;
+            width: 90%;
+            max-width: 350px;
+        }
 
-    display: flex;
-    justify-content: center; /* horizontal centering */
-    align-items: flex-start; /* prevent vertical center overlap */
-    padding-top: 60px;       /* space above */
-    padding-bottom: 140px;   /* space so footer won't overlap */
-}
+        #login-form-container h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
 
-/* === LOGIN FORM STYLES === */
-#login-form-container {
-    background-color: #2d2d30;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-    text-align: center;
-    width: 90%;
-    max-width: 350px;
-}
+        #login-form-container p {
+            color: #aaa;
+        }
 
-#login-form-container h2 {
-    color: #4CAF50;
-    margin-top: 0;
-    margin-bottom: 20px;
-}
+        #login-username, #login-password {
+            width: calc(100% - 30px);
+            padding: 12px 15px;
+            margin: 10px 0;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background-color: #3a3a3d;
+            color: #f0f0f0;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        #login-username:focus, #login-password:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
 
-#login-form-container p {
-    color: #aaa;
-}
+        #login-form-container button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.2s;
+        }
 
-#login-username, #login-password {
-    width: calc(100% - 30px);
-    padding: 12px 15px;
-    margin: 10px 0;
-    border: 1px solid #555;
-    border-radius: 6px;
-    background-color: #3a3a3d;
-    color: #f0f0f0;
-    font-size: 1em;
-    box-sizing: border-box;
-}
+        #login-form-container button:hover {
+            background-color: #43A047;
+        }
+        
+        /* === Suchfeld-Design (Suchfenster) === */
+        #search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            position: relative;
+        }
+        #search-input {
+            padding: 12px 15px;
+            font-size: 1.1em;
+            border: 2px solid #555;
+            border-radius: 8px;
+            flex-grow: 1;
+            background-color: #3a3a3d;
+            color: #f0f0f0;
+            transition: border-color 0.3s;
+        }
+        #search-input:focus {
+            border-color: #4CAF50; /* Akzentfarbe bei Fokus */
+            outline: none;
+        }
+        #search-button {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #search-button:hover {
+            background-color: #43A047;
+        }
+        
+        /* === Vorschlags-Container (Top 5 & Dynamisch) === */
+        #suggestions-container, #dynamic-suggestions-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #3a3a3d;
+            border-left: 5px solid #4CAF50; /* Grüner Akzent */
+        }
+        #suggestions-container h4, #dynamic-suggestions-container h4 {
+            margin-top: 0;
+            color: #4CAF50; 
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        .suggestion-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .suggestion-player {
+            background-color: #555;
+            color: #fff;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-weight: bold;
+        }
+        .suggestion-player:hover {
+            background-color: #4CAF50;
+            transform: translateY(-2px);
+        }
 
-#login-username:focus, #login-password:focus {
-    border-color: #4CAF50;
-    outline: none;
-}
+        /* === Ergebnis-Karten === */
+        #results-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .player-card {
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 8px;
+            width: 160px;
+            text-align: center;
+            background: #3a3a3d;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer; 
+        }
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5), 0 0 10px #4CAF50;
+        }
+        .player-card img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%; /* Rundes Profilbild */
+            border: 3px solid #4CAF50;
+            margin-bottom: 10px;
+            image-rendering: pixelated;
+        }
+        .player-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.2em;
+            color: #e0e0e0;
+            word-break: break-all;
+        }
+        .player-card p {
+            margin: 0;
+            font-size: 0.95em;
+            color: #bbb;
+        }
+        .divider {
+            margin: 10px 0;
+            border-top: 1px solid #444;
+        }
+        
+        /* === Meldungen und Fehler === */
+        #error-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: none; /* Initial versteckt */
+        }
+        /* Erfolgsmeldung */
+        #error-message[style*="background-color: #d4edda"] { 
+            background-color: #384239 !important;
+            border: 1px solid #4CAF50;
+            color: #4CAF50 !important;
+        }
+        /* Fehlermeldung */
+        #error-message[style*="background-color: #f2dede"] { 
+            background-color: #5d3f42 !important;
+            border: 1px solid #d9534f;
+            color: #d9534f !important;
+        }
 
-#login-form-container button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1em;
-    transition: background-color 0.2s;
-}
-
-#login-form-container button:hover {
-    background-color: #43A047;
-}
-
-#login-message {
-    color: #d9534f;
-    margin-top: 10px;
-    display: none;
-    font-weight: bold;
-}
-
-.site-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #111;
-    color: #ddd;
-    padding: 10px 5px;
-    text-align: center;
-    font-family: "Inter", sans-serif;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
-    border-top: 1px solid rgba(255,255,255,0.1);
-
-    opacity: 0;
-    pointer-events: none; /* prevent interaction when hidden */
-    transition: opacity 0.3s ease;
-}
-
-.site-footer.visible {
-    opacity: 1;
-    pointer-events: auto; /* enable interaction when visible */
-}
-
-.site-footer a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: 500;
-    transition: opacity 0.2s ease;
-}
-
-.site-footer a:hover {
-    opacity: 0.7;
-}
-
-.footer-meta p {
-    margin: 4px 0;
-    font-size: 0.85rem;
-}
-
-.footer-meta span {
-    font-weight: 600;
-}
- </style>
-    
+        /* === DETAIL MODAL STYLES === */
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 100; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.8); 
+        }
+        .modal-content {
+            background-color: #3a3a3d;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 450px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #fff;
+        }
+        #detail-content img {
+            width: 128px; 
+            height: auto;
+            image-rendering: pixelated;
+            margin: 15px auto 25px auto;
+            border: 4px solid #4CAF50;
+            border-radius: 50%;
+        }
+        #detail-content h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 15px;
+            font-size: 1.8em;
+        }
+        #detail-content p {
+            margin: 12px 0;
+            text-align: left;
+            padding: 5px 10px;
+            font-size: 1.05em;
+            background-color: #2d2d30;
+            border-radius: 4px;
+        }
+        #detail-content b {
+            color: #fff;
+        }
+        #detail-content a {
+            display: block;
+            margin-top: 25px;
+            padding: 12px;
+            background-color: #007bff; /* Sekundäre Akzentfarbe Blau */
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        #detail-content a:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
 
-<div id="login-form-container">
-    <h2>Zugriff erforderlich</h2>
-    <p>Bitte melden Sie sich an, um die Holostats-Daten einzusehen.</p>
-    <input type="text" id="login-username" placeholder="Benutzername">
-    <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()"> 
-    <button onclick="checkLogin()">Anmelden</button>
-    <p id="login-message"></p>
+<div id="login-modal-overlay">
+    <div id="login-form-container">
+        <h2>Zugriff erforderlich</h2>
+        <p>Bitte melden Sie sich an, um die Holostats-Daten einzusehen.</p>
+        <input type="text" id="login-username" placeholder="Benutzername">
+        <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()">
+        <button onclick="checkLogin()">Anmelden</button>
+        <p id="login-message" style="color: #d9534f; margin-top: 10px; display: none;"></p>
+    </div>
+</div>
+<div class="container">
+    <h1><span style="color: white;">Sunny_Casino</span> - Spieler Umsatz suchen</h1>
+    
+    <p id="current-date">Daten-Stand: 07.12.2025</p>
+
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Spielernamen eingeben..." onkeyup="handleSearchInput(event)">
+        <button id="search-button" onclick="searchPlayers(true)">Suchen</button>
+    </div>
+    
+    <div id="dynamic-suggestions-container" style="display: none;">
+        </div>
+
+    <div id="suggestions-container">
+        </div>
+
+    <p id="error-message"></p>
+    
+    <div id="results-container">
+        </div>
 </div>
 
-<footer class="site-footer">
-  <div class="footer-meta">
-    <p>Website by <span>JasonNewAcc</span></p>
-  </div>
-</footer>
-
+<div id="player-detail-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closePlayerDetails()">&times;</span>
+        <div id="detail-content">
+            </div>
+    </div>
+</div>
 <script>
-    // ⚠️ WICHTIGER HINWEIS: Passwörter sind im Klartext in accounts.json gespeichert und UNSICHER.
+    // ** SPIELERDATEN (WIRD NUN AUS statistics.json GELADEN) **
+    let playerStats = []; 
+    const STATS_FILE = 'statistics.json'; // Dateiname der Statistiken
+    
     
     // --- AUTHENTIFIZIERUNGSDATEN ---
-    let validAccounts = []; 
+    let validAccounts = []; // Speichert die geladenen Accounts
     const LOGIN_KEY = 'holostats_logged_in';
-    const TARGET_PAGE = 'app.html'; 
+    const ACCOUNTS_FILE = 'accounts.json'; // Dateiname der Zugangsdaten
 
     /**
-     * Lädt die Zugangsdaten aus der externen accounts.json Datei.
+     * Lädt die Benutzerdaten aus der accounts.json Datei.
+     * Muss über einen Webserver aufgerufen werden, sonst schlägt fetch() fehl!
      */
     async function loadAccounts() {
         try {
-            // Führt eine Anfrage an die accounts.json-Datei aus
-            const response = await fetch('accounts.json'); 
-            
+            const response = await fetch(ACCOUNTS_FILE);
             if (!response.ok) {
-                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
-                document.getElementById('login-message').style.display = 'block';
-                return;
+                 // Fehlerbehandlung für nicht geladene oder nicht gefundene Datei
+                displayMessage(`FEHLER: Konnte die Datei "${ACCOUNTS_FILE}" (Status: ${response.status}) nicht laden. Stellen Sie sicher, dass die Seite über einen Webserver (http://) aufgerufen wird.`, 'error');
+                return false;
             }
-            
-            const data = await response.json();
-            // Erwartet, dass die Liste unter dem Schlüssel 'accounts' liegt
-            validAccounts = data.accounts || []; 
-            
+            validAccounts = await response.json();
+            return true;
         } catch (error) {
-            document.getElementById('login-message').textContent = 'Netzwerkfehler oder Fehler beim Parsen der Kontodaten.';
-            document.getElementById('login-message').style.display = 'block';
-            console.error(error);
+            console.error('Fehler beim Laden der Accounts:', error);
+            displayMessage(`KRITISCHER FEHLER: Die Datei "${ACCOUNTS_FILE}" ist fehlerhaft oder konnte nicht geladen werden. Prüfen Sie die JSON-Syntax.`, 'error');
+            return false;
         }
     }
-
-
+    
+    /**
+     * NEU & KORRIGIERT: Lädt die Spielerstatistiken aus der statistics.json Datei 
+     * und stellt sicher, dass das Ergebnis ein Array ist.
+     */
+    async function loadPlayerStats() {
+        try {
+            const response = await fetch(STATS_FILE);
+            if (!response.ok) {
+                displayMessage(`FEHLER: Konnte die Spielerdaten-Datei "${STATS_FILE}" (Status: ${response.status}) nicht laden.`, 'error');
+                return false;
+            }
+            
+            const statsObject = await response.json();
+            
+            // KORREKTUR: Wandelt das geladene Objekt in ein Array von Spielerobjekten um,
+            // falls das JSON-Format ein Objekt ist (z.B. {Name: {...}, ...}), was den 
+            // "is not a function" TypeError behebt.
+            if (statsObject && typeof statsObject === 'object' && !Array.isArray(statsObject)) {
+                playerStats = Object.values(statsObject);
+            } else {
+                // Wenn es bereits ein Array ist oder null/undefined, verwende es direkt.
+                playerStats = statsObject; 
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Fehler beim Laden der Spielerdaten:', error);
+            displayMessage(`KRITISCHER FEHLER: Die Datei "${STATS_FILE}" ist fehlerhaft oder konnte nicht als JSON interpretiert werden.`, 'error');
+            return false;
+        }
+    }
+    
     /**
      * Führt die Login-Prüfung durch.
      */
@@ -190,68 +439,388 @@ body {
 
         loginMessage.style.display = 'none';
         
-        // Prüft, ob die Konten geladen wurden
-        if (validAccounts.length === 0) {
-            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte warten oder Seite neu laden.';
-            loadAccounts(); // Versucht, erneut zu laden
-            loginMessage.style.display = 'block';
-            return;
-        }
-        
-        // Findet ein passendes Konto in der Liste (Klartext-Vergleich)
+        // Prüfung gegen die geladenen Accounts in der validAccounts-Liste
         const accountFound = validAccounts.find(account => 
             account.username === usernameInput && account.password === passwordInput
         );
 
         if (accountFound) {
-            // Erfolg: Session-Schlüssel setzen und weiterleiten
+            // Erfolg
             sessionStorage.setItem(LOGIN_KEY, 'true');
-            window.location.href = TARGET_PAGE; 
+            document.getElementById('login-modal-overlay').style.display = 'none';
+            document.querySelector('.container').style.display = 'block'; // Zeige Hauptinhalt
+
+            // Initialisiere die App nach erfolgreichem Login
+            initializeApp(); 
             
         } else {
-            // Fehler: Nachricht anzeigen
+            // Fehler
             loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
             loginMessage.style.display = 'block';
         }
     }
+    // --- ENDE AUTHENTIFIZIERUNG ---
 
-  window.addEventListener('scroll', () => {
-    const footer = document.querySelector('.site-footer');
-    if (window.scrollY > 15) {  // show footer after scrolling down 200px (adjust as needed)
-      footer.classList.add('visible');
-    } else {
-      footer.classList.remove('visible');
+    
+    // --- SOUND-FUNKTIONEN (ANGEPASST) ---
+    // Definiert den Pfad zu Ihrer lokalen MP3-Datei
+    const CLICK_SOUND_URL = './buttonclick.mp3';
+    
+    // Audio-Objekt nur für den Klick-Sound
+    const clickAudio = new Audio(CLICK_SOUND_URL);
+    
+    /**
+     * Spielt den Klick-Sound ab (nur für Spieler-Elemente).
+     */
+    function playClickSound() {
+        // Stellt sicher, dass der Sound immer von vorne abgespielt wird
+        clickAudio.currentTime = 0;
+        clickAudio.volume = 0.7; // Lautstärke beibehalten
+    
+        // play() gibt eine Promise zurück, die Fehler bei Autoplay-Blockierung behandelt
+        clickAudio.play().catch(e => console.warn("Click-Sound konnte nicht abgespielt werden (wahrscheinlich Autoplay blockiert):", e));
     }
-  });
+    
+    // --- ENDE SOUND-FUNKTIONEN ---
+    
+    
+    // --- HILFSFUNKTIONEN ---
+    
+    /**
+     * Bereinigt den Spielernamen für die Mineskin-API, indem ein führendes '!' entfernt wird.
+     */
+    function cleanPlayerNameForSkin(playerName) {
+        // Entfernt ein führendes '!', falls vorhanden.
+        return playerName.startsWith('!') ? playerName.substring(1) : playerName;
+    }
 
-    // Beim Laden zuerst die Konten laden und dann auf den Login-Status prüfen
-    document.addEventListener('DOMContentLoaded', async () => {
-        document.getElementById('login-message').textContent = 'Lade Kontodaten...';
-        document.getElementById('login-message').style.display = 'block';
+    /**
+     * Formatiert eine Zahl mit Tausender-Trennzeichen (deutsch).
+     */
+    function formatNumber(num) {
+        return (typeof num === 'number' && !isNaN(num)) ? num.toLocaleString('de-DE') : 'N/A';
+    }
+    
+    /**
+     * Schließt das Detail-Modal.
+     */
+    function closePlayerDetails() {
+        const modal = document.getElementById('player-detail-modal');
+        modal.style.display = 'none';
+        // Sound beim Schließen entfernt
+    }
+    
+    /**
+     * Zeigt eine Erfolgs- oder Fehlermeldung an.
+     */
+    function displayMessage(message, type = 'success') {
+        const errorMessage = document.getElementById('error-message');
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        if (type === 'success') {
+            errorMessage.style.backgroundColor = '#d4edda';
+            errorMessage.style.color = '#155724';
+        } else {
+            errorMessage.style.backgroundColor = '#f2dede';
+            errorMessage.style.color = '#a94442';
+        }
+    }
+
+    /**
+     * Erstellt und zeigt eine Spielerkarte an.
+     */
+    function createPlayerCard(player, resultsContainer) {
+        const card = document.createElement('div');
+        card.className = 'player-card';
+        card.onclick = () => {
+            showPlayerDetails(player.playername); 
+            playClickSound(); // Sound beim Klicken auf Karte
+        };
         
-        await loadAccounts(); // Warten, bis die Daten geladen sind
+        // Bereinigter Name für die Skin-URL
+        const cleanName = cleanPlayerNameForSkin(player.playername);
 
-        // Wenn Konten erfolgreich geladen wurden, Nachricht verstecken
-        if (validAccounts.length > 0) {
-            document.getElementById('login-message').style.display = 'none'; 
+        // Skin URL für die Karte (Kopf)
+        const skinUrl = `https://mineskin.eu/head/${cleanName}/64`;
+        
+        const img = document.createElement('img');
+        img.src = skinUrl;
+        img.alt = `Skin-Kopf von ${player.playername}`;
+    
+        const nameHeading = document.createElement('h3');
+        nameHeading.textContent = player.playername;
+        
+        const divider = document.createElement('div');
+        divider.className = 'divider';
+        
+        const wagerText = document.createElement('p');
+        wagerText.innerHTML = `<b>Umsatz:</b> <br>${formatNumber(player.wager)}`;
+        
+        card.appendChild(img);
+        card.appendChild(nameHeading);
+        card.appendChild(divider);
+        card.appendChild(wagerText);
+        resultsContainer.appendChild(card);
+    }
+
+    // --- VORSCHLAGS-LOGIK ---
+
+    /**
+     * Sortiert Spieler nach Wager absteigend und gibt die Top N zurück.
+     */
+    function getTopPlayers(count) {
+        return [...playerStats]
+            .sort((a, b) => b.wager - a.wager)
+            .slice(0, count);
+    }
+
+    /**
+     * Zeigt die Top 5 Spieler als anklickbare Vorschläge an.
+     */
+    function displayTopSuggestions() {
+        if (playerStats.length === 0) return; // Keine Vorschläge, wenn keine Daten
+
+        const topPlayers = getTopPlayers(5);
+        const container = document.getElementById('suggestions-container');
+        container.style.display = 'block';
+        container.innerHTML = '<h4>⭐ Top 5 Spieler (Nach Umsatz)</h4><div class="suggestion-list"></div>';
+        const list = container.querySelector('.suggestion-list');
+
+        topPlayers.forEach(player => {
+            const span = document.createElement('span');
+            span.className = 'suggestion-player';
+            span.textContent = player.playername;
+            span.onclick = () => setInputAndSearch(player.playername);
+            list.appendChild(span);
+        });
+    }
+
+    /**
+     * Zeigt dynamische Vorschläge basierend auf der Sucheingabe.
+     */
+    function displayDynamicSuggestions(searchTerm) {
+        const dynamicContainer = document.getElementById('dynamic-suggestions-container');
+        dynamicContainer.innerHTML = ''; 
+
+        if (searchTerm.length < 2) {
+            dynamicContainer.style.display = 'none';
+            displayTopSuggestions();
+            return;
+        }
+
+        const exactMatch = playerStats.find(p => p.playername.toLowerCase() === searchTerm);
+        
+        // Finde ähnliche Spieler (bis zu 8, schließe exakten Match aus, falls vorhanden)
+        const similarPlayers = playerStats.filter(p => 
+            p.playername.toLowerCase().includes(searchTerm) && p.playername.toLowerCase() !== searchTerm
+        ).slice(0, 8); 
+
+        if (exactMatch || similarPlayers.length > 0) {
+            dynamicContainer.style.display = 'block';
+            dynamicContainer.innerHTML = '<h4>Ähnliche Spielernamen (Klicken zum Suchen)</h4><div class="suggestion-list"></div>';
+            const list = dynamicContainer.querySelector('.suggestion-list');
+
+            // Exakter Match zuerst anzeigen (wenn er nicht schon gesucht wurde)
+            if (exactMatch) {
+                const span = document.createElement('span');
+                span.className = 'suggestion-player';
+                span.textContent = exactMatch.playername + " (Exakt)";
+                span.style.backgroundColor = '#4CAF50';
+                span.onclick = () => setInputAndSearch(exactMatch.playername);
+                list.appendChild(span);
+            }
+
+            // Dann ähnliche Spieler
+            similarPlayers.forEach(player => {
+                const span = document.createElement('span');
+                span.className = 'suggestion-player';
+                span.textContent = player.playername;
+                span.onclick = () => setInputAndSearch(player.playername);
+                list.appendChild(span);
+            });
+            document.getElementById('suggestions-container').style.display = 'none';
+        } else {
+            dynamicContainer.style.display = 'none';
+            displayTopSuggestions(); // Zeige Top 5, wenn keine dynamischen Treffer
+        }
+    }
+
+
+    // --- SUCHE UND DETAILS ---
+
+    /**
+     * Setzt den Suchwert und startet die Suche. Wird von den Vorschlägen genutzt.
+     */
+    function setInputAndSearch(playerName) {
+        document.getElementById('search-input').value = playerName;
+        searchPlayers(true);
+        playClickSound() // Sound beim Klicken auf Vorschlag
+    }
+    
+    /**
+     * Behandelt Tastatureingaben im Suchfeld.
+     */
+    function handleSearchInput(event) {
+        const input = document.getElementById('search-input');
+        const searchTerm = input.value.toLowerCase().trim();
+
+        if (event && event.type === 'keyup') {
+            if (event.key === 'Enter') {
+                searchPlayers(true);
+            } else {
+                // Bei jeder anderen Eingabe: zeige dynamische Vorschläge
+                document.getElementById('results-container').innerHTML = '';
+                document.getElementById('error-message').style.display = 'none';
+                displayDynamicSuggestions(searchTerm);
+            }
+        }
+    }
+
+    /**
+     * Sucht nach Spielern basierend auf der Eingabe (exakter Match oder Teilstring-Match).
+     */
+    function searchPlayers(isFullSearch = false) {
+        const input = document.getElementById('search-input');
+        const searchTerm = input.value.toLowerCase().trim();
+        const resultsContainer = document.getElementById('results-container');
+        const errorMessage = document.getElementById('error-message');
+        const dynamicContainer = document.getElementById('dynamic-suggestions-container');
+        const topContainer = document.getElementById('suggestions-container');
+        
+        resultsContainer.innerHTML = '';
+        errorMessage.style.display = 'none';
+        dynamicContainer.style.display = 'none';
+        topContainer.style.display = 'none';
+
+        if (searchTerm.length === 0) {
+            displayMessage('Bitte einen Spielernamen eingeben.', 'error');
+            displayTopSuggestions();
+            return;
+        }
+
+        if (playerStats.length === 0) {
+            displayMessage('Es sind keine Spielerdaten geladen. Die Suche kann nicht durchgeführt werden.', 'error');
+            return;
+        }
+
+        // 1. Exakter Match (Case-Insensitive)
+        let foundPlayers = playerStats.filter(p => p.playername.toLowerCase() === searchTerm);
+        
+        // 2. Teilstring-Match (nur bei Vollsuche)
+        if (foundPlayers.length === 0 && isFullSearch) {
+            foundPlayers = playerStats.filter(p => p.playername.toLowerCase().includes(searchTerm));
         }
         
+        if (foundPlayers.length > 0) {
+            foundPlayers
+                .sort((a, b) => b.wager - a.wager) // Sortieren nach Wager
+                .forEach(player => createPlayerCard(player, resultsContainer));
+            displayMessage(`${foundPlayers.length} Spieler für "${input.value}" gefunden.`, 'success');
+        } else {
+            displayMessage(`Kein Spieler mit dem Namen "${input.value}" gefunden.`, 'error');
+            displayTopSuggestions();
+        }
+    }
+
+    /**
+     * Sucht den Spieler und öffnet das Detail-Modal.
+     */
+    function showPlayerDetails(playerName) {
+        const player = playerStats.find(p => p.playername === playerName);
+        const detailContent = document.getElementById('detail-content');
+        const modal = document.getElementById('player-detail-modal');
+
+        if (!player) {
+            displayMessage(`Fehler: Spieler '${playerName}' wurde nicht in den Daten gefunden.`, 'error');
+            return;
+        }
+        
+        // Bereinigter Name für die Skin-URL
+        const cleanName = cleanPlayerNameForSkin(player.playername);
+
+        // UUID und NameMC URL
+        const nameMcUrl = `https://de.namemc.com/profile/${player.uuid}`;
+        
+        // Skin URL für das Detail-Modal (volle Ansicht, verwendet bereinigten Namen)
+        const detailSkinUrl = `https://mineskin.eu/skin/${cleanName}/128`;
+        
+        detailContent.innerHTML = `
+            <h2>${player.playername}</h2>
+            <img src="${detailSkinUrl}" alt="Voller Skin von ${player.playername}">
+            <p><b>UUID:</b> ${player.uuid}</p>
+            <p><b>Gesamtwager:</b> ${formatNumber(player.wager)}</p>
+            
+            <a href="${nameMcUrl}" target="_blank">Profil auf NameMC ansehen</a>
+        `;
+
+        modal.style.display = 'block';
+    }
+
+
+    // --- INITIALISIERUNG ---
+    
+    /**
+     * Initialisiert die Hauptanwendung, nachdem der Login erfolgreich war.
+     */
+    async function initializeApp() {
+        // Zuerst die Statistiken laden
+        const statsLoaded = await loadPlayerStats();
+        
+        // Entfernt Hover-Sounds vom Suchfeld und Button
+        const searchInput = document.getElementById('search-input');
+        if (searchInput.onmouseenter) searchInput.onmouseenter = null;
+        
+        const searchButton = document.getElementById('search-button');
+        if (searchButton.onmouseenter) searchButton.onmouseenter = null;
+
+        if (statsLoaded && playerStats.length > 0) {
+             displayMessage(`Daten von ${playerStats.length} Spielern geladen. Sie können nun suchen oder einen vorgeschlagenen Spieler wählen.`, 'success');
+             // Zeige beim Start die Top 5 Spieler an
+             displayTopSuggestions();
+        } else if (statsLoaded) {
+             displayMessage('⚠️ Wichtig: Es wurden keine Spielerdaten gefunden. Bitte die Daten prüfen.', 'error');
+        } 
+        // Falls statsLoaded false ist, hat loadPlayerStats() bereits eine Fehlermeldung ausgegeben.
+    }
+
+
+    // Schließt das Detail-Modal, wenn außerhalb des Inhalts geklickt wird
+    window.onclick = function(event) {
+        const detailModal = document.getElementById('player-detail-modal');
+        if (event.target === detailModal) {
+            closePlayerDetails();
+        }
+    }
+    
+    // Haupt-DOMContentLoaded-Handler zur Authentifizierung
+    document.addEventListener('DOMContentLoaded', async () => { 
+        
+        // 1. Zuerst Accounts laden
+        const accountsLoaded = await loadAccounts();
+        if (!accountsLoaded) {
+            // Wenn Accounts nicht geladen werden konnten, das Login-Overlay anzeigen und warten
+            document.getElementById('login-modal-overlay').style.display = 'flex';
+            return;
+        }
+        
+        // 2. Prüfen, ob bereits eingeloggt
         const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true';
+        const container = document.querySelector('.container');
+        const loginOverlay = document.getElementById('login-modal-overlay');
+
         if (isLoggedIn) {
-             window.location.href = TARGET_PAGE;
+            // Bereits eingeloggt
+            loginOverlay.style.display = 'none';
+            container.style.display = 'block'; // Zeige Hauptinhalt
+            initializeApp(); // Lädt jetzt die Spielerstatistiken
+        } else {
+            // Zeige Login-Overlay
+            loginOverlay.style.display = 'flex';
+            // Setze den Fokus auf das Eingabefeld
+            document.getElementById('login-username').focus();
         }
-        document.getElementById('login-username').focus();
     });
+
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
