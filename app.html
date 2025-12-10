@@ -337,7 +337,7 @@
     </div>
 </div>
 <div class="container">
-    <h1><span style="color: white;">Sunny_Casino</span> - Spieler Umsatz suchen</h1>
+    <h1><span style="color: white;">Sunny_Casino/span> - Spieler Umsatz suchen</h1>
     
     <p id="current-date">Daten-Stand: 07.12.2025</p>
 
@@ -366,76 +366,502 @@
     </div>
 </div>
 <script>
-    // ** SPIELERDATEN (WIRD NUN AUS statistics.json GELADEN) **
-    let playerStats = []; 
-    const STATS_FILE = 'statistics.json'; // Dateiname der Statistiken
+    // ** START DER NEUESTEN SPIELERDATEN **
+    let playerStats = [
+    {
+      "uuid": "2143da9f-503b-4e4a-835a-d1d7f37a0af1",
+      "playername": "JasonNewAcc",
+      "wager": 4904301
+    },
+    {
+      "uuid": "3afc41d9-6ac7-41d1-b7c2-8286ce21765d",
+      "playername": "xNotNamex",
+      "wager": 7864090
+    },
+    {
+      "uuid": "895d190d-77d7-4c85-b79b-bcd6768011ca",
+      "playername": "Lilly_197",
+      "wager": 3022045
+    },
+    {
+      "uuid": "1038f0a9-4431-490a-b07c-c3b5222b259c",
+      "playername": "3infach_Craz7",
+      "wager": 9644035
+    },
+    {
+      "uuid": "2e809eab-3e83-4632-9743-d061c119b59f",
+      "playername": "Yxlukas",
+      "wager": 13346075
+    },
+    {
+      "uuid": "467e9ab0-b048-4307-b5fd-1ea110f45817",
+      "playername": "lblenni",
+      "wager": 256010
+    },
+    {
+      "uuid": "a490eea8-725d-4140-9ac7-68bd751229de",
+      "playername": "1real_nox",
+      "wager": 1244210
+    },
+    {
+      "uuid": "9c1e2e4e-650b-4018-a22d-6197eca0a49f",
+      "playername": "1Verfehlter",
+      "wager": 1596185
+    },
+    {
+      "uuid": "9d593273-a33d-40de-9e66-78ff12991e7e",
+      "playername": "ces_cot",
+      "wager": 65
+    },
+    {
+      "uuid": "9bda69ad-3ebe-42e2-a48f-96fa6f3a4351",
+      "playername": "KenRyugujiYT",
+      "wager": 5
+    },
+    {
+      "uuid": "42b0dfc2-40d9-44d3-8678-5091f15afde7",
+      "playername": "BiBo_Th3_Ripp3r",
+      "wager": 1660235
+    },
+    {
+      "uuid": "f2ed72bb-31ef-42c3-8456-372c85aa739b",
+      "playername": "Orb_Store",
+      "wager": 5
+    },
+    {
+      "uuid": "52ffcd1b-7cb4-48e7-82de-03a41afa061d",
+      "playername": "pusplocke",
+      "wager": 1962145
+    },
+    {
+      "uuid": "77706451-4eaa-4061-9e03-169e27cee023",
+      "playername": "Oxication_HD",
+      "wager": 2432015
+    },
+    {
+      "uuid": "fe10c7c9-83f4-4603-a423-d5cdcd1f2def",
+      "playername": "RiryC001",
+      "wager": 5
+    },
+    {
+      "uuid": "068ff8c2-9918-411d-9593-d2b7e2fd371d",
+      "playername": "Jere0258",
+      "wager": 20010
+    },
+    {
+      "uuid": "0e7c2bab-cf1b-4d3c-954f-e2a11cd0b582",
+      "playername": "zNight649",
+      "wager": 83098080
+    },
+    {
+      "uuid": "cab5bcd2-7b88-4a1d-94ba-dbaffc1a56f2",
+      "playername": "xAlserak",
+      "wager": 15128155
+    },
+    {
+      "uuid": "a39d4373-60ad-4e18-852b-e0796dedef62",
+      "playername": "Premium_man_",
+      "wager": 5248075
+    },
+    {
+      "uuid": "7e9774da-dd78-3fde-bbbb-61b84a5c979d",
+      "playername": "!RobLoxxGhosT",
+      "wager": 2352020
+    },
+    {
+      "uuid": "3a5309af-6510-4445-916a-660aaeb0e76e",
+      "playername": "Lattenrost1234",
+      "wager": 12608075
+    },
+    {
+      "uuid": "27c8b333-4954-32d7-a27c-12e4c61b58da",
+      "playername": "!Russivan639",
+      "wager": 920015
+    },
+    {
+      "uuid": "d2362403-231e-4d2e-b26c-0ad7a8a24b80",
+      "playername": "FriksGames",
+      "wager": 17848320
+    },
+    {
+      "uuid": "8dca34b2-9500-4d01-a510-a53037f20579",
+      "playername": "Oxiiiii_42",
+      "wager": 10
+    },
+    {
+      "uuid": "21b987f7-2e45-4417-823c-2a9922635047",
+      "playername": "1Kxksen",
+      "wager": 2005
+    },
+    {
+      "uuid": "75f31271-ea69-4ad4-b275-884dedb6d357",
+      "playername": "salina3534",
+      "wager": 9514055
+    },
+    {
+      "uuid": "a380117b-7213-44b8-bb8d-1e0d3071aa19",
+      "playername": "ItzZ_PauleXx",
+      "wager": 104035
+    },
+    {
+      "uuid": "440e3388-4cc4-4d7f-b5cd-048a5e9b8eea",
+      "playername": "versabberter",
+      "wager": 3426060
+    },
+    {
+      "uuid": "79852977-c186-4c74-ba6a-186cec4c953a",
+      "playername": "CryzZ11",
+      "wager": 2246040
+    },
+    {
+      "uuid": "7854f1fd-3050-41c7-99f4-60ad0d6eec25",
+      "playername": "ItzZ_Popeye",
+      "wager": 17858235
+    },
+    {
+      "uuid": "5c2a3eee-ab92-4ff8-b71f-416c995ba97c",
+      "playername": "zdobeq",
+      "wager": 832170
+    },
+    {
+      "uuid": "d0560923-c832-4c51-8053-d4869aef69ca",
+      "playername": "RealShiva",
+      "wager": 512005
+    },
+    {
+      "uuid": "62a7ebe6-c142-42e7-b639-dc0d58236a2e",
+      "playername": "Teufelswesen",
+      "wager": 384000
+    },
+    {
+      "uuid": "51597d23-214a-47a0-9fe6-2427e013efb8",
+      "playername": "Trogoso",
+      "wager": 8146085
+    },
+    {
+      "uuid": "67da9ce1-b83d-49ae-9df6-146d26212f22",
+      "playername": "Silberjason",
+      "wager": 136040
+    },
+    {
+      "uuid": "4a8fcd88-c3e0-4bc8-8e76-7cb825095c83",
+      "playername": "meerkatinthehat",
+      "wager": 20
+    },
+    {
+      "uuid": "966f6fef-a5ce-3486-aa85-3e43f265336b",
+      "playername": "!uzzi193159",
+      "wager": 155
+    },
+    {
+      "uuid": "e278048c-993f-4dda-adce-d29e93887aaa",
+      "playername": "Null_FPS",
+      "wager": 256015
+    },
+    {
+      "uuid": "05a43700-011f-4ea5-b3b6-e7d189758271",
+      "playername": "4real2k",
+      "wager": 1664010
+    },
+    {
+      "uuid": "6ec4de13-0deb-4b08-b0d1-1f27dbb9fff4",
+      "playername": "Rxffel",
+      "wager": 6025
+    },
+    {
+      "uuid": "d774b1f9-5078-439a-a267-17d6a5b02f5d",
+      "playername": "Telephos85",
+      "wager": 3492015
+    },
+    {
+      "uuid": "98bd03cf-ac4c-4bcc-82a4-19e74c7d7ea2",
+      "playername": "Nectaner",
+      "wager": 16010
+    },
+    {
+      "uuid": "c1565fda-3110-4549-904b-8cd07d7a464a",
+      "playername": "Agent007_",
+      "wager": 38270
+    },
+    {
+      "uuid": "7b097e9c-6269-4f4e-8cad-910bfa64a675",
+      "playername": "DrInk3653",
+      "wager": 3584005
+    },
+    {
+      "uuid": "b1eeae81-97cc-4798-a908-9848cf35953d",
+      "playername": "XZSupaA_Gecko",
+      "wager": 5
+    },
+    {
+      "uuid": "f460c89e-c955-456c-8d3a-fecae5fd6d88",
+      "playername": "1Lxca",
+      "wager": 130005
+    },
+    {
+      "uuid": "bce9a4da-6993-4066-b4ac-51ea75b24092",
+      "playername": "BoBderBaumester",
+      "wager": 384005
+    },
+    {
+      "uuid": "4be759a2-a416-4e35-b1d8-7b61deb6ccb1",
+      "playername": "JustHackl",
+      "wager": 5
+    },
+    {
+      "uuid": "61a62498-35a3-4437-9746-7ce258e77464",
+      "playername": "Lumania2020",
+      "wager": 768000
+    },
+    {
+      "uuid": "63a2f0d3-70a5-4c4f-a609-ada33451c8d6",
+      "playername": "zFlevo",
+      "wager": 4000
+    },
+    {
+      "uuid": "f04cc68f-cf1d-45d5-bf9c-0f2f1410d5da",
+      "playername": "mayumyi",
+      "wager": 256000
+    },
+    {
+      "uuid": "02b57fac-b8be-4693-90ca-50be497b7945",
+      "playername": "9Sleepyy",
+      "wager": 11278170
+    },
+    {
+      "uuid": "8dc50d76-b7cc-406e-8ecf-01bbfb45f4e1",
+      "playername": "LytnoGG",
+      "wager": 192060
+    },
+    {
+      "uuid": "1478210a-6b94-4486-bb9b-bfc8c1a786db",
+      "playername": "Crazylaser46",
+      "wager": 490090
+    },
+    {
+      "uuid": "33510a1b-0aff-4cd5-8f8a-62dfdce109c7",
+      "playername": "Stepmarvin_",
+      "wager": 1542010
+    },
+    {
+      "uuid": "b85224c9-60bb-4d5b-8623-a778176c6b59",
+      "playername": "KurzVorGucci",
+      "wager": 128005
+    },
+    {
+      "uuid": "4da4007c-d36e-4e51-85e3-b9032fc3a158",
+      "playername": "Alterschwede45",
+      "wager": 640255
+    },
+    {
+      "uuid": "b0d05b0a-1433-4f09-82ae-45e7a95d2a16",
+      "playername": "ReLaXeD_YT",
+      "wager": 1024000
+    },
+    {
+      "uuid": "9ce71af3-f8be-4d98-a1ee-84f2e969729e",
+      "playername": "Farfuss293",
+      "wager": 9350115
+    },
+    {
+      "uuid": "9a630acf-e2a8-4851-b427-35830297878e",
+      "playername": "OkBinStili",
+      "wager": 876035
+    },
+    {
+      "uuid": "e0233016-36a8-40ad-a9d4-9b3c9acc47b4",
+      "playername": "xJazeek",
+      "wager": 16135
+    },
+    {
+      "uuid": "f06b9822-5c24-4a0b-8a57-4dcd5640e256",
+      "playername": "UndeadDuck",
+      "wager": 128000
+    },
+    {
+      "uuid": "983b1a4a-9f5d-4e76-8fb3-ee3459066851",
+      "playername": "Em1n3e7",
+      "wager": 64005
+    },
+    {
+      "uuid": "0b12bb65-2f18-408a-a004-87e756bdb83e",
+      "playername": "Verhunted",
+      "wager": 130005
+    },
+    {
+      "uuid": "b4e86782-c1b5-4fbe-8e37-24410ddb49d2",
+      "playername": "Luksch007x",
+      "wager": 11008000
+    },
+    {
+      "uuid": "15fef32b-8f3b-457d-a005-adb89baa490c",
+      "playername": "IchGehOOC",
+      "wager": 512055
+    },
+    {
+      "uuid": "1eabc4cd-f6de-4038-b67b-9b0aa0840247",
+      "playername": "mcpack22",
+      "wager": 5
+    },
+    {
+      "uuid": "b05acf76-7fc9-43d2-a16b-12e78a4d4bd1",
+      "playername": "Gaming__Buddy",
+      "wager": 15
+    },
+    {
+      "uuid": "687102df-08c8-47fe-8771-1bb03ebfdb8e",
+      "playername": "Amelie1up",
+      "wager": 128090
+    },
+    {
+      "uuid": "10dd715e-c489-400d-8024-5f5440840685",
+      "playername": "Marcel1UP",
+      "wager": 384120
+    },
+    {
+      "uuid": "56ed648d-9fa2-4027-93e4-32c6e87c1967",
+      "playername": "NiemandKilltMich",
+      "wager": 18602010
+    },
+    {
+      "uuid": "0869cafa-4ceb-47ac-93ac-20993c9a02c9",
+      "playername": "BerndDasBrot2",
+      "wager": 1512030
+    },
+    {
+      "uuid": "0b94f4e3-2f1a-45ad-9ea1-d2b83e881783",
+      "playername": "yasin112",
+      "wager": 2005
+    },
+    {
+      "uuid": "affd6ad8-58c3-4e93-be9f-d4ba32fdebfa",
+      "playername": "NightWolfLG",
+      "wager": 256005
+    },
+    {
+      "uuid": "19c19880-6b67-49bc-b691-c24c6c3ab97f",
+      "playername": "DerTechnoGod",
+      "wager": 64040
+    },
+    {
+      "uuid": "fd9ba1a8-5bc1-47b2-871c-974c105f31db",
+      "playername": "ItsEmily17",
+      "wager": 10
+    },
+    {
+      "uuid": "c1cc9cbc-5458-43f3-87a0-b9c3c369e931",
+      "playername": "Emilian141",
+      "wager": 1370225
+    },
+    {
+      "uuid": "9e65449f-1036-4c0d-8c55-82bef3bc70f7",
+      "playername": "AceStarling9506",
+      "wager": 25
+    },
+    {
+      "uuid": "2821a07e-6619-4938-b108-4d1300b9c497",
+      "playername": "dcue",
+      "wager": 3072010
+    },
+    {
+      "uuid": "be35c47b-7970-49a3-8a97-f29016238e64",
+      "playername": "Schlagzeugnis",
+      "wager": 1792005
+    },
+    {
+      "uuid": "1fccf772-0ffe-4de5-bae9-e002177f1a47",
+      "playername": "nxmooo",
+      "wager": 1088000
+    },
+    {
+      "uuid": "8e6380e9-a597-4c51-8e5e-b5825c0330b9",
+      "playername": "Monster1239344",
+      "wager": 132155
+    },
+    {
+      "uuid": "36b8a9a9-41ce-49dc-b22f-d724b0595ca7",
+      "playername": "ItsZynex",
+      "wager": 13760140
+    },
+    {
+      "uuid": "3a907163-f7b1-4ab3-9703-746d4097ff32",
+      "playername": "Eifnurgym1161",
+      "wager": 9856010
+    },
+    {
+      "uuid": "977f8273-1a86-4410-8790-186ee09c74f7",
+      "playername": "Bannfee",
+      "wager": 4000015
+    },
+    {
+      "uuid": "19b7c223-a2e7-451f-b269-d089f956c79e",
+      "playername": "Der_Jodocy",
+      "wager": 2196090
+    },
+    {
+      "uuid": "838d974a-22b0-43b6-85b8-266bf413caa8",
+      "playername": "Illegal_Baum",
+      "wager": 2070010
+    },
+    {
+      "uuid": "d173deb5-49f4-3294-b22b-021fa33f0661",
+      "playername": "!Bauer+Jason1539",
+      "wager": 552025
+    },
+    {
+      "uuid": "3721798b-3d6d-4916-9b57-d2e82f7636e0",
+      "playername": "WlzoX_",
+      "wager": 5
+    },
+    {
+      "uuid": "0cad4823-76ed-4ebd-9879-663cf95984a0",
+      "playername": "Unverpackt",
+      "wager": 66005
+    },
+    {
+      "uuid": "f4cd0046-d100-4091-b0d5-879239fd2583",
+      "playername": "Minikuchen__",
+      "wager": 512005
+    },
+    {
+      "uuid": "04d99b96-41f2-4120-a41d-fa48c4ec6eca",
+      "playername": "ewasahbe1310",
+      "wager": 512000
+    },
+    {
+      "uuid": "4baeb542-47b2-4dbc-838f-b3dd6b721064",
+      "playername": "abdu_y_",
+      "wager": 5
+    },
+    {
+      "uuid": "28d18a8d-3096-4e7c-a295-19fce61d8bbd",
+      "playername": "ManLionsCity",
+      "wager": 5
+    } ]; // ** ENDE DER NEUESTEN SPIELERDATEN **
     
     
-    // --- AUTHENTIFIZIERUNGSDATEN ---
+    // --- AUTHENTIFIZIERUNGSDATEN (NEU: Daten werden aus accounts.json geladen) ---
     let validAccounts = []; // Speichert die geladenen Accounts
     const LOGIN_KEY = 'holostats_logged_in';
     const ACCOUNTS_FILE = 'accounts.json'; // Dateiname der Zugangsdaten
 
     /**
-     * Lädt die Benutzerdaten aus der accounts.json Datei.
+     * NEU: Lädt die Benutzerdaten aus der accounts.json Datei.
      * Muss über einen Webserver aufgerufen werden, sonst schlägt fetch() fehl!
      */
-async function loadPlayerStats() {
+    async function loadAccounts() {
         try {
-            const response = await fetch(STATS_FILE);
+            const response = await fetch(ACCOUNTS_FILE);
             if (!response.ok) {
-                displayMessage(`FEHLER: Konnte die Spielerdaten-Datei "${STATS_FILE}" (Status: ${response.status}) nicht laden.`, 'error');
+                 // Fehlerbehandlung für nicht geladene oder nicht gefundene Datei
+                displayMessage(`FEHLER: Konnte die Datei "${ACCOUNTS_FILE}" (Status: ${response.status}) nicht laden. Stellen Sie sicher, dass die Seite über einen Webserver (http://) aufgerufen wird.`, 'error');
                 return false;
             }
-            
-            const statsObject = await response.json();
-            
-            // NEUE KORREKTUR: Die Spielerliste liegt unter dem Schlüssel 'wagers'.
-            // Wir prüfen, ob statsObject existiert und ob es die Eigenschaft 'wagers' als Array enthält.
-            if (statsObject && Array.isArray(statsObject.wagers)) {
-                playerStats = statsObject.wagers;
-            } else if (Array.isArray(statsObject)) {
-                // Falls die Datei nur ein reines Array war (alte Struktur), verwenden wir es
-                playerStats = statsObject;
-            } else {
-                 displayMessage(`FEHLER: Die Statistik-Datei ist in einem unerwarteten Format. Es fehlt das 'wagers' Array.`, 'error');
-                 playerStats = []; // Sicherstellen, dass es leer ist
-                 return false;
-            }
-            
+            validAccounts = await response.json();
             return true;
         } catch (error) {
-            console.error('Fehler beim Laden der Spielerdaten:', error);
-            displayMessage(`KRITISCHER FEHLER: Die Datei "${STATS_FILE}" ist fehlerhaft oder konnte nicht als JSON interpretiert werden.`, 'error');
-            return false;
-        }
-    }
-    
-    /**
-     * NEU & KORRIGIERT: Lädt die Spielerstatistiken aus der statistics.json Datei 
-     * und stellt sicher, dass das Ergebnis ein Array ist.
-     */
-    async function loadPlayerStats() {
-        try {
-            const response = await fetch(STATS_FILE);
-            if (!response.ok) {
-                displayMessage(`FEHLER: Konnte die Spielerdaten-Datei "${STATS_FILE}" (Status: ${response.status}) nicht laden.`, 'error');
-                return false;
-            }
-            
-            const statsObject = await response.json();
-            
-            // Korrektur aus dem letzten Schritt: Wandelt das Objekt in ein Array um
-            if (statsObject && typeof statsObject === 'object' && !Array.isArray(statsObject)) {
-                playerStats = Object.values(statsObject);
-            } else {
-                playerStats = statsObject; 
-            }
-            
-            return true;
-        } catch (error) {
-            console.error('Fehler beim Laden der Spielerdaten:', error);
-            displayMessage(`KRITISCHER FEHLER: Die Datei "${STATS_FILE}" ist fehlerhaft oder konnte nicht als JSON interpretiert werden.`, 'error');
+            console.error('Fehler beim Laden der Accounts:', error);
+            displayMessage(`KRITISCHER FEHLER: Die Datei "${ACCOUNTS_FILE}" ist fehlerhaft oder konnte nicht geladen werden. Prüfen Sie die JSON-Syntax.`, 'error');
             return false;
         }
     }
@@ -450,7 +876,7 @@ async function loadPlayerStats() {
 
         loginMessage.style.display = 'none';
         
-        // Prüfung gegen die geladenen Accounts in der validAccounts-Liste
+        // NEU: Prüfung gegen die geladenen Accounts in der validAccounts-Liste
         const accountFound = validAccounts.find(account => 
             account.username === usernameInput && account.password === passwordInput
         );
@@ -578,11 +1004,9 @@ async function loadPlayerStats() {
 
     /**
      * Sortiert Spieler nach Wager absteigend und gibt die Top N zurück.
-     * ZUSÄTZLICHER CHECK: Filtert ungültige Einträge ohne 'wager'.
      */
     function getTopPlayers(count) {
-        return playerStats
-            .filter(p => p && typeof p.wager === 'number') // Nur gültige Einträge mit Zahl für Wager verwenden
+        return [...playerStats]
             .sort((a, b) => b.wager - a.wager)
             .slice(0, count);
     }
@@ -591,11 +1015,7 @@ async function loadPlayerStats() {
      * Zeigt die Top 5 Spieler als anklickbare Vorschläge an.
      */
     function displayTopSuggestions() {
-        // Hier wird getTopPlayers verwendet, welches bereits filtert.
         const topPlayers = getTopPlayers(5);
-        
-        if (topPlayers.length === 0) return; // Keine Vorschläge, wenn keine gültigen Daten
-
         const container = document.getElementById('suggestions-container');
         container.style.display = 'block';
         container.innerHTML = '<h4>⭐ Top 5 Spieler (Nach Umsatz)</h4><div class="suggestion-list"></div>';
@@ -612,7 +1032,6 @@ async function loadPlayerStats() {
 
     /**
      * Zeigt dynamische Vorschläge basierend auf der Sucheingabe.
-     * ZUSÄTZLICHER CHECK: Prüft, ob p und p.playername existieren, um den TypeError zu vermeiden.
      */
     function displayDynamicSuggestions(searchTerm) {
         const dynamicContainer = document.getElementById('dynamic-suggestions-container');
@@ -624,13 +1043,11 @@ async function loadPlayerStats() {
             return;
         }
 
-        // KORREKTUR: Null-Check p && p.playername
-        const exactMatch = playerStats.find(p => p && p.playername && p.playername.toLowerCase() === searchTerm);
+        const exactMatch = playerStats.find(p => p.playername.toLowerCase() === searchTerm);
         
         // Finde ähnliche Spieler (bis zu 8, schließe exakten Match aus, falls vorhanden)
-        // KORREKTUR: Null-Check p && p.playername
         const similarPlayers = playerStats.filter(p => 
-            p && p.playername && p.playername.toLowerCase().includes(searchTerm) && p.playername.toLowerCase() !== searchTerm
+            p.playername.toLowerCase().includes(searchTerm) && p.playername.toLowerCase() !== searchTerm
         ).slice(0, 8); 
 
         if (exactMatch || similarPlayers.length > 0) {
@@ -696,7 +1113,6 @@ async function loadPlayerStats() {
 
     /**
      * Sucht nach Spielern basierend auf der Eingabe (exakter Match oder Teilstring-Match).
-     * ZUSÄTZLICHER CHECK: Prüft, ob p und p.playername existieren, um den TypeError zu vermeiden.
      */
     function searchPlayers(isFullSearch = false) {
         const input = document.getElementById('search-input');
@@ -717,25 +1133,17 @@ async function loadPlayerStats() {
             return;
         }
 
-        if (playerStats.length === 0) {
-            displayMessage('Es sind keine Spielerdaten geladen. Die Suche kann nicht durchgeführt werden.', 'error');
-            return;
-        }
-
         // 1. Exakter Match (Case-Insensitive)
-        // KORREKTUR: Null-Check p && p.playername
-        let foundPlayers = playerStats.filter(p => p && p.playername && p.playername.toLowerCase() === searchTerm);
+        let foundPlayers = playerStats.filter(p => p.playername.toLowerCase() === searchTerm);
         
         // 2. Teilstring-Match (nur bei Vollsuche)
         if (foundPlayers.length === 0 && isFullSearch) {
-            // KORREKTUR: Null-Check p && p.playername
-            foundPlayers = playerStats.filter(p => p && p.playername && p.playername.toLowerCase().includes(searchTerm));
+            foundPlayers = playerStats.filter(p => p.playername.toLowerCase().includes(searchTerm));
         }
         
         if (foundPlayers.length > 0) {
-            // Sortieren vor Anzeige (getTopPlayers wird hier nicht verwendet, also hier direkt sortieren)
             foundPlayers
-                .sort((a, b) => (b.wager || 0) - (a.wager || 0)) // Robustes Sortieren, falls wager fehlt
+                .sort((a, b) => b.wager - a.wager) // Sortieren nach Wager
                 .forEach(player => createPlayerCard(player, resultsContainer));
             displayMessage(`${foundPlayers.length} Spieler für "${input.value}" gefunden.`, 'success');
         } else {
@@ -748,7 +1156,7 @@ async function loadPlayerStats() {
      * Sucht den Spieler und öffnet das Detail-Modal.
      */
     function showPlayerDetails(playerName) {
-        const player = playerStats.find(p => p && p.playername === playerName); // Robuster Check
+        const player = playerStats.find(p => p.playername === playerName);
         const detailContent = document.getElementById('detail-content');
         const modal = document.getElementById('player-detail-modal');
 
@@ -761,8 +1169,7 @@ async function loadPlayerStats() {
         const cleanName = cleanPlayerNameForSkin(player.playername);
 
         // UUID und NameMC URL
-        // Sicherstellen, dass UUID existiert, sonst leere Zeichenkette verwenden
-        const nameMcUrl = `https://de.namemc.com/profile/${player.uuid || ''}`;
+        const nameMcUrl = `https://de.namemc.com/profile/${player.uuid}`;
         
         // Skin URL für das Detail-Modal (volle Ansicht, verwendet bereinigten Namen)
         const detailSkinUrl = `https://mineskin.eu/skin/${cleanName}/128`;
@@ -770,7 +1177,7 @@ async function loadPlayerStats() {
         detailContent.innerHTML = `
             <h2>${player.playername}</h2>
             <img src="${detailSkinUrl}" alt="Voller Skin von ${player.playername}">
-            <p><b>UUID:</b> ${player.uuid || 'N/A'}</p>
+            <p><b>UUID:</b> ${player.uuid}</p>
             <p><b>Gesamtwager:</b> ${formatNumber(player.wager)}</p>
             
             <a href="${nameMcUrl}" target="_blank">Profil auf NameMC ansehen</a>
@@ -785,10 +1192,7 @@ async function loadPlayerStats() {
     /**
      * Initialisiert die Hauptanwendung, nachdem der Login erfolgreich war.
      */
-    async function initializeApp() {
-        // Zuerst die Statistiken laden
-        const statsLoaded = await loadPlayerStats();
-        
+    function initializeApp() {
         // Entfernt Hover-Sounds vom Suchfeld und Button
         const searchInput = document.getElementById('search-input');
         if (searchInput.onmouseenter) searchInput.onmouseenter = null;
@@ -796,14 +1200,13 @@ async function loadPlayerStats() {
         const searchButton = document.getElementById('search-button');
         if (searchButton.onmouseenter) searchButton.onmouseenter = null;
 
-        if (statsLoaded && playerStats.length > 0) {
+        if (playerStats.length > 0) {
              displayMessage(`Daten von ${playerStats.length} Spielern geladen. Sie können nun suchen oder einen vorgeschlagenen Spieler wählen.`, 'success');
              // Zeige beim Start die Top 5 Spieler an
              displayTopSuggestions();
-        } else if (statsLoaded) {
+        } else {
              displayMessage('⚠️ Wichtig: Es wurden keine Spielerdaten gefunden. Bitte die Daten prüfen.', 'error');
-        } 
-        // Falls statsLoaded false ist, hat loadPlayerStats() bereits eine Fehlermeldung ausgegeben.
+        }
     }
 
 
@@ -818,7 +1221,7 @@ async function loadPlayerStats() {
     // Haupt-DOMContentLoaded-Handler zur Authentifizierung
     document.addEventListener('DOMContentLoaded', async () => { 
         
-        // 1. Zuerst Accounts laden
+        // NEU: 1. Zuerst Accounts laden
         const accountsLoaded = await loadAccounts();
         if (!accountsLoaded) {
             // Wenn Accounts nicht geladen werden konnten, das Login-Overlay anzeigen und warten
@@ -835,7 +1238,7 @@ async function loadPlayerStats() {
             // Bereits eingeloggt
             loginOverlay.style.display = 'none';
             container.style.display = 'block'; // Zeige Hauptinhalt
-            initializeApp(); // Lädt jetzt die Spielerstatistiken
+            initializeApp();
         } else {
             // Zeige Login-Overlay
             loginOverlay.style.display = 'flex';
@@ -847,3 +1250,4 @@ async function loadPlayerStats() {
 </script>
 </body>
 </html>
+
