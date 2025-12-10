@@ -398,7 +398,8 @@
     }
     
     /**
-     * NEU: Lädt die Spielerstatistiken aus der statistics.json Datei.
+     * NEU & KORRIGIERT: Lädt die Spielerstatistiken aus der statistics.json Datei 
+     * und stellt sicher, dass das Ergebnis ein Array ist.
      */
     async function loadPlayerStats() {
         try {
@@ -407,11 +408,23 @@
                 displayMessage(`FEHLER: Konnte die Spielerdaten-Datei "${STATS_FILE}" (Status: ${response.status}) nicht laden.`, 'error');
                 return false;
             }
-            playerStats = await response.json();
+            
+            const statsObject = await response.json();
+            
+            // KORREKTUR: Wandelt das geladene Objekt in ein Array von Spielerobjekten um,
+            // falls das JSON-Format ein Objekt ist (z.B. {Name: {...}, ...}), was den 
+            // "is not a function" TypeError behebt.
+            if (statsObject && typeof statsObject === 'object' && !Array.isArray(statsObject)) {
+                playerStats = Object.values(statsObject);
+            } else {
+                // Wenn es bereits ein Array ist oder null/undefined, verwende es direkt.
+                playerStats = statsObject; 
+            }
+            
             return true;
         } catch (error) {
             console.error('Fehler beim Laden der Spielerdaten:', error);
-            displayMessage(`KRITISCHER FEHLER: Die Datei "${STATS_FILE}" ist fehlerhaft oder konnte nicht geladen werden. Prüfen Sie die JSON-Syntax.`, 'error');
+            displayMessage(`KRITISCHER FEHLER: Die Datei "${STATS_FILE}" ist fehlerhaft oder konnte nicht als JSON interpretiert werden.`, 'error');
             return false;
         }
     }
@@ -556,10 +569,7 @@
      * Sortiert Spieler nach Wager absteigend und gibt die Top N zurück.
      */
     function getTopPlayers(count) {
-        // FIX 1 (Bereits implementiert): Stellt sicher, dass playerStats ein Array ist.
-        const stats = Array.isArray(playerStats) ? playerStats : []; 
-        
-        return [...stats]
+        return [...playerStats]
             .sort((a, b) => b.wager - a.wager)
             .slice(0, count);
     }
@@ -591,9 +601,6 @@
     function displayDynamicSuggestions(searchTerm) {
         const dynamicContainer = document.getElementById('dynamic-suggestions-container');
         dynamicContainer.innerHTML = ''; 
-        
-        // FIX 2: Sicherstellen, dass playerStats ein Array ist, bevor find/filter verwendet wird
-        const stats = Array.isArray(playerStats) ? playerStats : []; 
 
         if (searchTerm.length < 2) {
             dynamicContainer.style.display = 'none';
@@ -601,10 +608,10 @@
             return;
         }
 
-        const exactMatch = stats.find(p => p.playername.toLowerCase() === searchTerm);
+        const exactMatch = playerStats.find(p => p.playername.toLowerCase() === searchTerm);
         
         // Finde ähnliche Spieler (bis zu 8, schließe exakten Match aus, falls vorhanden)
-        const similarPlayers = stats.filter(p => 
+        const similarPlayers = playerStats.filter(p => 
             p.playername.toLowerCase().includes(searchTerm) && p.playername.toLowerCase() !== searchTerm
         ).slice(0, 8); 
 
@@ -691,20 +698,17 @@
             return;
         }
 
-        // FIX 3: Sicherstellen, dass playerStats ein Array ist, bevor filter verwendet wird
-        const stats = Array.isArray(playerStats) ? playerStats : []; 
-
-        if (stats.length === 0) {
+        if (playerStats.length === 0) {
             displayMessage('Es sind keine Spielerdaten geladen. Die Suche kann nicht durchgeführt werden.', 'error');
             return;
         }
 
         // 1. Exakter Match (Case-Insensitive)
-        let foundPlayers = stats.filter(p => p.playername.toLowerCase() === searchTerm);
+        let foundPlayers = playerStats.filter(p => p.playername.toLowerCase() === searchTerm);
         
         // 2. Teilstring-Match (nur bei Vollsuche)
         if (foundPlayers.length === 0 && isFullSearch) {
-            foundPlayers = stats.filter(p => p.playername.toLowerCase().includes(searchTerm));
+            foundPlayers = playerStats.filter(p => p.playername.toLowerCase().includes(searchTerm));
         }
         
         if (foundPlayers.length > 0) {
@@ -722,9 +726,7 @@
      * Sucht den Spieler und öffnet das Detail-Modal.
      */
     function showPlayerDetails(playerName) {
-        // Hier wird playerStats verwendet. Es ist sicher, da showPlayerDetails nur über
-        // createPlayerCard aufgerufen wird, welche über searchPlayers befüllt wird (wo der Array-Check erfolgt ist).
-        const player = playerStats.find(p => p.playername === playerName); 
+        const player = playerStats.find(p => p.playername === playerName);
         const detailContent = document.getElementById('detail-content');
         const modal = document.getElementById('player-detail-modal');
 
