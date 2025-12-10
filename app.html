@@ -556,7 +556,10 @@
      * Sortiert Spieler nach Wager absteigend und gibt die Top N zurück.
      */
     function getTopPlayers(count) {
-        return [...playerStats]
+        // FIX: Stellt sicher, dass playerStats ein Array ist, um den TypeError zu verhindern.
+        const stats = Array.isArray(playerStats) ? playerStats : [];
+        
+        return [...stats]
             .sort((a, b) => b.wager - a.wager)
             .slice(0, count);
     }
