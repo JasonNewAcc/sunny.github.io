@@ -22,7 +22,7 @@
             animation-duration: 10s;
             animation-timing-function: linear;
             animation-iteration-count: infinite;
-            pointer-events: none; /* Wichtig: Lässt Klicks durch */
+            pointer-events: none;
         }
         
         @keyframes snowfall {
@@ -87,7 +87,7 @@
             font-size: 2.2em;
         }
         
-        /* Kompakterer Info-Header */
+        /* Kompakter Info-Header */
         #info-header {
             overflow: hidden;
             margin-bottom: 25px;
@@ -166,7 +166,18 @@
             margin-bottom: 10px;
             font-size: 1em;
         }
-        .suggestion-list {
+        
+        /* KORREKTUR: Top 5 bricht um (flex-wrap: wrap) */
+        #suggestions-container .suggestion-list {
+            display: flex;
+            flex-wrap: wrap; /* NEU: Lässt Elemente umbrechen */
+            gap: 10px;
+            overflow-x: hidden; /* Scrollen ausschalten */
+            padding-bottom: 0;
+        }
+
+        /* Dynamische Vorschläge scrollen weiterhin, falls es zu viele sind */
+        #dynamic-suggestions-container .suggestion-list {
             display: flex;
             flex-wrap: nowrap;
             gap: 10px;
@@ -174,6 +185,8 @@
             padding-bottom: 5px;
             scrollbar-width: thin;
         }
+
+        /* Scrollbar-Styles für Webkit */
         .suggestion-list::-webkit-scrollbar {
             height: 6px;
         }
@@ -214,7 +227,42 @@
             flex-shrink: 0;
         }
 
-        /* === Ergebnis-Karten === */
+        /* === Meldungen und Fehler (NEU: Verbessertes Design) === */
+        #error-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px 20px; /* Mehr Padding */
+            border-radius: 8px; /* Größere Rundung */
+            font-weight: bold;
+            font-size: 1.1em;
+            display: none;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Subtiler Schatten */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        /* Stil für Erfolgsmeldungen */
+        .message-success { 
+            background-color: #384239; /* Dunkles Grün */
+            border: 1px solid #4CAF50;
+            color: #4CAF50 !important;
+        }
+        /* Stil für Fehlermeldungen */
+        .message-error { 
+            background-color: #5d3f42; /* Dunkles Rot */
+            border: 1px solid #d9534f;
+            color: #d9534f !important;
+        }
+        
+        /* Icons vor der Nachricht */
+        .message-icon {
+            font-size: 1.2em;
+        }
+
+        /* === Ergebnis-Karten & Modal (Unverändert) === */
         #results-container {
             display: flex;
             flex-wrap: wrap;
@@ -246,23 +294,8 @@
             image-rendering: pixelated;
             box-shadow: 0 0 6px rgba(76, 175, 80, 0.4);
         }
-        .player-card h3 {
-            margin: 0 0 8px 0;
-            font-size: 1.2em;
-            color: #e0e0e0;
-            word-break: break-all;
-        }
-        .player-card p {
-            margin: 0;
-            font-size: 0.95em;
-            color: #bbb;
-        }
-        .divider {
-            margin: 10px 0;
-            border-top: 1px solid #444;
-        }
         
-        /* === DETAIL MODAL STYLES (UI-Fix: Zentrierung und Design) === */
+        /* DETAIL MODAL STYLES */
         .modal {
             display: none; 
             position: fixed;
@@ -271,13 +304,13 @@
             top: 0;
             width: 100%; 
             height: 100%; 
-            background-color: rgba(0,0,0,0.85); /* Dunkleres Overlay */
-            display: flex; /* Flexbox für Zentrierung */
+            background-color: rgba(0,0,0,0.85);
+            display: flex;
             justify-content: center;
             align-items: center;
         }
         .modal-content {
-            background-color: #2d2d30; /* Dunklere Farbe passend zum Container */
+            background-color: #2d2d30;
             padding: 30px;
             border-radius: 10px;
             width: 90%;
@@ -285,11 +318,11 @@
             position: relative;
             text-align: center;
             box-shadow: 0 15px 35px rgba(0,0,0,0.7);
-            border: 1px solid #4CAF50; /* Grüner Rand */
+            border: 1px solid #4CAF50;
         }
         .close-button {
             color: #aaa;
-            position: absolute; /* Absolute Positionierung innerhalb des Modals */
+            position: absolute;
             top: 10px;
             right: 15px;
             font-size: 30px;
@@ -322,7 +355,7 @@
             text-align: left;
             padding: 5px 10px;
             font-size: 1.05em;
-            background-color: #3a3a3d; /* Dunklerer Hintergrund für bessere Lesbarkeit */
+            background-color: #3a3a3d;
             border-radius: 4px;
         }
         #detail-content b {
@@ -435,17 +468,30 @@
     const ACCOUNTS_FILE = 'accounts.json';
     let validAccounts = [];
 
+    /**
+     * Zeigt eine Benachrichtigung an und wendet den neuen Stil an.
+     * @param {string} message - Die anzuzeigende Nachricht.
+     * @param {('success'|'error')} type - Der Nachrichtentyp.
+     */
     function displayMessage(message, type = 'success') {
         const errorMessage = document.getElementById('error-message');
-        errorMessage.textContent = message;
-        errorMessage.style.display = 'block';
+        errorMessage.textContent = ''; // Inhalt zuerst leeren
+        errorMessage.style.display = 'flex'; // Neu: Zeige es als Flex-Container
+        
+        // Icon basierend auf dem Typ setzen
+        const icon = document.createElement('span');
+        icon.className = 'message-icon';
         if (type === 'success') {
-            errorMessage.style.backgroundColor = '#384239'; 
-            errorMessage.style.color = '#4CAF50';
+            errorMessage.className = 'message-success';
+            icon.textContent = '✅';
         } else {
-            errorMessage.style.backgroundColor = '#5d3f42'; 
-            errorMessage.style.color = '#d9534f';
+            errorMessage.className = 'message-error';
+            icon.textContent = '❌';
         }
+
+        errorMessage.appendChild(icon);
+        errorMessage.appendChild(document.createTextNode(message));
+
         setTimeout(() => {
             errorMessage.style.display = 'none';
         }, 5000);
@@ -556,7 +602,7 @@
         content.appendChild(wagerParagraph);
         content.appendChild(skinLink);
 
-        modal.style.display = 'flex'; /* Wichtig für die Zentrierung */
+        modal.style.display = 'flex'; 
     }
 
     function closePlayerDetails() {
@@ -604,7 +650,7 @@
     }
 
     /**
-     * Zeigt die Top 5 Spieler als anklickbare Vorschläge an. (Mit Icon und Scroll)
+     * Zeigt die Top 5 Spieler als anklickbare Vorschläge an (Umbruch aktiv).
      */
     function displayTopSuggestions() {
         const topPlayers = getTopPlayers(5);
@@ -639,7 +685,7 @@
     }
 
     /**
-     * Zeigt dynamische Vorschläge basierend auf der aktuellen Sucheingabe an. (Mit Icon und Scroll)
+     * Zeigt dynamische Vorschläge basierend auf der aktuellen Sucheingabe an (Scroll aktiv).
      */
     function displayDynamicSuggestions(searchTerm) {
         const dynamicContainer = document.getElementById('dynamic-suggestions-container');
@@ -666,6 +712,10 @@
             dynamicContainer.style.display = 'block';
             dynamicContainer.innerHTML = '<h4>🔎 Vorschläge</h4><div class="suggestion-list"></div>';
             const list = dynamicContainer.querySelector('.suggestion-list');
+
+            // Hinzufügen des 'scroll'-Stils für dynamische Vorschläge (falls viele Ergebnisse)
+            list.style.flexWrap = 'nowrap';
+            list.style.overflowX = 'auto';
 
             suggestions.forEach(player => {
                 const cleanName = cleanPlayerNameForSkin(player.playername);
@@ -717,12 +767,11 @@
         const input = document.getElementById('search-input');
         const searchTerm = input.value.toLowerCase().trim();
         const resultsContainer = document.getElementById('results-container');
-        const errorMessage = document.getElementById('error-message');
         const dynamicContainer = document.getElementById('dynamic-suggestions-container');
         const topContainer = document.getElementById('suggestions-container');
 
         resultsContainer.innerHTML = '';
-        errorMessage.style.display = 'none';
+        document.getElementById('error-message').style.display = 'none'; // Nachricht vor der Suche ausblenden
         dynamicContainer.style.display = 'none';
         topContainer.style.display = 'none';
         
@@ -750,9 +799,9 @@
 
         if (results.length > 0) {
             results.forEach(createPlayerCard);
-            displayMessage(`✅ ${results.length} Ergebnisse für "${input.value}" gefunden.`, 'success');
+            displayMessage(`Es wurden ${results.length} Ergebnisse für "${input.value}" gefunden.`, 'success');
         } else {
-            displayMessage(`❌ Kein Spieler mit dem Namen "${input.value}" gefunden.`, 'error');
+            displayMessage(`Kein Spieler mit dem Namen "${input.value}" gefunden.`, 'error');
             displayTopSuggestions(); 
         }
     }
@@ -782,7 +831,6 @@
 
     window.onclick = function(event) {
         const detailModal = document.getElementById('player-detail-modal');
-        // Sicherstellen, dass nur beim Klick auf das Overlay geschlossen wird
         if (event.target === detailModal) {
             closePlayerDetails();
         }
