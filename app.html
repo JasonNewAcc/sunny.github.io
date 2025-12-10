@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Holostats Spielerstatistik-Suche</title>
     <style>
-        /* === Allgemeiner Stil und Dunkles Thema (Design-Update) === */
+        /* === Allgemeiner Stil und Dunkles Thema === */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -17,7 +17,7 @@
             align-items: flex-start;
             padding-top: 50px;
             
-            /* NEU: Subtile, dunkle Textur als Hintergrund (simuliert) */
+            /* Subtile, dunkle Textur als Hintergrund */
             background-color: #1a1a1a;
             background-image: repeating-linear-gradient(45deg, #1e1e1e, #1e1e1e 10px, #222 10px, #222 11px);
         }
@@ -26,21 +26,21 @@
             width: 90%;
             max-width: 700px;
             background: #2d2d30;
-            padding: 40px; /* Etwas mehr Polsterung */
+            padding: 40px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid #3a3a3d; /* Leichter Rand */
+            border: 1px solid #3a3a3d;
         }
         h1 {
             color: #4CAF50;
             text-align: center;
-            margin-bottom: 15px; /* Abstand nach unten erhöht */
+            margin-bottom: 15px;
             font-size: 2.2em;
         }
         
-        /* NEU: Styling für den Info-Header (Spieleranzahl und Datum) */
+        /* Styling für den Info-Header (Spieleranzahl und Datum) */
         #info-header {
-            overflow: hidden; /* Für float: right */
+            overflow: hidden;
             margin-bottom: 25px;
             border-bottom: 1px solid #3a3a3d;
             padding-bottom: 10px;
@@ -68,7 +68,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.9); /* Dunkleres Overlay */
+            background-color: rgba(0,0,0,0.9);
             display: none;
             justify-content: center;
             align-items: center;
@@ -95,17 +95,16 @@
         }
         #search-button:hover {
             background-color: #43A047;
-            transform: scale(1.05); /* Leichter Vergrößerungseffekt */
+            transform: scale(1.05);
         }
         
         /* === Vorschlags-Container (Top 5 & Dynamisch) === */
         .suggestion-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px; /* Abstand leicht vergrößert */
+            gap: 10px;
         }
         .suggestion-player {
-            /* ANPASSUNG: Für Icon-Integration */
             background-color: #555;
             color: #fff;
             padding: 7px 12px;
@@ -114,8 +113,6 @@
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
             font-weight: bold;
-            
-            /* NEU: Flex-Container für Icon und Text */
             display: flex; 
             align-items: center;
             gap: 8px; 
@@ -125,37 +122,163 @@
             transform: translateY(-2px);
         }
         
-        /* NEU: Stil für die Kopf-Icons in den Vorschlägen */
+        /* KORREKTUR: Stil für die Kopf-Icons in den Vorschlägen (Rahmen entfernt) */
         .suggestion-player img {
             width: 20px;
             height: 20px;
             border-radius: 4px; 
-            border: 1px solid #4CAF50;
-            image-rendering: pixelated; /* Für Minecraft-Stil */
-            flex-shrink: 0; /* Verhindert, dass das Icon schrumpft */
+            border: none; /* RAHMEN ENTFERNT */
+            image-rendering: pixelated;
+            flex-shrink: 0;
         }
 
         /* === Ergebnis-Karten === */
+        #results-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .player-card {
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 8px;
+            width: 160px;
+            text-align: center;
+            background: #3a3a3d;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer; 
+        }
         .player-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.5), 0 0 15px rgba(76, 175, 80, 0.8); /* Intensiverer Schatten/Glow */
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5), 0 0 10px rgba(76, 175, 80, 0.7); /* Glow etwas weicher */
         }
+
+        /* KORREKTUR: Profilbild-Rahmen in den Karten reduziert */
         .player-card img {
             width: 64px;
             height: 64px;
             border-radius: 50%;
-            border: 3px solid #4CAF50;
-            box-shadow: 0 0 8px rgba(76, 175, 80, 0.5); /* Leichter Glow um den Kopf */
+            border: 2px solid #4CAF50; /* Rahmen reduziert von 3px auf 2px */
+            margin-bottom: 10px;
+            image-rendering: pixelated;
+            box-shadow: 0 0 6px rgba(76, 175, 80, 0.4); /* Schatten weicher */
+        }
+        .player-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.2em;
+            color: #e0e0e0;
+            word-break: break-all;
+        }
+        .player-card p {
+            margin: 0;
+            font-size: 0.95em;
+            color: #bbb;
+        }
+        .divider {
+            margin: 10px 0;
+            border-top: 1px solid #444;
         }
         
         /* === Meldungen und Fehler === */
         #error-message {
-            /* ... keine Änderungen notwendig ... */
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: none;
+        }
+        #error-message[style*="background-color: #d4edda"] { 
+            background-color: #384239 !important;
+            border: 1px solid #4CAF50;
+            color: #4CAF50 !important;
+        }
+        #error-message[style*="background-color: #f2dede"] { 
+            background-color: #5d3f42 !important;
+            border: 1px solid #d9534f;
+            color: #d9534f !important;
         }
 
         /* === DETAIL MODAL STYLES === */
-        /* ... keine Änderungen notwendig ... */
-        
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 100; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.8); 
+        }
+        .modal-content {
+            background-color: #3a3a3d;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 450px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #fff;
+        }
+        /* KORREKTUR: Profilbild-Rahmen im Modal reduziert */
+        #detail-content img {
+            width: 128px; 
+            height: auto;
+            image-rendering: pixelated;
+            margin: 15px auto 25px auto;
+            border: 3px solid #4CAF50; /* Rahmen reduziert von 4px auf 3px */
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.6); /* Glow etwas weicher */
+        }
+        #detail-content h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 15px;
+            font-size: 1.8em;
+        }
+        #detail-content p {
+            margin: 12px 0;
+            text-align: left;
+            padding: 5px 10px;
+            font-size: 1.05em;
+            background-color: #2d2d30;
+            border-radius: 4px;
+        }
+        #detail-content b {
+            color: #fff;
+        }
+        #detail-content a {
+            display: block;
+            margin-top: 25px;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        #detail-content a:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -424,14 +547,12 @@
         const list = container.querySelector('.suggestion-list');
         topPlayers.forEach(player => {
             const cleanName = cleanPlayerNameForSkin(player.playername);
-            // URL für den Kopf (Helm) im 24x24 Format
             const headUrl = `https://mineskin.eu/helm/${cleanName}/24`; 
 
             const span = document.createElement('span');
             span.className = 'suggestion-player';
-            span.onclick = () => setInputAndSearch(player.playername); // Verwendet die Funktion mit Sound
+            span.onclick = () => setInputAndSearch(player.playername);
 
-            // NEU: Icon hinzufügen
             const img = document.createElement('img');
             img.src = headUrl;
             img.alt = '';
@@ -474,14 +595,12 @@
 
             suggestions.forEach(player => {
                 const cleanName = cleanPlayerNameForSkin(player.playername);
-                // URL für den Kopf (Helm) im 24x24 Format
                 const headUrl = `https://mineskin.eu/helm/${cleanName}/24`;
 
                 const span = document.createElement('span');
                 span.className = 'suggestion-player';
-                span.onclick = () => setInputAndSearch(player.playername); // Verwendet die Funktion mit Sound
+                span.onclick = () => setInputAndSearch(player.playername);
 
-                // NEU: Icon hinzufügen
                 const img = document.createElement('img');
                 img.src = headUrl;
                 img.alt = '';
@@ -498,7 +617,7 @@
      * Setzt den Suchbegriff und startet die Suche. (Mit Sound)
      */
     function setInputAndSearch(name) {
-        playClickSound(); // NEU: Sound abspielen
+        playClickSound(); 
         document.getElementById('search-input').value = name;
         searchPlayers(true);
     }
@@ -572,7 +691,6 @@
     async function initializeApp() { 
         const dataLoaded = await loadPlayerStats();
 
-        // NEU: Spieleranzahl immer setzen, auch wenn 0
         const playerCountElement = document.getElementById('player-count');
         const count = playerStats.length;
         playerCountElement.textContent = `Gesamtspieler: ${count}`;
