@@ -380,19 +380,33 @@
      * Lädt die Benutzerdaten aus der accounts.json Datei.
      * Muss über einen Webserver aufgerufen werden, sonst schlägt fetch() fehl!
      */
-    async function loadAccounts() {
+async function loadPlayerStats() {
         try {
-            const response = await fetch(ACCOUNTS_FILE);
+            const response = await fetch(STATS_FILE);
             if (!response.ok) {
-                 // Fehlerbehandlung für nicht geladene oder nicht gefundene Datei
-                displayMessage(`FEHLER: Konnte die Datei "${ACCOUNTS_FILE}" (Status: ${response.status}) nicht laden. Stellen Sie sicher, dass die Seite über einen Webserver (http://) aufgerufen wird.`, 'error');
+                displayMessage(`FEHLER: Konnte die Spielerdaten-Datei "${STATS_FILE}" (Status: ${response.status}) nicht laden.`, 'error');
                 return false;
             }
-            validAccounts = await response.json();
+            
+            const statsObject = await response.json();
+            
+            // NEUE KORREKTUR: Die Spielerliste liegt unter dem Schlüssel 'wagers'.
+            // Wir prüfen, ob statsObject existiert und ob es die Eigenschaft 'wagers' als Array enthält.
+            if (statsObject && Array.isArray(statsObject.wagers)) {
+                playerStats = statsObject.wagers;
+            } else if (Array.isArray(statsObject)) {
+                // Falls die Datei nur ein reines Array war (alte Struktur), verwenden wir es
+                playerStats = statsObject;
+            } else {
+                 displayMessage(`FEHLER: Die Statistik-Datei ist in einem unerwarteten Format. Es fehlt das 'wagers' Array.`, 'error');
+                 playerStats = []; // Sicherstellen, dass es leer ist
+                 return false;
+            }
+            
             return true;
         } catch (error) {
-            console.error('Fehler beim Laden der Accounts:', error);
-            displayMessage(`KRITISCHER FEHLER: Die Datei "${ACCOUNTS_FILE}" ist fehlerhaft oder konnte nicht geladen werden. Prüfen Sie die JSON-Syntax.`, 'error');
+            console.error('Fehler beim Laden der Spielerdaten:', error);
+            displayMessage(`KRITISCHER FEHLER: Die Datei "${STATS_FILE}" ist fehlerhaft oder konnte nicht als JSON interpretiert werden.`, 'error');
             return false;
         }
     }
