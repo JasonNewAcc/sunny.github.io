@@ -389,101 +389,6 @@
         .link-group a.namemc-link:hover {
             background-color: #303f9f;
         }
-
-        /* Modals (Login & Regeln) */
-        .modal-rules, .modal-login {
-            display: none; 
-            position: fixed;
-            z-index: 10; 
-            left: 0;
-            top: 0;
-            width: 100%; 
-            height: 100%; 
-            background-color: rgba(0,0,0,0.85);
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Regel-Modal Container (Kompakt) */
-        #rules-container {
-            background-color: #2d2d30;
-            padding: 30px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 380px; /* Kleiner als Login */
-            text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
-            border: 1px solid #ff9800; /* Orange/Gelb für Warnung */
-        }
-        #rules-container h2 {
-            color: #ff9800;
-            margin-top: 0;
-            font-size: 1.5em;
-        }
-        #rules-container ul {
-            list-style: none;
-            padding: 0;
-            text-align: left;
-            margin: 20px 0;
-            border-left: 3px solid #ff9800;
-            padding-left: 15px;
-        }
-        #rules-container li {
-            margin-bottom: 8px;
-            font-size: 0.95em;
-        }
-        #rules-container button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin-top: 15px;
-        }
-        #rules-container button:hover {
-            background-color: #43A047;
-        }
-        
-        /* Login-Modal Container */
-        #login-form-container {
-            background-color: #2d2d30;
-            padding: 40px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 450px;
-            text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
-            border: 1px solid #4CAF50;
-        }
-        #login-form-container h2 {
-            color: #4CAF50;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-        #login-form-container input {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #444;
-            border-radius: 5px;
-            background-color: #1e1e1e;
-            color: #f0f0f0;
-        }
-        #login-form-container button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            width: 100%;
-        }
-        #login-form-container button:hover {
-            background-color: #43A047;
-        }
     </style>
 </head>
 <body>
@@ -541,21 +446,6 @@
             </div>
     </div>
 </div>
-
-<div id="rules-modal-overlay" class="modal-rules">
-    <div id="rules-container">
-        <h2>⚠️ Wichtiger Hinweis</h2>
-        <p>Bitte bestätigen Sie, dass Sie diese Regeln gelesen haben:</p>
-        <ul>
-            <li>**Teilen untersagt:** Links, Zugangsdaten und Inhalte dürfen **nicht geteilt** werden.</li>
-            <li>**Umsatz-Einsicht:** Umsatzdaten dürfen nur nach **Rücksprache** mit der Administration oder **JasonNewAcc** gesucht werden.</li>
-        </ul>
-        <button onclick="acceptRules()">Regeln akzeptieren und fortfahren</button>
-    </div>
-</div>
-
-<div id="login-modal-overlay" class="modal-login">
-    </div>
 <script>
     // ** START DER SPIELERDATEN-LOGIK **
     let playerStats = [];
