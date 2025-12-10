@@ -454,9 +454,9 @@
     }
 
     /**
-     * Führt die Login-Prüfung durch.
+     * Führt die Login-Prüfung durch. (Jetzt asynchron)
      */
-    function checkLogin() {
+    async function checkLogin() { // HIER WURDE 'async' HINZUGEFÜGT
         const usernameInput = document.getElementById('login-username').value;
         const passwordInput = document.getElementById('login-password').value;
         const loginMessage = document.getElementById('login-message');
@@ -474,10 +474,8 @@
             document.getElementById('login-modal-overlay').style.display = 'none';
             document.querySelector('.container').style.display = 'block'; // Zeige Hauptinhalt
             
-            // Initialisiere die App nach erfolgreichem Login (async call, but we don't await here)
-            // Es ist unwahrscheinlich, dass ein Benutzer sofort sucht, aber falls doch, wird 
-            // der Ladevorgang zumindest gestartet.
-            initializeApp(); 
+            // WICHTIGE KORREKTUR: Warten, bis die Daten geladen sind
+            await initializeApp(); 
         } else {
             // Fehler
             loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
@@ -665,7 +663,8 @@
         dynamicContainer.style.display = 'none';
 
         if (searchTerm.length < 2) {
-            topContainer.style.display = 'block';
+            // Zeige Top-Vorschläge, wenn Suchbegriff zu kurz
+            displayTopSuggestions();
             return;
         }
 
@@ -791,6 +790,9 @@
         } else if (dataLoaded && playerStats.length === 0) {
             displayMessage('⚠️ Wichtig: Die Spielerdaten-Datei ist leer. Bitte die Daten prüfen.', 'error');
         }
+        
+        // Nach dem Laden (oder Fehlschlagen) der Daten, das Datum aktualisieren (optional, aber gut)
+        document.getElementById('current-date').textContent = `Daten-Stand: ${new Date().toLocaleDateString('de-DE')}`;
     }
 
 
@@ -823,7 +825,7 @@
             loginOverlay.style.display = 'none';
             container.style.display = 'block'; // Zeige Hauptinhalt
             
-            // WICHTIGE KORREKTUR: Fügen Sie 'await' hinzu, um sicherzustellen, dass die Daten geladen sind, bevor der Benutzer interagieren kann.
+            // WICHTIG: Hier wurde das await schon in der letzten Version hinzugefügt und ist korrekt.
             await initializeApp(); 
         } else {
             // Zeige Login-Overlay
