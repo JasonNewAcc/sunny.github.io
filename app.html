@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Holostats Spielerstatistik-Suche</title>
+    <title>Holostats - Umsatzstatistik</title>
     <style>
-        /* [Ihre Snowflake- und allgemeinen Stile bleiben hier unverändert] */
+        /* [Der gesamte CSS-Block vom app (7).html, inklusive Snowflake, bleibt hier unverändert, 
+           jedoch mit den NEUEN Navigations- und Login-Styles:] */
+
         /* ================================================= */
         /* === SCHNEEFLOCKEN-EFFEKT (Zum einfachen Löschen) === */
         /* ================================================= */
@@ -120,6 +122,83 @@
             background-color: #4CAF50;
         }
 
+        /* === VERBESSERTES LOGIN/LOGOUT MODAL DESIGN === */
+        #login-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #login-form-container {
+            background: #2d2d30;
+            padding: 40px 30px; /* Vertikal etwas mehr Polsterung */
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 15px #4CAF50; /* Grüner Glow */
+            text-align: center;
+            width: 350px; /* Etwas breiter */
+            transform: scale(1);
+            transition: transform 0.3s ease-out;
+        }
+        #login-form-container.logout-mode {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 15px #d9534f; /* Roter Glow für Logout */
+        }
+
+        #login-form-container h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            font-size: 1.8em;
+            border-bottom: 2px solid #3a3a3d;
+            padding-bottom: 15px;
+        }
+        #login-form-container p {
+            color: #ccc;
+            margin-bottom: 25px;
+            font-size: 1.05em;
+        }
+        #login-form-container input {
+            width: 90%;
+            padding: 12px 10px;
+            margin: 10px 0;
+            border: 1px solid #444;
+            border-radius: 6px;
+            box-sizing: border-box;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            transition: border-color 0.2s;
+        }
+        #login-form-container input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        #login-form-container button {
+            width: 90%;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        #login-form-container button:hover {
+            background-color: #43A047;
+            transform: translateY(-2px);
+        }
+        #login-message {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
         /* Container nach Menü positionieren */
         .container {
             display: none;
@@ -139,7 +218,8 @@
             font-size: 2.2em;
         }
         
-        /* [Die restlichen Stile (Info-Header, Suchfeld, Vorschläge, Ergebnisse, Modal) bleiben unverändert] */
+        /* [Restliches CSS (Info-Header, Suchfeld, Vorschläge, Ergebnisse, Modal) bleibt unverändert] */
+
         /* Kompakter Info-Header */
         #info-header {
             overflow: hidden;
@@ -442,6 +522,7 @@
         .link-group a.namemc-link:hover {
             background-color: #303f9f;
         }
+
     </style>
 </head>
 <body>
@@ -466,16 +547,10 @@
 </nav>
 <div id="login-modal-overlay">
     <div id="login-form-container">
-        <h2>Zugriff erforderlich</h2>
-        <p>Bitte melden Sie sich an, um die Holostats-Daten einzusehen.</p>
-        <input type="text" id="login-username" placeholder="Benutzername">
-        <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()">
-        <button onclick="checkLogin()">Anmelden</button>
-        <p id="login-message" style="color: #d9534f; margin-top: 10px; display: none;"></p>
-    </div>
+        </div>
 </div>
 <div class="container">
-    <h1><span style="color: white;">Holostats</span> - Spieler Umsatz suchen</h1>
+    <h1><span style="color: white;">Sunny_Casino</span> - Spieler Umsatz suchen</h1>
     
     <div id="info-header">
         <p id="player-count">Gesamtspieler: 0</p>
@@ -543,14 +618,81 @@
     let validAccounts = [];
 
     /**
-     * Zeigt eine Benachrichtigung an und wendet den korrigierten Stil an.
-     * @param {string} message - Die anzuzeigende Nachricht.
-     * @param {('success'|'error')} type - Der Nachrichtentyp.
+     * Zeigt den Anmelde-Dialog an.
+     */
+    function showLoginDialog() {
+        const container = document.getElementById('login-form-container');
+        container.classList.remove('logout-mode');
+        container.innerHTML = `
+            <h2>Zugriff erforderlich</h2>
+            <p>Bitte melden Sie sich an, um die Holostats-Daten einzusehen.</p>
+            <input type="text" id="login-username" placeholder="Benutzername">
+            <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()">
+            <button onclick="checkLogin()">Anmelden</button>
+            <p id="login-message" style="color: #d9534f; margin-top: 10px; display: none;"></p>
+        `;
+        document.getElementById('login-modal-overlay').style.display = 'flex';
+        document.getElementById('login-username').focus();
+        document.getElementById('main-nav').style.display = 'none';
+        document.querySelector('.container').style.display = 'none';
+    }
+
+    /**
+     * Zeigt den Abmelde-Dialog an (wird von home.html aus aufgerufen, falls Sie die Logik hier nutzen möchten).
+     */
+    function showLogoutDialog() {
+        const container = document.getElementById('login-form-container');
+        container.classList.add('logout-mode');
+        container.innerHTML = `
+            <h2>Abmeldung</h2>
+            <p>Sie wurden erfolgreich abgemeldet. Um die Daten erneut einzusehen, melden Sie sich bitte wieder an.</p>
+            <button onclick="window.location.reload()">Neu Anmelden</button>
+        `;
+        document.getElementById('login-modal-overlay').style.display = 'flex';
+        document.getElementById('main-nav').style.display = 'none';
+        document.querySelector('.container').style.display = 'none';
+    }
+
+    /**
+     * Führt die Abmeldung durch und zeigt den Logout-Dialog.
+     */
+    function logout() {
+        sessionStorage.removeItem(LOGIN_KEY);
+        // Da dies die primäre Login-Seite ist, zeigen wir den Logout-Dialog hier an.
+        showLogoutDialog();
+    }
+
+    /**
+     * Prüft die Login-Daten.
+     */
+    async function checkLogin() { 
+        const usernameInput = document.getElementById('login-username').value;
+        const passwordInput = document.getElementById('login-password').value;
+        const loginMessage = document.getElementById('login-message');
+
+        loginMessage.style.display = 'none';
+
+        const accountFound = validAccounts.find(account => 
+            account.username === usernameInput && account.password === passwordInput 
+        );
+
+        if (accountFound) {
+            sessionStorage.setItem(LOGIN_KEY, 'true');
+            // NEUE LOGIK: Nach Login zur home.html weiterleiten
+            window.location.href = 'home.html';
+        } else {
+            loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
+            loginMessage.style.display = 'block';
+        }
+    }
+    // --- ENDE AUTHENTIFIZIERUNG ---
+
+    /**
+     * Zeigt eine Benachrichtigung an.
      */
     function displayMessage(message, type = 'success') {
         const errorMessage = document.getElementById('error-message');
         errorMessage.textContent = ''; 
-        // WICHTIG: className zuerst setzen, um Styles anzuwenden, dann display auf 'flex'
         errorMessage.className = type === 'success' ? 'message-success' : 'message-error';
         errorMessage.style.display = 'flex'; 
         
@@ -565,7 +707,7 @@
             errorMessage.style.display = 'none';
         }, 5000);
     }
-
+    
     async function loadAccounts() {
         try {
             const response = await fetch(ACCOUNTS_FILE);
@@ -590,29 +732,13 @@
             return false;
         }
     }
+    
+    // [Die Funktionen loadPlayerStats, playClickSound, formatNumber, cleanPlayerNameForSkin, 
+    // showPlayerDetails, closePlayerDetails, createPlayerCard, getTopPlayers, 
+    // displayTopSuggestions, displayDynamicSuggestions, setInputAndSearch, 
+    // handleSearchInput, searchPlayers, initializeApp bleiben hier unverändert]
 
-    async function checkLogin() { 
-        const usernameInput = document.getElementById('login-username').value;
-        const passwordInput = document.getElementById('login-password').value;
-        const loginMessage = document.getElementById('login-message');
-
-        loginMessage.style.display = 'none';
-
-        const accountFound = validAccounts.find(account => 
-            account.username === usernameInput && account.password === passwordInput 
-        );
-
-        if (accountFound) {
-            sessionStorage.setItem(LOGIN_KEY, 'true');
-            // NEUE LOGIK: Nach Login zur home.html weiterleiten
-            window.location.href = 'home.html';
-        } else {
-            loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
-            loginMessage.style.display = 'block';
-        }
-    }
-    // --- ENDE AUTHENTIFIZIERUNG ---
-
+    // ... (Fügen Sie die restlichen JS-Funktionen hier ein, die unverändert sind) ...
     // --- SOUND-FUNKTIONEN ---
     const CLICK_SOUND_URL = './buttonclick.mp3'; 
     const clickAudio = new Audio(CLICK_SOUND_URL);
@@ -918,7 +1044,7 @@
         }
         
         document.getElementById('current-date').textContent = `Daten-Stand: ${new Date().toLocaleDateString('de-DE')}`;
-        document.getElementById('main-nav').style.display = 'block'; // Zeige die Nav an, wenn eingeloggt
+        document.getElementById('main-nav').style.display = 'block'; // Zeige Nav
     }
 
 
@@ -933,22 +1059,20 @@
         
         const accountsLoaded = await loadAccounts();
         if (!accountsLoaded) {
-            document.getElementById('login-modal-overlay').style.display = 'flex';
+            showLoginDialog();
             return;
         }
         
         const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true';
-        const container = document.querySelector('.container');
-        const loginOverlay = document.getElementById('login-modal-overlay');
-
+        
         if (isLoggedIn) {
-            loginOverlay.style.display = 'none';
-            container.style.display = 'block';
+            document.getElementById('login-modal-overlay').style.display = 'none';
+            document.querySelector('.container').style.display = 'block';
+            document.getElementById('main-nav').style.display = 'block';
             
-            await initializeApp(); // Lade die Daten nur auf dieser Seite
+            await initializeApp();
         } else {
-            loginOverlay.style.display = 'flex';
-            document.getElementById('login-username').focus();
+            showLoginDialog();
         }
     });
 
