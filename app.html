@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Holostats Spielerstatistik-Suche</title>
+    <title>Holostats - Umsatzstatistik</title>
     <style>
         /* ================================================= */
         /* === SCHNEEFLOCKEN-EFFEKT (Zum einfachen Löschen) === */
@@ -63,15 +63,15 @@
             color: #f0f0f0;
             min-height: 100vh;
             display: flex;
-            flex-direction: column; /* NEU: Wichtig für Menü oben */
-            justify-content: flex-start; /* NEU: Startet Inhalt oben */
+            flex-direction: column; /* Wichtig für Menü oben */
+            justify-content: flex-start; /* Startet Inhalt oben */
             align-items: center;
             
             background-color: #1a1a1a;
             background-image: repeating-linear-gradient(45deg, #1e1e1e, #1e1e1e 10px, #222 10px, #222 11px);
         }
-
-        /* === Navigationsleiste Style (Wiederhergestellt) === */
+        
+        /* === Navigationsleiste Style === */
         #main-nav {
             position: fixed; /* Navigiert oben fixiert */
             top: 0;
@@ -87,7 +87,7 @@
             list-style: none;
             padding: 0;
             margin: 0 auto;
-            max-width: 700px; 
+            max-width: 700px;
             display: flex;
             justify-content: space-between; /* Links und Rechts */
             align-items: center;
@@ -141,7 +141,6 @@
         .logout-link:hover {
             background-color: #3a3a3d;
         }
-        /* ENDE NAVIGATIONS-STYLE */
 
 
         /* === LOGIN/LOGOUT MODAL DESIGN === */
@@ -167,7 +166,7 @@
             transform: scale(1);
             transition: transform 0.3s ease-out;
         }
-        /* Rot für Logout-Modus (Wiederhergestellt) */
+        /* Rot für Logout-Modus */
         #login-form-container.logout-mode {
             box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 15px #d9534f; 
         }
@@ -242,7 +241,7 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border: 1px solid #3a3a3d;
-            margin-top: 80px; /* NEU: Abstand zur FIXED Navigationsleiste (ca. 50px Höhe + Puffer) */
+            margin-top: 80px; /* Abstand zur FIXED Navigationsleiste (ca. 50px Höhe + etwas Puffer) */
         }
         h1 {
             color: #4CAF50;
@@ -251,11 +250,218 @@
             font-size: 2.2em;
         }
         
-        /* ... restlicher CSS-Code bleibt unverändert ... */
+        /* Kompakter Info-Header */
+        #info-header {
+            overflow: hidden;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #3a3a3d;
+            padding-bottom: 10px;
+        }
+        #player-count {
+            font-weight: normal; 
+            color: #aaa;
+            margin: 0;
+            display: inline-block;
+            font-size: 0.9em;
+            float: left;
+        }
+        #current-date {
+            text-align: right;
+            font-size: 0.9em;
+            color: #aaa;
+            margin: 0;
+            display: inline-block;
+            float: right;
+        }
+        
+        /* === Suchfeld-Design === */
+        #search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            position: relative;
+            background: #3a3a3d;
+            border-radius: 8px;
+            padding: 5px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+        }
+        #search-input {
+            padding: 10px 15px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 6px;
+            flex-grow: 1;
+            background-color: #2d2d30;
+            color: #f0f0f0;
+            transition: box-shadow 0.3s;
+        }
+        #search-input:focus {
+            box-shadow: 0 0 5px #4CAF50;
+            outline: none;
+        }
+        #search-button {
+            padding: 10px 20px;
+            font-size: 1.1em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        #search-button:hover {
+            background-color: #43A047;
+            transform: translateY(-1px);
+        }
+        
+        /* === Vorschlags-Container (Top 5 & Dynamisch) === */
+        #suggestions-container, #dynamic-suggestions-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #3a3a3d;
+            border-left: 5px solid #4CAF50;
+        }
+        #suggestions-container h4, #dynamic-suggestions-container h4 {
+            margin-top: 0;
+            color: #4CAF50; 
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        
+        /* Top 5 bricht um */
+        #suggestions-container .suggestion-list {
+            display: flex;
+            flex-wrap: wrap; 
+            gap: 10px;
+            overflow-x: hidden; 
+            padding-bottom: 0;
+        }
 
-        /* DETAIL MODAL STYLES (WICHTIG: display: none MUSS Initialzustand sein) */
+        /* Dynamische Vorschläge scrollen */
+        #dynamic-suggestions-container .suggestion-list {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: thin;
+        }
+
+        /* Scrollbar-Styles für Webkit */
+        .suggestion-list::-webkit-scrollbar {
+            height: 6px;
+        }
+        .suggestion-list::-webkit-scrollbar-thumb {
+            background-color: #555;
+            border-radius: 3px;
+        }
+        .suggestion-list::-webkit-scrollbar-track {
+            background: #2d2d30;
+            border-radius: 3px;
+        }
+
+        .suggestion-player {
+            flex-shrink: 0;
+            background-color: #555;
+            color: #fff;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-weight: bold;
+            display: flex; 
+            align-items: center;
+            gap: 8px; 
+        }
+        .suggestion-player:hover {
+            background-color: #4CAF50;
+            transform: translateY(-2px);
+        }
+        
+        .suggestion-player img {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px; 
+            border: none;
+            image-rendering: pixelated;
+            flex-shrink: 0;
+        }
+
+        /* === Meldungen und Fehler (Style Bug Fix) === */
+        #error-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: none;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+            /* WICHTIG: display wird in JS gesetzt, aber die folgenden Linien helfen bei der Zentrierung */
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .message-success { 
+            background-color: #384239; 
+            border: 1px solid #4CAF50;
+            color: #4CAF50; /* Textfarbe auf Akzentfarbe setzen */
+        }
+        .message-error { 
+            background-color: #5d3f42; 
+            border: 1px solid #d9534f;
+            color: #d9534f; /* Textfarbe auf Fehlerfarbe setzen */
+        }
+        
+        .message-icon {
+            font-size: 1.2em;
+        }
+
+        /* === Ergebnis-Karten & Modal (Unverändert) === */
+        #results-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .player-card {
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 8px;
+            width: 160px;
+            text-align: center;
+            background: #3a3a3d;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer; 
+        }
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.5), 0 0 10px rgba(76, 175, 80, 0.7);
+        }
+        .player-card img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 2px solid #4CAF50;
+            margin-bottom: 10px;
+            image-rendering: pixelated;
+            box-shadow: 0 0 6px rgba(76, 175, 80, 0.4);
+        }
+        .divider {
+            margin: 10px 0;
+            border-top: 1px solid #444;
+        }
+        
+        /* DETAIL MODAL STYLES (KORREKTUR: display: none MUSS Initialzustand sein) */
         .modal {
-            display: none; /* KORREKTUR: Standardmäßig unsichtbar */
+            display: none; /* Wichtig: Standardmäßig unsichtbar */
             position: fixed;
             z-index: 100; 
             left: 0;
@@ -267,7 +473,85 @@
             justify-content: center;
             align-items: center;
         }
-        /* ... restlicher Modal-CSS-Code bleibt unverändert ... */
+        .modal-content {
+            background-color: #2d2d30;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 450px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+            border: 1px solid #4CAF50;
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #fff;
+        }
+        #detail-content img {
+            width: 128px; 
+            height: auto;
+            image-rendering: pixelated;
+            margin: 15px auto 25px auto;
+            border: 3px solid #4CAF50;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+        }
+        #detail-content h2 {
+            color: #4CAF50;
+            margin-top: 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 15px;
+            font-size: 1.8em;
+        }
+        #detail-content p {
+            margin: 12px 0;
+            text-align: left;
+            padding: 5px 10px;
+            font-size: 1.05em;
+            background-color: #3a3a3d;
+            border-radius: 4px;
+        }
+        #detail-content b {
+            color: #fff;
+        }
+        /* Style für die Links im Modal */
+        .link-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        .link-group a {
+            flex-grow: 1;
+            padding: 12px;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .link-group a.skin-link {
+            background-color: #007bff; /* Blau für Skin */
+        }
+        .link-group a.skin-link:hover {
+            background-color: #0056b3;
+        }
+        .link-group a.namemc-link {
+            background-color: #3f51b5; /* Lila/Indigo für NameMC */
+        }
+        .link-group a.namemc-link:hover {
+            background-color: #303f9f;
+        }
     </style>
 </head>
 <body>
@@ -364,16 +648,15 @@
     const LOGIN_KEY = 'holostats_logged_in';
     const ACCOUNTS_FILE = 'accounts.json';
     let validAccounts = [];
-
+    
     // --- NEUE/WIEDERHERGESTELLTE FUNKTIONEN FÜR LOGIN/LOGOUT DIALOG ---
     
     /**
-     * Zeigt den Anmelde-Dialog an und versteckt die App-Inhalte.
+     * Zeigt den Anmelde-Dialog an.
      */
     function showLoginDialog() {
         const container = document.getElementById('login-form-container');
         container.classList.remove('logout-mode');
-        // Setze den HTML-Inhalt für den Login-Dialog
         container.innerHTML = `
             <h2>Zugriff erforderlich</h2>
             <p>Bitte melden Sie sich an, um die Holostats-Daten einzusehen.</p>
@@ -384,9 +667,7 @@
         `;
         document.getElementById('login-modal-overlay').style.display = 'flex';
         document.getElementById('login-username').focus();
-        // Verstecke Nav und Container
-        const mainNav = document.getElementById('main-nav');
-        if (mainNav) mainNav.style.display = 'none';
+        document.getElementById('main-nav').style.display = 'none';
         document.querySelector('.container').style.display = 'none';
     }
 
@@ -402,23 +683,21 @@
             <button onclick="window.location.href = window.location.pathname;">Neu Anmelden</button>
         `;
         document.getElementById('login-modal-overlay').style.display = 'flex';
-        // Verstecke Nav und Container
-        const mainNav = document.getElementById('main-nav');
-        if (mainNav) mainNav.style.display = 'none';
+        document.getElementById('main-nav').style.display = 'none';
         document.querySelector('.container').style.display = 'none';
         // Entfernt den logout=true Parameter nach Anzeige, um sauber neu zu laden
         history.replaceState({}, document.title, window.location.pathname);
     }
 
     /**
-     * Führt die Abmeldung durch und leitet auf die Logout-Ansicht um.
+     * Führt die Abmeldung durch und leitet auf die Logout-Ansicht um (durch Query-Parameter).
      */
     function logout() {
         sessionStorage.removeItem(LOGIN_KEY);
         // Lädt die Seite neu mit einem Parameter, um den Logout-Dialog anzuzeigen
         window.location.href = window.location.pathname + '?logout=true';
     }
-    
+
     async function loadAccounts() {
         try {
             const response = await fetch(ACCOUNTS_FILE);
@@ -459,10 +738,7 @@
             sessionStorage.setItem(LOGIN_KEY, 'true');
             document.getElementById('login-modal-overlay').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
-            
-            // NEU: Zeige die Navigationsleiste nach erfolgreichem Login
-            const mainNav = document.getElementById('main-nav');
-            if (mainNav) mainNav.style.display = 'block';
+            document.getElementById('main-nav').style.display = 'block'; // Zeige Nav
             
             await initializeApp(); 
         } else {
@@ -480,7 +756,6 @@
     function displayMessage(message, type = 'success') {
         const errorMessage = document.getElementById('error-message');
         errorMessage.textContent = ''; 
-        // WICHTIG: className zuerst setzen, um Styles anzuwenden, dann display auf 'flex'
         errorMessage.className = type === 'success' ? 'message-success' : 'message-error';
         errorMessage.style.display = 'flex'; 
         
@@ -803,12 +1078,14 @@
     }
 
     /**
-     * Navigiert innerhalb der einzigen Seite (Platzhalter).
+     * Navigiert innerhalb der einzigen Seite (Platzhalter, falls später Home-Inhalt hinzugefügt wird).
+     * NEU: Behandelt 'home' und 'stats'.
      */
     function navigateTo(target) {
-        // Da es nur eine Seite gibt, dient dies aktuell zum Neuladen der Seite
+        // Da es nur eine Seite gibt, dient dies aktuell nur zum Neuladen der Seite
         // und zur Simulation einer Navigation.
         if (target === 'stats' || target === 'home') {
+             // Einfach zur aktuellen Seite navigieren/laden, um alles aufzufrischen
              window.location.reload(); 
         }
     }
@@ -837,10 +1114,7 @@
         if (isLoggedIn) {
             document.getElementById('login-modal-overlay').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
-            
-            // Zeige Nav
-            const mainNav = document.getElementById('main-nav');
-            if (mainNav) mainNav.style.display = 'block';
+            document.getElementById('main-nav').style.display = 'block'; // Zeige Nav
             
             await initializeApp();
         } else {
