@@ -246,7 +246,7 @@
     <h2>📊 Verfügbare Module</h2>
     <p>Aktuell können Sie auf die detaillierte Spieler-Umsatzstatistik zugreifen.</p>
     
-    <a href="app (7).html" class="main-link">Zur Umsatzstatistik wechseln</a>
+    <a href="app.html" class="main-link">Zur Umsatzstatistik wechseln</a>
     
     <h2 style="margin-top: 40px;">🔑 Zugriff & Sicherheit</h2>
     <p>Ihre Sitzung ist aktiv. Melden Sie sich ab, wenn Sie die Nutzung beenden möchten.</p>
@@ -262,7 +262,7 @@
     function logout() {
         sessionStorage.removeItem(LOGIN_KEY);
         // Zur Log-in-Seite zurückleiten (Ihre ursprüngliche app (7).html)
-        window.location.href = 'app (7).html'; 
+        window.location.href = 'app.html'; 
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -278,7 +278,7 @@
         } else {
             // NICHT eingeloggt: Leite zur Login-Seite weiter
             // Da die Logik auf der app (7).html ist, leiten wir dorthin um.
-            window.location.href = 'app (7).html'; 
+            window.location.href = 'app.html'; 
             // Optional: Zeige trotzdem den Overlay, falls JS-Redirect fehlschlägt.
             loginOverlay.style.display = 'flex';
         }
