@@ -71,8 +71,11 @@
             background-image: repeating-linear-gradient(45deg, #1e1e1e, #1e1e1e 10px, #222 10px, #222 11px);
         }
         
-        /* === NEU: Navigationsleiste Style === */
+        /* === Navigationsleiste Style === */
         #main-nav {
+            position: fixed; /* Navigiert oben fixiert */
+            top: 0;
+            left: 0;
             width: 100%;
             background-color: #2d2d30;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
@@ -140,7 +143,7 @@
         }
 
 
-        /* === VERBESSERTES LOGIN/LOGOUT MODAL DESIGN === */
+        /* === LOGIN/LOGOUT MODAL DESIGN === */
         #login-modal-overlay {
             position: fixed;
             top: 0;
@@ -155,11 +158,11 @@
         }
         #login-form-container {
             background: #2d2d30;
-            padding: 40px 30px; /* Vertikal etwas mehr Polsterung */
+            padding: 40px 30px; 
             border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 15px #4CAF50; /* Grüner Glow */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 15px #4CAF50; /* Grüner Glow (Standard) */
             text-align: center;
-            width: 350px; /* Etwas breiter */
+            width: 350px; 
             transform: scale(1);
             transition: transform 0.3s ease-out;
         }
@@ -238,7 +241,7 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border: 1px solid #3a3a3d;
-            margin-top: 50px; /* Abstand zur Navigationsleiste */
+            margin-top: 80px; /* Abstand zur FIXED Navigationsleiste (ca. 50px Höhe + etwas Puffer) */
         }
         h1 {
             color: #4CAF50;
@@ -456,9 +459,9 @@
             border-top: 1px solid #444;
         }
         
-        /* DETAIL MODAL STYLES (WICHTIG: display: none beim Initialzustand) */
+        /* DETAIL MODAL STYLES (KORREKTUR: display: none MUSS Initialzustand sein) */
         .modal {
-            display: none; 
+            display: none; /* Wichtig: Standardmäßig unsichtbar */
             position: fixed;
             z-index: 100; 
             left: 0;
@@ -466,7 +469,7 @@
             width: 100%; 
             height: 100%; 
             background-color: rgba(0,0,0,0.85);
-            /* Muss hier flex sein, damit es in JS direkt funktioniert */
+            /* display: flex wird nur per JS gesetzt, wenn geöffnet */
             justify-content: center;
             align-items: center;
         }
@@ -568,7 +571,7 @@
 <nav id="main-nav">
     <ul id="nav-list">
         <div id="nav-links">
-            <li><a href="#" class="active" onclick="navigateTo('stats')">Umsatz</a></li>
+            <li><a href="#" class="active" onclick="navigateTo('stats')">Umsatzstatistik</a></li>
         </div>
         <li><a href="#" class="logout-link" onclick="logout()">Abmelden</a></li>
     </ul>
@@ -645,7 +648,7 @@
     const ACCOUNTS_FILE = 'accounts.json';
     let validAccounts = [];
     
-    // --- NEUE FUNKTIONEN FÜR LOGIN/LOGOUT DIALOG ---
+    // --- NEUE/WIEDERHERGESTELLTE FUNKTIONEN FÜR LOGIN/LOGOUT DIALOG ---
     
     /**
      * Zeigt den Anmelde-Dialog an.
@@ -848,7 +851,7 @@
         content.appendChild(wagerParagraph);
         content.appendChild(linkGroup); // Füge Link-Gruppe hinzu
 
-        modal.style.display = 'flex'; 
+        modal.style.display = 'flex'; // Modal erst hier sichtbar machen
     }
 
     function closePlayerDetails() {
