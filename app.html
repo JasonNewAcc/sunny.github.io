@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Holostats - Umsatzstatistik</title>
     <style>
-        /* [Der gesamte CSS-Block vom app (7).html, inklusive Snowflake, bleibt hier unverändert, 
-           jedoch mit den NEUEN Navigations- und Login-Styles:] */
-
         /* ================================================= */
         /* === SCHNEEFLOCKEN-EFFEKT (Zum einfachen Löschen) === */
         /* ================================================= */
@@ -80,6 +77,7 @@
             background-color: #2d2d30;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
             z-index: 50;
+            display: none; /* Initial versteckt, wird nach Login sichtbar */
         }
 
         #nav-list {
@@ -88,10 +86,17 @@
             margin: 0 auto;
             max-width: 700px;
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between; /* Links und Rechts */
             align-items: center;
         }
 
+        #nav-links {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
         #nav-list li a {
             display: block;
             padding: 15px 25px;
@@ -107,12 +112,12 @@
         }
         
         /* Aktives Element (Umsatz-Seite) */
-        #nav-list li a.active {
+        #nav-links li a[href="#stats"].active {
             color: #4CAF50;
         }
         
         /* Grüner Indikator unter dem aktiven Element */
-        #nav-list li a.active::after {
+        #nav-links li a[href="#stats"].active::after {
             content: '';
             position: absolute;
             bottom: 0;
@@ -121,6 +126,19 @@
             height: 3px;
             background-color: #4CAF50;
         }
+        
+        /* Logout Button Style */
+        .logout-link {
+            padding: 15px 25px;
+            color: #d9534f !important; /* Rot */
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .logout-link:hover {
+            background-color: #3a3a3d;
+        }
+
 
         /* === VERBESSERTES LOGIN/LOGOUT MODAL DESIGN === */
         #login-modal-overlay {
@@ -145,8 +163,9 @@
             transform: scale(1);
             transition: transform 0.3s ease-out;
         }
+        /* Rot für Logout-Modus */
         #login-form-container.logout-mode {
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 15px #d9534f; /* Roter Glow für Logout */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 15px #d9534f; 
         }
 
         #login-form-container h2 {
@@ -155,6 +174,9 @@
             font-size: 1.8em;
             border-bottom: 2px solid #3a3a3d;
             padding-bottom: 15px;
+        }
+        #login-form-container.logout-mode h2 {
+            color: #d9534f;
         }
         #login-form-container p {
             color: #ccc;
@@ -193,11 +215,18 @@
             background-color: #43A047;
             transform: translateY(-2px);
         }
+        #login-form-container.logout-mode button {
+            background-color: #d9534f; /* Roter Button im Logout-Mode */
+        }
+        #login-form-container.logout-mode button:hover {
+            background-color: #c9302c;
+        }
         #login-message {
             margin-top: 15px;
             font-weight: bold;
             font-size: 0.95em;
         }
+        /* ENDE LOGIN/LOGOUT MODAL DESIGN */
 
         /* Container nach Menü positionieren */
         .container {
@@ -218,8 +247,6 @@
             font-size: 2.2em;
         }
         
-        /* [Restliches CSS (Info-Header, Suchfeld, Vorschläge, Ergebnisse, Modal) bleibt unverändert] */
-
         /* Kompakter Info-Header */
         #info-header {
             overflow: hidden;
@@ -429,7 +456,7 @@
             border-top: 1px solid #444;
         }
         
-        /* DETAIL MODAL STYLES */
+        /* DETAIL MODAL STYLES (WICHTIG: display: none beim Initialzustand) */
         .modal {
             display: none; 
             position: fixed;
@@ -439,7 +466,7 @@
             width: 100%; 
             height: 100%; 
             background-color: rgba(0,0,0,0.85);
-            display: flex;
+            /* Muss hier flex sein, damit es in JS direkt funktioniert */
             justify-content: center;
             align-items: center;
         }
@@ -522,7 +549,6 @@
         .link-group a.namemc-link:hover {
             background-color: #303f9f;
         }
-
     </style>
 </head>
 <body>
@@ -539,10 +565,12 @@
 <div class="snowflake">❅</div>
 <div class="snowflake">❆</div>
 
-<nav id="main-nav" style="display: none;">
+<nav id="main-nav">
     <ul id="nav-list">
-        <li><a href="home.html">Home</a></li>
-        <li><a href="app.html" class="active">Umsatz</a></li>
+        <div id="nav-links">
+            <li><a href="#" class="active" onclick="navigateTo('stats')">Umsatz</a></li>
+        </div>
+        <li><a href="#" class="logout-link" onclick="logout()">Abmelden</a></li>
     </ul>
 </nav>
 <div id="login-modal-overlay">
@@ -616,7 +644,9 @@
     const LOGIN_KEY = 'holostats_logged_in';
     const ACCOUNTS_FILE = 'accounts.json';
     let validAccounts = [];
-
+    
+    // --- NEUE FUNKTIONEN FÜR LOGIN/LOGOUT DIALOG ---
+    
     /**
      * Zeigt den Anmelde-Dialog an.
      */
@@ -638,76 +668,32 @@
     }
 
     /**
-     * Zeigt den Abmelde-Dialog an (wird von home.html aus aufgerufen, falls Sie die Logik hier nutzen möchten).
+     * Zeigt den verbesserten Abmelde-Dialog an (roter Glow).
      */
     function showLogoutDialog() {
         const container = document.getElementById('login-form-container');
         container.classList.add('logout-mode');
         container.innerHTML = `
-            <h2>Abmeldung</h2>
-            <p>Sie wurden erfolgreich abgemeldet. Um die Daten erneut einzusehen, melden Sie sich bitte wieder an.</p>
-            <button onclick="window.location.reload()">Neu Anmelden</button>
+            <h2>Abmeldung erfolgreich</h2>
+            <p>Sie wurden erfolgreich abgemeldet. Ihre Sitzung ist beendet.</p>
+            <button onclick="window.location.href = window.location.pathname;">Neu Anmelden</button>
         `;
         document.getElementById('login-modal-overlay').style.display = 'flex';
         document.getElementById('main-nav').style.display = 'none';
         document.querySelector('.container').style.display = 'none';
+        // Entfernt den logout=true Parameter nach Anzeige, um sauber neu zu laden
+        history.replaceState({}, document.title, window.location.pathname);
     }
 
     /**
-     * Führt die Abmeldung durch und zeigt den Logout-Dialog.
+     * Führt die Abmeldung durch und leitet auf die Logout-Ansicht um (durch Query-Parameter).
      */
     function logout() {
         sessionStorage.removeItem(LOGIN_KEY);
-        // Da dies die primäre Login-Seite ist, zeigen wir den Logout-Dialog hier an.
-        showLogoutDialog();
+        // Lädt die Seite neu mit einem Parameter, um den Logout-Dialog anzuzeigen
+        window.location.href = window.location.pathname + '?logout=true';
     }
 
-    /**
-     * Prüft die Login-Daten.
-     */
-    async function checkLogin() { 
-        const usernameInput = document.getElementById('login-username').value;
-        const passwordInput = document.getElementById('login-password').value;
-        const loginMessage = document.getElementById('login-message');
-
-        loginMessage.style.display = 'none';
-
-        const accountFound = validAccounts.find(account => 
-            account.username === usernameInput && account.password === passwordInput 
-        );
-
-        if (accountFound) {
-            sessionStorage.setItem(LOGIN_KEY, 'true');
-            // NEUE LOGIK: Nach Login zur home.html weiterleiten
-            window.location.href = 'home.html';
-        } else {
-            loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
-            loginMessage.style.display = 'block';
-        }
-    }
-    // --- ENDE AUTHENTIFIZIERUNG ---
-
-    /**
-     * Zeigt eine Benachrichtigung an.
-     */
-    function displayMessage(message, type = 'success') {
-        const errorMessage = document.getElementById('error-message');
-        errorMessage.textContent = ''; 
-        errorMessage.className = type === 'success' ? 'message-success' : 'message-error';
-        errorMessage.style.display = 'flex'; 
-        
-        const icon = document.createElement('span');
-        icon.className = 'message-icon';
-        icon.textContent = type === 'success' ? '✅' : '❌';
-
-        errorMessage.appendChild(icon);
-        errorMessage.appendChild(document.createTextNode(message));
-
-        setTimeout(() => {
-            errorMessage.style.display = 'none';
-        }, 5000);
-    }
-    
     async function loadAccounts() {
         try {
             const response = await fetch(ACCOUNTS_FILE);
@@ -732,13 +718,55 @@
             return false;
         }
     }
-    
-    // [Die Funktionen loadPlayerStats, playClickSound, formatNumber, cleanPlayerNameForSkin, 
-    // showPlayerDetails, closePlayerDetails, createPlayerCard, getTopPlayers, 
-    // displayTopSuggestions, displayDynamicSuggestions, setInputAndSearch, 
-    // handleSearchInput, searchPlayers, initializeApp bleiben hier unverändert]
 
-    // ... (Fügen Sie die restlichen JS-Funktionen hier ein, die unverändert sind) ...
+    async function checkLogin() { 
+        const usernameInput = document.getElementById('login-username').value;
+        const passwordInput = document.getElementById('login-password').value;
+        const loginMessage = document.getElementById('login-message');
+
+        loginMessage.style.display = 'none';
+
+        const accountFound = validAccounts.find(account => 
+            account.username === usernameInput && account.password === passwordInput 
+        );
+
+        if (accountFound) {
+            sessionStorage.setItem(LOGIN_KEY, 'true');
+            document.getElementById('login-modal-overlay').style.display = 'none';
+            document.querySelector('.container').style.display = 'block';
+            document.getElementById('main-nav').style.display = 'block'; // Zeige Nav
+            
+            await initializeApp(); 
+        } else {
+            loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
+            loginMessage.style.display = 'block';
+        }
+    }
+    // --- ENDE AUTHENTIFIZIERUNG ---
+
+    /**
+     * Zeigt eine Benachrichtigung an und wendet den korrigierten Stil an.
+     * @param {string} message - Die anzuzeigende Nachricht.
+     * @param {('success'|'error')} type - Der Nachrichtentyp.
+     */
+    function displayMessage(message, type = 'success') {
+        const errorMessage = document.getElementById('error-message');
+        errorMessage.textContent = ''; 
+        errorMessage.className = type === 'success' ? 'message-success' : 'message-error';
+        errorMessage.style.display = 'flex'; 
+        
+        const icon = document.createElement('span');
+        icon.className = 'message-icon';
+        icon.textContent = type === 'success' ? '✅' : '❌';
+
+        errorMessage.appendChild(icon);
+        errorMessage.appendChild(document.createTextNode(message));
+
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 5000);
+    }
+
     // --- SOUND-FUNKTIONEN ---
     const CLICK_SOUND_URL = './buttonclick.mp3'; 
     const clickAudio = new Audio(CLICK_SOUND_URL);
@@ -758,7 +786,6 @@
 
     /**
      * Reinigt den Spielernamen für die Mineskin-API.
-     * Ersetzt Ausrufezeichen durch Unterstriche (häufiges Problem mit Mineskin-URL-Länge/Zeichenkodierung).
      * @param {string} name 
      */
     function cleanPlayerNameForSkin(name) {
@@ -804,7 +831,7 @@
         skinLink.textContent = `3D Skin ansehen`;
         skinLink.className = 'skin-link';
         
-        // NameMC Link (NEU)
+        // NameMC Link
         const namemcLink = document.createElement('a');
         namemcLink.href = namemcUrl;
         namemcLink.target = '_blank';
@@ -1044,7 +1071,18 @@
         }
         
         document.getElementById('current-date').textContent = `Daten-Stand: ${new Date().toLocaleDateString('de-DE')}`;
-        document.getElementById('main-nav').style.display = 'block'; // Zeige Nav
+    }
+
+    /**
+     * Navigiert innerhalb der einzigen Seite (Platzhalter, falls später Home-Inhalt hinzugefügt wird).
+     */
+    function navigateTo(target) {
+        // Da es nur eine Seite gibt, ist dies aktuell nur ein Platzhalter.
+        // Bei Erweiterung könnten hier Inhalte getauscht werden.
+        if (target === 'stats') {
+             // Einfach zur aktuellen Seite navigieren/laden, um alles aufzufrischen
+             window.location.reload(); 
+        }
     }
 
 
@@ -1062,17 +1100,26 @@
             showLoginDialog();
             return;
         }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const justLoggedOut = urlParams.get('logout') === 'true';
         
         const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true';
         
         if (isLoggedIn) {
             document.getElementById('login-modal-overlay').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
-            document.getElementById('main-nav').style.display = 'block';
+            document.getElementById('main-nav').style.display = 'block'; // Zeige Nav
             
             await initializeApp();
         } else {
-            showLoginDialog();
+            if (justLoggedOut) {
+                // Zeige den verbesserten Logout-Dialog (roter Glow)
+                showLogoutDialog();
+            } else {
+                // Zeige den normalen Login-Dialog (grüner Glow)
+                showLoginDialog();
+            }
         }
     });
 
