@@ -1078,15 +1078,16 @@
     }
 
     /**
-     * Navigiert innerhalb der einzigen Seite (Platzhalter, falls später Home-Inhalt hinzugefügt wird).
-     * NEU: Behandelt 'home' und 'stats'.
+     * Navigiert innerhalb der einzigen Seite.
+     * KORRIGIERT: 'home' navigiert zu home.html.
      */
     function navigateTo(target) {
-        // Da es nur eine Seite gibt, dient dies aktuell nur zum Neuladen der Seite
-        // und zur Simulation einer Navigation.
-        if (target === 'stats' || target === 'home') {
-             // Einfach zur aktuellen Seite navigieren/laden, um alles aufzufrischen
+        if (target === 'stats') {
+             // Lädt die aktuelle Seite neu (Umsatzstatistik)
              window.location.reload(); 
+        } else if (target === 'home') {
+             // Navigiert zur separaten Home-Seite
+             window.location.href = 'home.html'; 
         }
     }
 
