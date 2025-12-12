@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fehler 404 - Seite nicht gefunden</title>
+    <style>
+        /* ================================================= */
+        /* === SCHNEEFLOCKEN-EFFEKT (Für Konsistenz)        === */
+        /* ================================================= */
+        .snowflake {
+            color: #fff;
+            font-size: 1em;
+            font-family: Arial, sans-serif;
+            text-shadow: 0 0 5px #000;
+            position: fixed;
+            top: -10%;
+            z-index: 9999;
+            user-select: none;
+            cursor: default;
+            animation-name: snowfall;
+            animation-duration: 10s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes snowfall {
+            0% {
+                transform: translate3d(var(--x), 0, 0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate3d(var(--x), 100vh, 0);
+                opacity: 0.5;
+            }
+        }
+
+        /* Verzögerungen und Seitenpositionen */
+        .snowflake:nth-child(1) { left: 10%; animation-delay: 0s; --x: 20px; font-size: 1.2em; }
+        .snowflake:nth-child(2) { left: 20%; animation-delay: 2s; --x: -30px; font-size: 0.8em; }
+        .snowflake:nth-child(3) { left: 30%; animation-delay: 4s; --x: 10px; font-size: 1.5em; }
+        .snowflake:nth-child(4) { left: 40%; animation-delay: 6s; --x: -50px; font-size: 0.9em; }
+        .snowflake:nth-child(5) { left: 50%; animation-delay: 8s; --x: 40px; font-size: 1.3em; }
+        .snowflake:nth-child(6) { left: 60%; animation-delay: 1s; --x: -20px; font-size: 0.7em; }
+        .snowflake:nth-child(7) { left: 70%; animation-delay: 3s; --x: 30px; font-size: 1.1em; }
+        .snowflake:nth-child(8) { left: 80%; animation-delay: 5s; --x: -10px; font-size: 1.4em; }
+        .snowflake:nth-child(9) { left: 90%; animation-delay: 7s; --x: 50px; font-size: 1.0em; }
+        .snowflake:nth-child(10) { left: 5%; animation-delay: 9s; --x: -40px; font-size: 1.6em; }
+        .snowflake:nth-child(11) { left: 15%; animation-delay: 0.5s; --x: 60px; font-size: 0.6em; }
+        /* ================================================= */
+        /* === ENDE SCHNEEFLOCKEN-EFFEKT                   === */
+        /* ================================================= */
+
+        /* === Allgemeiner Stil und Dunkles Thema === */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Zentriert Inhalt vertikal */
+            align-items: center; /* Zentriert Inhalt horizontal */
+            
+            background-color: #1a1a1a;
+            background-image: repeating-linear-gradient(45deg, #1e1e1e, #1e1e1e 10px, #222 10px, #222 11px);
+        }
+        
+        /* === 404 Container Design === */
+        .error-container {
+            text-align: center;
+            background: #2d2d30;
+            padding: 50px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid #3a3a3d;
+        }
+
+        .error-code {
+            font-size: 8em;
+            color: #d9534f; /* Fehlerfarbe (Rot) */
+            margin: 0;
+            line-height: 1em;
+            text-shadow: 0 0 15px rgba(217, 83, 79, 0.5);
+        }
+
+        .error-message {
+            font-size: 1.8em;
+            color: #f0f0f0;
+            margin-top: 10px;
+            margin-bottom: 25px;
+        }
+
+        .error-info {
+            font-size: 1.1em;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        /* === Zurück-Button === */
+        .home-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #4CAF50; /* Akzentfarbe (Grün) */
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .home-button:hover {
+            background-color: #43A047;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="snowflake">❅</div>
+<div class="snowflake">❆</div>
+<div class="snowflake">❄</div>
+<div class="snowflake">❅</div>
+<div class="snowflake">❆</div>
+<div class="snowflake">❄</div>
+<div class="snowflake">❅</div>
+<div class="snowflake">❆</div>
+<div class="snowflake">❄</div>
+<div class="snowflake">❅</div>
+<div class="snowflake">❆</div>
+
+<div class="error-container">
+    <h1 class="error-code">404</h1>
+    <p class="error-message">Seite nicht gefunden</p>
+    <p class="error-info">
+        Hoppla! Die von Ihnen gesuchte Seite existiert leider nicht.
+        Möglicherweise wurde sie verschoben oder ist nicht mehr verfügbar.
+    </p>
+    
+    <a href="home.html" class="home-button">Zur Startseite</a>
+</div>
+
+</body>
+</html>
