@@ -3,1075 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Holostats - Umsatzstatistik</title>
+    <title>Login - Holostats</title>
     <style>
-        /* January theme */ 
-        .january-banner { width:100%; background: linear-gradient(90deg,#0f2540,#16385a); color:#e6f7ff; padding:8px 0; text-align:center; font-weight:700; position:fixed; top:50px; left:0; z-index:49; }
-        body.january { background: linear-gradient(180deg,#081226 0%, #0b2a42 60%); }
-
-        /* === Allgemeiner Stil und Dunkles Thema === */
+        /* === Allgemeiner Seitenstil === */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
+            background-color: #1e1e1e;
             color: #f0f0f0;
             min-height: 100vh;
             display: flex;
-            flex-direction: column; /* Wichtig für Menü oben */
-            justify-content: flex-start; /* Startet Inhalt oben */
-            align-items: center;
-            
-            background-color: #1a1a1a;
-            background-image: repeating-linear-gradient(45deg, #1e1e1e, #1e1e1e 10px, #222 10px, #222 11px);
-        }
-        
-        /* === Navigationsleiste Style === */
-        #main-nav {
-            position: fixed; /* Navigiert oben fixiert */
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #2d2d30;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            z-index: 50;
-            display: none; /* Initial versteckt, wird nach Login sichtbar */
-        }
-
-        #nav-list {
-            list-style: none;
-            padding: 0;
-            margin: 0 auto;
-            max-width: 700px;
-            display: flex;
-            justify-content: space-between; /* Links und Rechts */
-            align-items: center;
-        }
-
-        #nav-links {
-            display: flex;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        #nav-list li a {
-            display: block;
-            padding: 15px 25px;
-            color: #f0f0f0;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background-color 0.3s, color 0.3s;
-            position: relative;
-        }
-
-        #nav-list li a:hover {
-            background-color: #3a3a3d;
-        }
-        
-        /* Aktives Element (Umsatz-Seite) */
-        #nav-links li a.active {
-            color: #4CAF50;
-        }
-        
-        /* Grüner Indikator unter dem aktiven Element */
-        #nav-links li a.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background-color: #4CAF50;
-        }
-        
-        /* Logout Button Style */
-        .logout-link {
-            padding: 15px 25px;
-            color: #d9534f !important; /* Rot */
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .logout-link:hover {
-            background-color: #3a3a3d;
-        }
-
-
-        /* === LOGIN/LOGOUT MODAL DESIGN === */
-        #login-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
         }
+        
+        /* === LOGIN FORM STYLES === */
         #login-form-container {
-            background: #2d2d30;
-            padding: 40px 30px; 
+            background-color: #2d2d30;
+            padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 15px #4CAF50; /* Grüner Glow (Standard) */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
             text-align: center;
-            width: 350px; 
-            transform: scale(1);
-            transition: transform 0.3s ease-out;
-        }
-        /* Rot für Logout-Modus */
-        #login-form-container.logout-mode {
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 15px #d9534f; 
+            width: 90%;
+            max-width: 350px;
         }
 
         #login-form-container h2 {
             color: #4CAF50;
             margin-top: 0;
-            font-size: 1.8em;
-            border-bottom: 2px solid #3a3a3d;
-            padding-bottom: 15px;
+            margin-bottom: 20px;
         }
-        #login-form-container.logout-mode h2 {
-            color: #d9534f;
-        }
+
         #login-form-container p {
-            color: #ccc;
-            margin-bottom: 25px;
-            font-size: 1.05em;
+            color: #aaa;
         }
-        #login-form-container input {
-            width: 90%;
-            padding: 12px 10px;
+
+        #login-username, #login-password {
+            width: calc(100% - 30px);
+            padding: 12px 15px;
             margin: 10px 0;
-            border: 1px solid #444;
+            border: 1px solid #555;
             border-radius: 6px;
-            box-sizing: border-box;
-            background-color: #1a1a1a;
+            background-color: #3a3a3d;
             color: #f0f0f0;
-            transition: border-color 0.2s;
+            font-size: 1em;
+            box-sizing: border-box;
         }
-        #login-form-container input:focus {
+        #login-username:focus, #login-password:focus {
             border-color: #4CAF50;
             outline: none;
         }
+
         #login-form-container button {
-            width: 90%;
-            background-color: #4CAF50;
-            color: white;
+            width: 100%;
             padding: 12px;
             margin-top: 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: bold;
-            transition: background-color 0.2s, transform 0.2s;
-        }
-        #login-form-container button:hover {
-            background-color: #43A047;
-            transform: translateY(-2px);
-        }
-        #login-form-container.logout-mode button {
-            background-color: #d9534f; /* Roter Button im Logout-Mode */
-        }
-        #login-form-container.logout-mode button:hover {
-            background-color: #c9302c;
-        }
-        #login-message {
-            margin-top: 15px;
-            font-weight: bold;
-            font-size: 0.95em;
-        }
-        /* ENDE LOGIN/LOGOUT MODAL DESIGN */
-
-        /* Container nach Menü positionieren */
-        .container {
-            display: none;
-            width: 90%;
-            max-width: 700px;
-            background: #2d2d30;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid #3a3a3d;
-            margin-top: 80px; /* Abstand zur FIXED Navigationsleiste (ca. 50px Höhe + etwas Puffer) */
-        }
-        h1 {
-            color: #4CAF50;
-            text-align: center;
-            margin-bottom: 5px;
-            font-size: 2.2em;
-        }
-        
-        /* Kompakter Info-Header */
-        #info-header {
-            overflow: hidden;
-            margin-bottom: 25px;
-            border-bottom: 1px solid #3a3a3d;
-            padding-bottom: 10px;
-        }
-        #player-count {
-            font-weight: normal; 
-            color: #aaa;
-            margin: 0;
-            display: inline-block;
-            font-size: 0.9em;
-            float: left;
-        }
-        #current-date {
-            text-align: right;
-            font-size: 0.9em;
-            color: #aaa;
-            margin: 0;
-            display: inline-block;
-            float: right;
-        }
-        
-        /* === Suchfeld-Design === */
-        #search-container {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            position: relative;
-            background: #3a3a3d;
-            border-radius: 8px;
-            padding: 5px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
-        }
-        #search-input {
-            padding: 10px 15px;
-            font-size: 1.1em;
-            border: none;
-            border-radius: 6px;
-            flex-grow: 1;
-            background-color: #2d2d30;
-            color: #f0f0f0;
-            transition: box-shadow 0.3s;
-        }
-        #search-input:focus {
-            box-shadow: 0 0 5px #4CAF50;
-            outline: none;
-        }
-        #search-button {
-            padding: 10px 20px;
-            font-size: 1.1em;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        #search-button:hover {
-            background-color: #43A047;
-            transform: translateY(-1px);
-        }
-        
-        /* === Vorschlags-Container (Top 5 & Dynamisch) === */
-        #suggestions-container, #dynamic-suggestions-container {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            background-color: #3a3a3d;
-            border-left: 5px solid #4CAF50;
-        }
-        #suggestions-container h4, #dynamic-suggestions-container h4 {
-            margin-top: 0;
-            color: #4CAF50; 
-            margin-bottom: 10px;
-            font-size: 1em;
-        }
-        
-        /* Top 5 bricht um */
-        #suggestions-container .suggestion-list {
-            display: flex;
-            flex-wrap: wrap; 
-            gap: 10px;
-            overflow-x: hidden; 
-            padding-bottom: 0;
-        }
-
-        /* Dynamische Vorschläge scrollen */
-        #dynamic-suggestions-container .suggestion-list {
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-            scrollbar-width: thin;
-        }
-
-        /* Scrollbar-Styles für Webkit */
-        .suggestion-list::-webkit-scrollbar {
-            height: 6px;
-        }
-        .suggestion-list::-webkit-scrollbar-thumb {
-            background-color: #555;
-            border-radius: 3px;
-        }
-        .suggestion-list::-webkit-scrollbar-track {
-            background: #2d2d30;
-            border-radius: 3px;
-        }
-
-        .suggestion-player {
-            flex-shrink: 0;
-            background-color: #555;
-            color: #fff;
-            padding: 7px 12px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            font-weight: bold;
-            display: flex; 
-            align-items: center;
-            gap: 8px; 
-        }
-        .suggestion-player:hover {
-            background-color: #4CAF50;
-            transform: translateY(-2px);
-        }
-        
-        .suggestion-player img {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px; 
-            border: none;
-            image-rendering: pixelated;
-            flex-shrink: 0;
-        }
-
-        /* === Meldungen und Fehler (Style Bug Fix) === */
-        #error-message {
-            text-align: center;
-            margin-top: 20px;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: bold;
             font-size: 1.1em;
-            display: none;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
-            /* WICHTIG: display wird in JS gesetzt, aber die folgenden Linien helfen bei der Zentrierung */
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .message-success { 
-            background-color: #384239; 
-            border: 1px solid #4CAF50;
-            color: #4CAF50; /* Textfarbe auf Akzentfarbe setzen */
-        }
-        .message-error { 
-            background-color: #5d3f42; 
-            border: 1px solid #d9534f;
-            color: #d9534f; /* Textfarbe auf Fehlerfarbe setzen */
-        }
-        
-        .message-icon {
-            font-size: 1.2em;
-        }
-
-        /* === Ergebnis-Karten & Modal (Unverändert) === */
-        #results-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 30px;
-        }
-        .player-card {
-            border: 1px solid #444;
-            padding: 15px;
-            border-radius: 8px;
-            width: 160px;
-            text-align: center;
-            background: #3a3a3d;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer; 
-        }
-        .player-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.5), 0 0 10px rgba(76, 175, 80, 0.7);
-        }
-        .player-card img {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            border: 2px solid #4CAF50;
-            margin-bottom: 10px;
-            image-rendering: pixelated;
-            box-shadow: 0 0 6px rgba(76, 175, 80, 0.4);
-        }
-        .divider {
-            margin: 10px 0;
-            border-top: 1px solid #444;
-        }
-        
-        /* DETAIL MODAL STYLES (KORREKTUR: display: none MUSS Initialzustand sein) */
-        .modal {
-            display: none; /* Wichtig: Standardmäßig unsichtbar */
-            position: fixed;
-            z-index: 100; 
-            left: 0;
-            top: 0;
-            width: 100%; 
-            height: 100%; 
-            background-color: rgba(0,0,0,0.85);
-            /* display: flex wird nur per JS gesetzt, wenn geöffnet */
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #2d2d30;
-            padding: 30px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 450px;
-            position: relative;
-            text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
-            border: 1px solid #4CAF50;
-        }
-        .close-button {
-            color: #aaa;
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .close-button:hover,
-        .close-button:focus {
-            color: #fff;
-        }
-        #detail-content img {
-            width: 128px; 
-            height: auto;
-            image-rendering: pixelated;
-            margin: 15px auto 25px auto;
-            border: 3px solid #4CAF50;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
-        }
-        #detail-content h2 {
-            color: #4CAF50;
-            margin-top: 0;
-            border-bottom: 1px solid #444;
-            padding-bottom: 15px;
-            font-size: 1.8em;
-        }
-        #detail-content p {
-            margin: 12px 0;
-            text-align: left;
-            padding: 5px 10px;
-            font-size: 1.05em;
-            background-color: #3a3a3d;
-            border-radius: 4px;
-        }
-        #detail-content b {
-            color: #fff;
-        }
-        /* Style für die Links im Modal */
-        .link-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 25px;
-        }
-        .link-group a {
-            flex-grow: 1;
-            padding: 12px;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
             transition: background-color 0.2s;
         }
-        .link-group a.skin-link {
-            background-color: #007bff; /* Blau für Skin */
+
+        #login-form-container button:hover {
+            background-color: #43A047;
         }
-        .link-group a.skin-link:hover {
-            background-color: #0056b3;
-        }
-        .link-group a.namemc-link {
-            background-color: #3f51b5; /* Lila/Indigo für NameMC */
-        }
-        .link-group a.namemc-link:hover {
-            background-color: #303f9f;
+        #login-message {
+            color: #d9534f;
+            margin-top: 10px;
+            display: none;
+            font-weight: bold;
         }
     </style>
-    </head>
-    <body class="january">
+</head>
+<body>
 
-    <nav id="main-nav">
-    <ul id="nav-list">
-        <div id="nav-links">
-            <li><a href="#" onclick="navigateTo('home')">Home</a></li>
-            <li><a href="#" class="active" onclick="navigateTo('stats')">Umsatz</a></li>
-        </div>
-        <li><a href="#" class="logout-link" onclick="logout()">Abmelden</a></li>
-    </ul>
-</nav>
-<div id="login-modal-overlay">
-    <div id="login-form-container">
-        </div>
-</div>
-<div class="container">
-    <h1><span style="color: white;">Sunny_Casino</span> - Spieler Umsatz suchen</h1>
-    
-    <div id="info-header">
-        <p id="player-count">Gesamtspieler: 0</p>
-        <p id="current-date">Daten-Stand: 07.12.2025</p>
-    </div>
-
-    <div id="search-container">
-        <input type="text" id="search-input" placeholder="Spielernamen eingeben..." onkeyup="handleSearchInput(event)">
-        <button id="search-button" onclick="searchPlayers(true)">Suchen</button>
-    </div>
-    
-    <div id="dynamic-suggestions-container" style="display: none;">
-        </div>
-
-    <div id="suggestions-container">
-        </div>
-
-    <p id="error-message" style="display: none;"></p>
-    
-    <div id="results-container">
-        </div>
+<div id="login-form-container">
+    <h2>Zugriff erforderlich</h2>
+    <p>Bitte melden Sie sich an, um die Holostats-Daten einzusehen.</p>
+    <input type="text" id="login-username" placeholder="Benutzername">
+    <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()"> 
+    <button onclick="checkLogin()">Anmelden</button>
+    <p id="login-message"></p>
 </div>
 
-<div id="player-detail-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button" onclick="closePlayerDetails()">&times;</span>
-        <div id="detail-content">
-            </div>
-    </div>
-</div>
+
 <script>
-    // ** START DER SPIELERDATEN-LOGIK **
-    let playerStats = [];
-    const STATISTICS_FILE = 'statistics.json'; 
-
-    async function loadPlayerStats() {
-        try {
-            const response = await fetch(STATISTICS_FILE);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            
-            const statsArray = data.wagers || data; 
-
-            if (!Array.isArray(statsArray)) {
-                console.error("Geladene Daten sind kein Array oder enthalten keine 'wagers'-Eigenschaft. Erwartet Array von Spielerobjekten.");
-                throw new Error("Invalid data format: Expected JSON array or object with 'wagers' array.");
-            }
-            
-            playerStats = statsArray;
-            return true;
-        } catch (error) {
-            console.error('Fehler beim Laden der Spielerdaten:', error);
-            displayMessage(`⚠️ Fehler: Spielerdaten aus Datei "${STATISTICS_FILE}" konnten nicht geladen werden oder sind fehlerhaft.`, 'error');
-            playerStats = [];
-            return false;
-        }
-    }
-    // ** ENDE DER SPIELERDATEN-LOGIK **
-
-    // --- AUTHENTIFIZIERUNGS-LOGIK ---
+    // ⚠️ WICHTIGER HINWEIS: Passwörter sind im Klartext in accounts.json gespeichert und UNSICHER.
+    
+    // --- AUTHENTIFIZIERUNGSDATEN ---
+    let validAccounts = []; 
     const LOGIN_KEY = 'holostats_logged_in';
-    const ACCOUNTS_FILE = 'accounts.json';
-    let validAccounts = [];
-    
-    // --- NEUE/WIEDERHERGESTELLTE FUNKTIONEN FÜR LOGIN/LOGOUT DIALOG ---
-    
-    /**
-     * Zeigt den Anmelde-Dialog an.
-     */
-    function showLoginDialog() {
-        const container = document.getElementById('login-form-container');
-        container.classList.remove('logout-mode');
-        container.innerHTML = `
-            <h2>Zugriff erforderlich</h2>
-            <p>Bitte melden Sie sich an, um die Holostats-Daten einzusehen.</p>
-            <input type="text" id="login-username" placeholder="Benutzername">
-            <input type="password" id="login-password" placeholder="Passwort" onkeyup="if(event.key === 'Enter') checkLogin()">
-            <button onclick="checkLogin()">Anmelden</button>
-            <p id="login-message" style="color: #d9534f; margin-top: 10px; display: none;"></p>
-        `;
-        document.getElementById('login-modal-overlay').style.display = 'flex';
-        document.getElementById('login-username').focus();
-        document.getElementById('main-nav').style.display = 'none';
-        document.querySelector('.container').style.display = 'none';
-    }
+    const TARGET_PAGE = 'app.html'; 
 
     /**
-     * Zeigt den verbesserten Abmelde-Dialog an (roter Glow).
+     * Lädt die Zugangsdaten aus der externen accounts.json Datei.
      */
-    function showLogoutDialog() {
-        const container = document.getElementById('login-form-container');
-        container.classList.add('logout-mode');
-        container.innerHTML = `
-            <h2>Abmeldung erfolgreich</h2>
-            <p>Sie wurden erfolgreich abgemeldet. Ihre Sitzung ist beendet.</p>
-            <button onclick="window.location.href = window.location.pathname;">Neu Anmelden</button>
-        `;
-        document.getElementById('login-modal-overlay').style.display = 'flex';
-        document.getElementById('main-nav').style.display = 'none';
-        document.querySelector('.container').style.display = 'none';
-        // Entfernt den logout=true Parameter nach Anzeige, um sauber neu zu laden
-        history.replaceState({}, document.title, window.location.pathname);
-    }
-
-    /**
-     * Führt die Abmeldung durch und leitet auf die Logout-Ansicht um (durch Query-Parameter).
-     */
-    function logout() {
-        sessionStorage.removeItem(LOGIN_KEY);
-        // Lädt die Seite neu mit einem Parameter, um den Logout-Dialog anzuzeigen
-        window.location.href = window.location.pathname + '?logout=true';
-    }
-
     async function loadAccounts() {
         try {
-            const response = await fetch(ACCOUNTS_FILE);
+            // Führt eine Anfrage an die accounts.json-Datei aus
+            const response = await fetch('accounts.json'); 
+            
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json(); 
-            
-            const accountsArray = data.accounts || data;
-            
-            if (!Array.isArray(accountsArray)) {
-                validAccounts = [];
-                console.warn(`ACHTUNG: Die Datei "${ACCOUNTS_FILE}" enthält keine Accounts-Liste im erwarteten Format.`);
-                throw new Error("Invalid accounts data format: Expected JSON array or object with 'accounts' array.");
+                document.getElementById('login-message').textContent = 'Fehler: Kontodaten konnten nicht geladen werden (accounts.json fehlt?).';
+                document.getElementById('login-message').style.display = 'block';
+                return;
             }
             
-            validAccounts = accountsArray;
-            return true;
+            const data = await response.json();
+            // Erwartet, dass die Liste unter dem Schlüssel 'accounts' liegt
+            validAccounts = data.accounts || []; 
+            
         } catch (error) {
-            console.error('Fehler beim Laden der Accounts:', error);
-            displayMessage(`⚠️ Fehler: Datei "${ACCOUNTS_FILE}" ist fehlerhaft oder konnte nicht geladen werden. Prüfen Sie das JSON-Format.`, 'error');
-            return false;
+            document.getElementById('login-message').textContent = 'Netzwerkfehler oder Fehler beim Parsen der Kontodaten.';
+            document.getElementById('login-message').style.display = 'block';
+            console.error(error);
         }
     }
 
-    async function checkLogin() { 
+
+    /**
+     * Führt die Login-Prüfung durch.
+     */
+    function checkLogin() {
         const usernameInput = document.getElementById('login-username').value;
         const passwordInput = document.getElementById('login-password').value;
         const loginMessage = document.getElementById('login-message');
 
         loginMessage.style.display = 'none';
-
+        
+        // Prüft, ob die Konten geladen wurden
+        if (validAccounts.length === 0) {
+            loginMessage.textContent = 'Fehler: Kontodaten wurden noch nicht geladen. Bitte warten oder Seite neu laden.';
+            loadAccounts(); // Versucht, erneut zu laden
+            loginMessage.style.display = 'block';
+            return;
+        }
+        
+        // Findet ein passendes Konto in der Liste (Klartext-Vergleich)
         const accountFound = validAccounts.find(account => 
-            account.username === usernameInput && account.password === passwordInput 
+            account.username === usernameInput && account.password === passwordInput
         );
 
         if (accountFound) {
+            // Erfolg: Session-Schlüssel setzen und weiterleiten
             sessionStorage.setItem(LOGIN_KEY, 'true');
-            document.getElementById('login-modal-overlay').style.display = 'none';
-            document.querySelector('.container').style.display = 'block';
-            document.getElementById('main-nav').style.display = 'block'; // Zeige Nav
+            window.location.href = TARGET_PAGE; 
             
-            await initializeApp(); 
         } else {
+            // Fehler: Nachricht anzeigen
             loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
             loginMessage.style.display = 'block';
         }
     }
-    // --- ENDE AUTHENTIFIZIERUNG ---
 
-    /**
-     * Zeigt eine Benachrichtigung an und wendet den korrigierten Stil an.
-     * @param {string} message - Die anzuzeigende Nachricht.
-     * @param {('success'|'error')} type - Der Nachrichtentyp.
-     */
-    function displayMessage(message, type = 'success') {
-        const errorMessage = document.getElementById('error-message');
-        errorMessage.textContent = ''; 
-        errorMessage.className = type === 'success' ? 'message-success' : 'message-error';
-        errorMessage.style.display = 'flex'; 
+    // Beim Laden zuerst die Konten laden und dann auf den Login-Status prüfen
+    document.addEventListener('DOMContentLoaded', async () => {
+        document.getElementById('login-message').textContent = 'Lade Kontodaten...';
+        document.getElementById('login-message').style.display = 'block';
         
-        const icon = document.createElement('span');
-        icon.className = 'message-icon';
-        icon.textContent = type === 'success' ? '✅' : '❌';
+        await loadAccounts(); // Warten, bis die Daten geladen sind
 
-        errorMessage.appendChild(icon);
-        errorMessage.appendChild(document.createTextNode(message));
-
-        setTimeout(() => {
-            errorMessage.style.display = 'none';
-        }, 5000);
-    }
-
-    // --- SOUND-FUNKTIONEN ---
-    const CLICK_SOUND_URL = './buttonclick.mp3'; 
-    const clickAudio = new Audio(CLICK_SOUND_URL);
-
-    function playClickSound() {
-        clickAudio.currentTime = 0; 
-        clickAudio.volume = 0.7; 
-        clickAudio.play().catch(error => {
-            console.warn("Autoplay für Sound blockiert oder Fehler beim Abspielen:", error);
-        }); 
-    }
-    // --- ENDE SOUND-FUNKTIONEN ---
-
-    function formatNumber(num) {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
-
-    /**
-     * Reinigt den Spielernamen für die Mineskin-API.
-     * @param {string} name 
-     */
-    function cleanPlayerNameForSkin(name) {
-        return name.replace(/!/g, '_').replace(/ /g, '_'); 
-    }
-
-    function showPlayerDetails(player) {
-        playClickSound();
-
-        const modal = document.getElementById('player-detail-modal');
-        const content = document.getElementById('detail-content');
-        content.innerHTML = ''; 
-
-        const cleanName = cleanPlayerNameForSkin(player.playername);
-        
-        // URLs für Skins und Kopf
-        const headUrl = `https://mineskin.eu/bust/${cleanName}/128`; 
-        const skinUrl = `https://mineskin.eu/skin/${cleanName}`;
-        const namemcUrl = `https://de.namemc.com/profile/${player.playername}.1`;
-
-
-        const img = document.createElement('img');
-        img.src = headUrl;
-        img.alt = `Skin-Kopf von ${player.playername}`;
-
-        const nameHeading = document.createElement('h2');
-        nameHeading.textContent = player.playername;
-
-        const uuidParagraph = document.createElement('p');
-        uuidParagraph.innerHTML = `<b>UUID:</b> ${player.uuid}`;
-
-        const wagerParagraph = document.createElement('p');
-        wagerParagraph.innerHTML = `<b>Gesamtumsatz:</b> ${formatNumber(player.wager)}`;
-        
-        // Link-Container
-        const linkGroup = document.createElement('div');
-        linkGroup.className = 'link-group';
-
-        // Mineskin Link
-        const skinLink = document.createElement('a');
-        skinLink.href = skinUrl;
-        skinLink.target = '_blank';
-        skinLink.textContent = `3D Skin ansehen`;
-        skinLink.className = 'skin-link';
-        
-        // NameMC Link
-        const namemcLink = document.createElement('a');
-        namemcLink.href = namemcUrl;
-        namemcLink.target = '_blank';
-        namemcLink.textContent = `NameMC Profil`;
-        namemcLink.className = 'namemc-link';
-
-        linkGroup.appendChild(skinLink);
-        linkGroup.appendChild(namemcLink);
-
-
-        content.appendChild(img);
-        content.appendChild(nameHeading);
-        content.appendChild(uuidParagraph);
-        content.appendChild(wagerParagraph);
-        content.appendChild(linkGroup); // Füge Link-Gruppe hinzu
-
-        modal.style.display = 'flex'; // Modal erst hier sichtbar machen
-    }
-
-    function closePlayerDetails() {
-        document.getElementById('player-detail-modal').style.display = 'none';
-    }
-
-    function createPlayerCard(player) {
-        const resultsContainer = document.getElementById('results-container');
-
-        const card = document.createElement('div');
-        card.className = 'player-card';
-        card.onclick = () => { showPlayerDetails(player) }; 
-
-        const cleanName = cleanPlayerNameForSkin(player.playername);
-        const skinUrl = `https://mineskin.eu/head/${cleanName}/64`;
-
-        const img = document.createElement('img');
-        img.src = skinUrl;
-        img.alt = `Skin-Kopf von ${player.playername}`;
-
-        const nameHeading = document.createElement('h3');
-        nameHeading.textContent = player.playername;
-
-        const divider = document.createElement('div');
-        divider.className = 'divider';
-
-        const wagerText = document.createElement('p');
-        wagerText.innerHTML = `<b>Umsatz:</b> <br>${formatNumber(player.wager)}`;
-
-        card.appendChild(img);
-        card.appendChild(nameHeading);
-        card.appendChild(divider);
-        card.appendChild(wagerText);
-        resultsContainer.appendChild(card);
-    }
-
-    // --- VORSCHLAGS-LOGIK ---
-
-    function getTopPlayers(count) {
-        if (!Array.isArray(playerStats)) return [];
-        
-        return [...playerStats]
-            .sort((a, b) => b.wager - a.wager)
-            .slice(0, count);
-    }
-
-    /**
-     * Zeigt die Top 5 Spieler als anklickbare Vorschläge an (Umbruch aktiv).
-     */
-    function displayTopSuggestions() {
-        const topPlayers = getTopPlayers(5);
-        const container = document.getElementById('suggestions-container');
-
-        if (topPlayers.length === 0) {
-            container.style.display = 'none';
-            return;
+        // Wenn Konten erfolgreich geladen wurden, Nachricht verstecken
+        if (validAccounts.length > 0) {
+            document.getElementById('login-message').style.display = 'none'; 
         }
-
-        container.style.display = 'block';
-        container.innerHTML = '<h4>⭐ Top 5 Spieler (Nach Umsatz)</h4><div class="suggestion-list"></div>';
-        
-        const list = container.querySelector('.suggestion-list');
-        topPlayers.forEach(player => {
-            // Kopf-URL mit bereinigtem Namen verwenden (Fix für den Anzeigefehler)
-            const cleanName = cleanPlayerNameForSkin(player.playername);
-            const headUrl = `https://mineskin.eu/helm/${cleanName}/24`; 
-
-            const span = document.createElement('span');
-            span.className = 'suggestion-player';
-            span.onclick = () => setInputAndSearch(player.playername);
-
-            const img = document.createElement('img');
-            img.src = headUrl;
-            img.alt = '';
-            
-            span.appendChild(img);
-            span.appendChild(document.createTextNode(player.playername));
-            
-            list.appendChild(span);
-        });
-    }
-
-    /**
-     * Zeigt dynamische Vorschläge basierend auf der aktuellen Sucheingabe an (Scroll aktiv).
-     */
-    function displayDynamicSuggestions(searchTerm) {
-        const dynamicContainer = document.getElementById('dynamic-suggestions-container');
-        const topContainer = document.getElementById('suggestions-container');
-        dynamicContainer.innerHTML = '';
-        dynamicContainer.style.display = 'none';
-
-        if (searchTerm.length < 2) {
-            displayTopSuggestions();
-            return;
-        }
-
-        if (!Array.isArray(playerStats)) {
-            return;
-        }
-        
-        topContainer.style.display = 'none';
-        
-        const suggestions = playerStats.filter(player => 
-            player.playername.toLowerCase().includes(searchTerm)
-        ).slice(0, 10); 
-
-        if (suggestions.length > 0) {
-            dynamicContainer.style.display = 'block';
-            dynamicContainer.innerHTML = '<h4>🔎 Vorschläge</h4><div class="suggestion-list"></div>';
-            const list = dynamicContainer.querySelector('.suggestion-list');
-
-            list.style.flexWrap = 'nowrap';
-            list.style.overflowX = 'auto';
-
-            suggestions.forEach(player => {
-                const cleanName = cleanPlayerNameForSkin(player.playername);
-                const headUrl = `https://mineskin.eu/helm/${cleanName}/24`;
-
-                const span = document.createElement('span');
-                span.className = 'suggestion-player';
-                span.onclick = () => setInputAndSearch(player.playername);
-
-                const img = document.createElement('img');
-                img.src = headUrl;
-                img.alt = '';
-                
-                span.appendChild(img);
-                span.appendChild(document.createTextNode(player.playername));
-                
-                list.appendChild(span);
-            });
-        }
-    }
-
-    /**
-     * Setzt den Suchbegriff und startet die Suche. (Mit Sound)
-     */
-    function setInputAndSearch(name) {
-        playClickSound(); 
-        document.getElementById('search-input').value = name;
-        searchPlayers(true);
-    }
-
-    // --- SUCHE-LOGIK ---
-
-    function handleSearchInput(event) {
-        const input = document.getElementById('search-input');
-        const searchTerm = input.value.toLowerCase().trim();
-
-        if (event && event.type === 'keyup') {
-            if (event.key === 'Enter') {
-                searchPlayers(true);
-            } else {
-                displayDynamicSuggestions(searchTerm);
-                document.getElementById('error-message').style.display = 'none';
-            }
-        }
-    }
-
-    function searchPlayers(isFullSearch = false) {
-        const input = document.getElementById('search-input');
-        const searchTerm = input.value.toLowerCase().trim();
-        const resultsContainer = document.getElementById('results-container');
-        const dynamicContainer = document.getElementById('dynamic-suggestions-container');
-        const topContainer = document.getElementById('suggestions-container');
-
-        resultsContainer.innerHTML = '';
-        document.getElementById('error-message').style.display = 'none';
-        dynamicContainer.style.display = 'none';
-        topContainer.style.display = 'none';
-        
-        if (!Array.isArray(playerStats)) {
-            displayMessage('⚠️ Spielerdaten sind fehlerhaft oder noch nicht geladen. Versuchen Sie es später erneut.', 'error');
-            return;
-        }
-
-
-        if (searchTerm.length === 0) {
-            displayMessage('Bitte einen Spielernamen eingeben.', 'error');
-            displayTopSuggestions(); 
-            return;
-        }
-
-        let results = playerStats.filter(player => 
-            player.playername.toLowerCase() === searchTerm
-        );
-
-        if (results.length === 0 && isFullSearch) {
-             results = playerStats.filter(player => 
-                player.playername.toLowerCase().includes(searchTerm)
-            ).slice(0, 20); 
-        }
-
-        if (results.length > 0) {
-            results.forEach(createPlayerCard);
-            displayMessage(`Es wurden ${results.length} Ergebnisse für "${input.value}" gefunden.`, 'success');
-        } else {
-            displayMessage(`Kein Spieler mit dem Namen "${input.value}" gefunden.`, 'error');
-            displayTopSuggestions(); 
-        }
-    }
-
-    // --- INITIALISIERUNG ---
-
-    /**
-     * Initialisiert die Anwendung nach erfolgreichem Login.
-     */
-    async function initializeApp() { 
-        const dataLoaded = await loadPlayerStats();
-
-        const playerCountElement = document.getElementById('player-count');
-        const count = playerStats.length;
-        playerCountElement.textContent = `Gesamtspieler: ${count}`;
-
-
-        if (dataLoaded && count > 0) {
-            displayTopSuggestions();
-        } else if (dataLoaded && count === 0) {
-            displayMessage('⚠️ Wichtig: Die Spielerdaten-Datei ist leer. Bitte die Daten prüfen.', 'error');
-        }
-        
-        document.getElementById('current-date').textContent = `Daten-Stand: ${new Date().toLocaleDateString('de-DE')}`;
-    }
-
-    /**
-     * Navigiert innerhalb der einzigen Seite.
-     * KORRIGIERT: 'home' navigiert zu home.html.
-     */
-    function navigateTo(target) {
-        if (target === 'stats') {
-             // Lädt die aktuelle Seite neu (Umsatzstatistik)
-             window.location.reload(); 
-        } else if (target === 'home') {
-             // Navigiert zur separaten Home-Seite
-             window.location.href = 'home.html'; 
-        }
-    }
-
-
-    window.onclick = function(event) {
-        const detailModal = document.getElementById('player-detail-modal');
-        if (event.target === detailModal) {
-            closePlayerDetails();
-        }
-    }
-    
-    document.addEventListener('DOMContentLoaded', async () => { 
-        
-        const accountsLoaded = await loadAccounts();
-        if (!accountsLoaded) {
-            showLoginDialog();
-            return;
-        }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const justLoggedOut = urlParams.get('logout') === 'true';
         
         const isLoggedIn = sessionStorage.getItem(LOGIN_KEY) === 'true';
-        
         if (isLoggedIn) {
-            document.getElementById('login-modal-overlay').style.display = 'none';
-            document.querySelector('.container').style.display = 'block';
-            document.getElementById('main-nav').style.display = 'block'; // Zeige Nav
-            
-            await initializeApp();
-        } else {
-            if (justLoggedOut) {
-                // Zeige den verbesserten Logout-Dialog (roter Glow)
-                showLogoutDialog();
-            } else {
-                // Zeige den normalen Login-Dialog (grüner Glow)
-                showLoginDialog();
-            }
+             window.location.href = TARGET_PAGE;
         }
+        document.getElementById('login-username').focus();
     });
-
 </script>
 </body>
 </html>
-
