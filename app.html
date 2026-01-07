@@ -1,29 +1,59 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Holostats - Umsatzstatistik</title>
     <style>
-        /* January theme (replaces seasonal snowflake effect) */
-        .january-banner {
-            width: 100%;
-            background: linear-gradient(90deg,#0f2540,#16385a);
-            color: #e6f7ff;
-            padding: 8px 0;
-            text-align: center;
-            font-weight: 700;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        /* ================================================= */
+        /* === SCHNEEFLOCKEN-EFFEKT (Zum einfachen Löschen) === */
+        /* ================================================= */
+        .snowflake {
+            color: #fff;
+            font-size: 1em;
+            font-family: Arial, sans-serif;
+            text-shadow: 0 0 5px #000;
             position: fixed;
-            top: 50px;
-            left: 0;
-            z-index: 49;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
+            top: -10%;
+            z-index: 9999;
+            user-select: none;
+            cursor: default;
+            animation-name: snowfall;
+            animation-duration: 10s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            pointer-events: none;
         }
-        body.january {
-            background: linear-gradient(180deg,#081226 0%, #0b2a42 60%);
-            background-attachment: fixed;
+        
+        @keyframes snowfall {
+            0% {
+                transform: translate3d(var(--x), 0, 0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate3d(var(--x), 100vh, 0);
+                opacity: 0.5;
+            }
         }
+
+        /* Verzögerungen und Seitenpositionen */
+        .snowflake:nth-child(1) { left: 10%; animation-delay: 0s; --x: 20px; font-size: 1.2em; }
+        .snowflake:nth-child(2) { left: 20%; animation-delay: 2s; --x: -30px; font-size: 0.8em; }
+        .snowflake:nth-child(3) { left: 30%; animation-delay: 4s; --x: 10px; font-size: 1.5em; }
+        .snowflake:nth-child(4) { left: 40%; animation-delay: 6s; --x: -50px; font-size: 0.9em; }
+        .snowflake:nth-child(5) { left: 50%; animation-delay: 8s; --x: 40px; font-size: 1.3em; }
+        .snowflake:nth-child(6) { left: 60%; animation-delay: 1s; --x: -20px; font-size: 0.7em; }
+        .snowflake:nth-child(7) { left: 70%; animation-delay: 3s; --x: 30px; font-size: 1.1em; }
+        .snowflake:nth-child(8) { left: 80%; animation-delay: 5s; --x: -10px; font-size: 1.4em; }
+        .snowflake:nth-child(9) { left: 90%; animation-delay: 7s; --x: 50px; font-size: 1.0em; }
+        .snowflake:nth-child(10) { left: 5%; animation-delay: 9s; --x: -40px; font-size: 1.6em; }
+        .snowflake:nth-child(11) { left: 15%; animation-delay: 0.5s; --x: 60px; font-size: 0.6em; }
+        /* ================================================= */
+        /* === ENDE SCHNEEFLOCKEN-EFFEKT                   === */
+        /* ================================================= */
 
         /* === Allgemeiner Stil und Dunkles Thema === */
         body {
@@ -523,21 +553,30 @@
             background-color: #303f9f;
         }
     </style>
-    </head>
-    <body class="january">
+</head>
+<body>
 
-    <nav id="main-nav">
-        <ul id="nav-list">
-            <div id="nav-links">
-                <li><a href="#" onclick="navigateTo('home')">Home</a></li>
-                <li><a href="#" class="active" onclick="navigateTo('stats')">Umsatz</a></li>
-                <li><a href="#" id="requests-button" style="display:none;" onclick="openRequestsModal()">Anfragen</a></li>
-            </div>
-            <li><a href="#" class="logout-link" onclick="logout()">Abmelden</a></li>
-        </ul>
-    </nav>
+<div class="snowflake">❅</div>
+<div class="snowflake">❆</div>
+<div class="snowflake">❄</div>
+<div class="snowflake">❅</div>
+<div class="snowflake">❆</div>
+<div class="snowflake">❄</div>
+<div class="snowflake">❅</div>
+<div class="snowflake">❆</div>
+<div class="snowflake">❄</div>
+<div class="snowflake">❅</div>
+<div class="snowflake">❆</div>
 
-    <div class="january-banner">Januar — Zugriff & Anfragen</div>
+<nav id="main-nav">
+    <ul id="nav-list">
+        <div id="nav-links">
+            <li><a href="#" onclick="navigateTo('home')">Home</a></li>
+            <li><a href="#" class="active" onclick="navigateTo('stats')">Umsatz</a></li>
+        </div>
+        <li><a href="#" class="logout-link" onclick="logout()">Abmelden</a></li>
+    </ul>
+</nav>
 <div id="login-modal-overlay">
     <div id="login-form-container">
         </div>
@@ -553,11 +592,6 @@
     <div id="search-container">
         <input type="text" id="search-input" placeholder="Spielernamen eingeben..." onkeyup="handleSearchInput(event)">
         <button id="search-button" onclick="searchPlayers(true)">Suchen</button>
-    </div>
-    <div id="import-row" style="margin-bottom:12px; display:flex; gap:8px; align-items:center;">
-        <label style="color:#ccc; font-size:0.95em;">Daten-Import (CSV mit playername,buy,sell):</label>
-        <input type="file" id="import-file" accept=".csv" />
-        <button onclick="triggerImport()" style="background:#1976d2;color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;">Importieren</button>
     </div>
     
     <div id="dynamic-suggestions-container" style="display: none;">
@@ -577,26 +611,6 @@
         <span class="close-button" onclick="closePlayerDetails()">&times;</span>
         <div id="detail-content">
             </div>
-    </div>
-</div>
-
-<!-- Requests Modal (Admin) -->
-<div id="requests-modal" class="modal">
-    <div class="modal-content" style="max-width:800px;">
-        <span class="close-button" onclick="closeRequestsModal()">&times;</span>
-        <h2 style="color:#4CAF50; margin-top:0;">Anfragen verwalten</h2>
-        <div id="requests-list" style="max-height:60vh; overflow:auto;"></div>
-    </div>
-</div>
-
-<!-- Request Form Modal (User) -->
-<div id="request-form-modal" class="modal">
-    <div class="modal-content" style="max-width:600px;">
-        <span class="close-button" onclick="closeRequestForm()">&times;</span>
-        <h2 style="color:#4CAF50; margin-top:0;">Zugriffsanfrage stellen</h2>
-        <p style="color:#ccc;">Gib kurz an, warum du Zugriff auf die Umsätze benötigst.</p>
-        <textarea id="request-reason" style="width:90%;height:120px;background:#1a1a1a;color:#f0f0f0;border:1px solid #444;border-radius:6px;padding:8px;"></textarea>
-        <button onclick="submitRequestFromForm()" style="margin-top:12px;width:90%;background:#4CAF50;color:#fff;padding:12px;border-radius:6px;border:none;">Anfrage senden</button>
     </div>
 </div>
 <script>
@@ -680,11 +694,10 @@
      */
     function logout() {
         sessionStorage.removeItem(LOGIN_KEY);
-        sessionStorage.removeItem('holostats_user');
-        sessionStorage.removeItem('holostats_isAdmin');
         // Lädt die Seite neu mit einem Parameter, um den Logout-Dialog anzuzeigen
         window.location.href = window.location.pathname + '?logout=true';
     }
+
     async function loadAccounts() {
         try {
             const response = await fetch(ACCOUNTS_FILE);
@@ -692,14 +705,16 @@
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json(); 
+            
             const accountsArray = data.accounts || data;
+            
             if (!Array.isArray(accountsArray)) {
                 validAccounts = [];
                 console.warn(`ACHTUNG: Die Datei "${ACCOUNTS_FILE}" enthält keine Accounts-Liste im erwarteten Format.`);
                 throw new Error("Invalid accounts data format: Expected JSON array or object with 'accounts' array.");
             }
-            // Ensure every account has an 'admin' flag (default false)
-            validAccounts = accountsArray.map(a => ({...a, admin: !!a.admin}));
+            
+            validAccounts = accountsArray;
             return true;
         } catch (error) {
             console.error('Fehler beim Laden der Accounts:', error);
@@ -721,11 +736,10 @@
 
         if (accountFound) {
             sessionStorage.setItem(LOGIN_KEY, 'true');
-            sessionStorage.setItem('holostats_user', accountFound.username);
-            sessionStorage.setItem('holostats_isAdmin', accountFound.admin ? 'true' : 'false');
             document.getElementById('login-modal-overlay').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
             document.getElementById('main-nav').style.display = 'block'; // Zeige Nav
+            
             await initializeApp(); 
         } else {
             loginMessage.textContent = 'Fehler: Ungültiger Benutzername oder Passwort.';
@@ -809,10 +823,6 @@
 
         const wagerParagraph = document.createElement('p');
         wagerParagraph.innerHTML = `<b>Gesamtumsatz:</b> ${formatNumber(player.wager)}`;
-        const buyParagraph = document.createElement('p');
-        buyParagraph.innerHTML = `<b>Ankauf:</b> ${formatNumber(player.buy || 0)}`;
-        const sellParagraph = document.createElement('p');
-        sellParagraph.innerHTML = `<b>Verkauf:</b> ${formatNumber(player.sell || 0)}`;
         
         // Link-Container
         const linkGroup = document.createElement('div');
@@ -840,8 +850,6 @@
         content.appendChild(nameHeading);
         content.appendChild(uuidParagraph);
         content.appendChild(wagerParagraph);
-        content.appendChild(buyParagraph);
-        content.appendChild(sellParagraph);
         content.appendChild(linkGroup); // Füge Link-Gruppe hinzu
 
         modal.style.display = 'flex'; // Modal erst hier sichtbar machen
@@ -873,17 +881,11 @@
 
         const wagerText = document.createElement('p');
         wagerText.innerHTML = `<b>Umsatz:</b> <br>${formatNumber(player.wager)}`;
-        const buyText = document.createElement('p');
-        buyText.innerHTML = `<b>Ankauf:</b> <br>${formatNumber(player.buy || 0)}`;
-        const sellText = document.createElement('p');
-        sellText.innerHTML = `<b>Verkauf:</b> <br>${formatNumber(player.sell || 0)}`;
 
         card.appendChild(img);
         card.appendChild(nameHeading);
         card.appendChild(divider);
         card.appendChild(wagerText);
-        card.appendChild(buyText);
-        card.appendChild(sellText);
         resultsContainer.appendChild(card);
     }
 
@@ -1010,147 +1012,6 @@
         }
     }
 
-    // --- REQUESTS / PERMISSIONS LOGIC ---
-    function getRequestsFromStorage() {
-        try { return JSON.parse(localStorage.getItem('hs_requests') || '[]'); } catch(e){ return []; }
-    }
-    function saveRequestsToStorage(list) { localStorage.setItem('hs_requests', JSON.stringify(list)); }
-
-    function getApprovedUsers() {
-        try { return JSON.parse(localStorage.getItem('hs_approved') || '[]'); } catch(e){ return []; }
-    }
-    function saveApprovedUsers(list) { localStorage.setItem('hs_approved', JSON.stringify(list)); }
-
-    function openRequestForm() {
-        document.getElementById('request-reason').value = '';
-        document.getElementById('request-form-modal').style.display = 'flex';
-    }
-    function closeRequestForm() { document.getElementById('request-form-modal').style.display = 'none'; }
-
-    function submitRequestFromForm() {
-        const reason = document.getElementById('request-reason').value.trim();
-        if (!reason) { displayMessage('Bitte einen Grund angeben.', 'error'); return; }
-        const username = sessionStorage.getItem('holostats_user');
-        if (!username) { displayMessage('Nicht angemeldet.', 'error'); return; }
-        const requests = getRequestsFromStorage();
-        const newReq = { id: Date.now(), user: username, reason, status: 'pending', created: new Date().toISOString() };
-        requests.unshift(newReq);
-        saveRequestsToStorage(requests);
-        closeRequestForm();
-        displayMessage('Anfrage gesendet. Admins werden benachrichtigt.', 'success');
-        // notify other tabs
-        localStorage.setItem('hs_requests_updated_at', Date.now());
-    }
-
-    function openRequestsModal() {
-        renderRequestsForAdmin();
-        document.getElementById('requests-modal').style.display = 'flex';
-    }
-    function closeRequestsModal() { document.getElementById('requests-modal').style.display = 'none'; }
-
-    function renderRequestsForAdmin() {
-        const list = getRequestsFromStorage();
-        const container = document.getElementById('requests-list');
-        container.innerHTML = '';
-        if (list.length === 0) { container.innerHTML = '<p style="color:#ccc;">Keine Anfragen.</p>'; return; }
-        list.forEach(r => {
-            const row = document.createElement('div');
-            row.style.padding = '10px';
-            row.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
-            row.innerHTML = `<b>${r.user}</b> <span style="color:#999;font-size:0.9em;">— ${new Date(r.created).toLocaleString()}</span><p style="color:#ddd;margin:6px 0;">${r.reason}</p>`;
-            const actions = document.createElement('div');
-            actions.style.display = 'flex'; actions.style.gap = '8px';
-            const acceptBtn = document.createElement('button'); acceptBtn.textContent = 'Akzeptieren'; acceptBtn.style.background='#4CAF50'; acceptBtn.style.color='#fff'; acceptBtn.style.border='none'; acceptBtn.style.padding='6px 8px'; acceptBtn.style.borderRadius='6px';
-            const declineBtn = document.createElement('button'); declineBtn.textContent = 'Ablehnen'; declineBtn.style.background='#d9534f'; declineBtn.style.color='#fff'; declineBtn.style.border='none'; declineBtn.style.padding='6px 8px'; declineBtn.style.borderRadius='6px';
-            acceptBtn.onclick = () => { acceptRequest(r.id); };
-            declineBtn.onclick = () => { declineRequest(r.id); };
-            actions.appendChild(acceptBtn); actions.appendChild(declineBtn);
-            row.appendChild(actions);
-            container.appendChild(row);
-        });
-    }
-
-    function acceptRequest(id) {
-        const reqs = getRequestsFromStorage();
-        const idx = reqs.findIndex(r=>r.id===id);
-        if (idx===-1) return;
-        const req = reqs[idx];
-        req.status = 'accepted';
-        req.resolvedAt = new Date().toISOString();
-        saveRequestsToStorage(reqs);
-        const approved = getApprovedUsers();
-        if (!approved.includes(req.user)) approved.push(req.user);
-        saveApprovedUsers(approved);
-        renderRequestsForAdmin();
-        localStorage.setItem('hs_requests_updated_at', Date.now());
-    }
-
-    function declineRequest(id) {
-        const reqs = getRequestsFromStorage();
-        const idx = reqs.findIndex(r=>r.id===id);
-        if (idx===-1) return;
-        reqs[idx].status = 'declined';
-        reqs[idx].resolvedAt = new Date().toISOString();
-        saveRequestsToStorage(reqs);
-        renderRequestsForAdmin();
-        localStorage.setItem('hs_requests_updated_at', Date.now());
-    }
-
-    // Live update across tabs
-    window.addEventListener('storage', (e) => {
-        if (e.key === 'hs_requests_updated_at') {
-            // if admin modal open, re-render
-            if (document.getElementById('requests-modal').style.display === 'flex') renderRequestsForAdmin();
-            // notify users if they have been approved
-            const currentUser = sessionStorage.getItem('holostats_user');
-            if (currentUser && isUserApproved(currentUser)) {
-                displayMessage('Deine Anfrage wurde akzeptiert. Du hast jetzt Zugriff.', 'success');
-            }
-        }
-    });
-
-    function isUserApproved(username) {
-        const app = getApprovedUsers();
-        return app.includes(username);
-    }
-
-    // --- CSV IMPORT (simple) ---
-    function triggerImport(){
-        const f = document.getElementById('import-file');
-        if (!f.files || f.files.length===0) { displayMessage('Bitte eine CSV-Datei auswählen.', 'error'); return; }
-        const file = f.files[0];
-        const reader = new FileReader();
-        reader.onload = (ev) => { handleImportFile(ev.target.result); };
-        reader.readAsText(file);
-    }
-
-    function handleImportFile(csvText) {
-        // Expect header: playername,buy,sell
-        const lines = csvText.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-        if (lines.length===0) { displayMessage('Leere Datei.', 'error'); return; }
-        const header = lines[0].split(',').map(h=>h.trim().toLowerCase());
-        const nameIdx = header.indexOf('playername');
-        const buyIdx = header.indexOf('buy');
-        const sellIdx = header.indexOf('sell');
-        if (nameIdx===-1 || buyIdx===-1 || sellIdx===-1) { displayMessage('CSV muss Spalten playername,buy,sell enthalten.', 'error'); return; }
-        const map = {};
-        for (let i=1;i<lines.length;i++){
-            const cols = lines[i].split(',');
-            const name = (cols[nameIdx]||'').trim();
-            if (!name) continue;
-            const buy = parseInt((cols[buyIdx]||'0').replace(/[^0-9\-]/g,'')) || 0;
-            const sell = parseInt((cols[sellIdx]||'0').replace(/[^0-9\-]/g,'')) || 0;
-            map[name.toLowerCase()] = { buy, sell };
-        }
-        // merge into playerStats
-        playerStats = playerStats.map(p => {
-            const found = map[p.playername.toLowerCase()];
-            return { ...p, buy: found ? found.buy : (p.buy||0), sell: found ? found.sell : (p.sell||0) };
-        });
-        displayMessage('CSV importiert und Daten aktualisiert.', 'success');
-        displayTopSuggestions();
-    }
-
     function searchPlayers(isFullSearch = false) {
         const input = document.getElementById('search-input');
         const searchTerm = input.value.toLowerCase().trim();
@@ -1185,21 +1046,6 @@
             ).slice(0, 20); 
         }
 
-        const currentUser = sessionStorage.getItem('holostats_user');
-        const isAdmin = sessionStorage.getItem('holostats_isAdmin') === 'true';
-        const approved = isUserApproved(currentUser);
-
-        if (!isAdmin && !approved) {
-            // Non-admin without approval: show request option instead of results
-            const reqBtn = document.createElement('button');
-            reqBtn.textContent = 'Zugriffsanfrage stellen';
-            reqBtn.style.background = '#1976d2'; reqBtn.style.color = '#fff'; reqBtn.style.border = 'none'; reqBtn.style.padding='10px 12px'; reqBtn.style.borderRadius='6px';
-            reqBtn.onclick = () => { openRequestForm(); };
-            resultsContainer.appendChild(reqBtn);
-            displayMessage('Du hast momentan keinen Zugriff auf die Umsätze. Stelle eine Anfrage an die Admins.', 'error');
-            return;
-        }
-
         if (results.length > 0) {
             results.forEach(createPlayerCard);
             displayMessage(`Es wurden ${results.length} Ergebnisse für "${input.value}" gefunden.`, 'success');
@@ -1229,18 +1075,6 @@
         }
         
         document.getElementById('current-date').textContent = `Daten-Stand: ${new Date().toLocaleDateString('de-DE')}`;
-
-        // Ensure buy/sell defaults
-        playerStats = playerStats.map(p => ({ ...p, buy: p.buy || 0, sell: p.sell || 0 }));
-
-        // Show requests button for admins
-        const isAdmin = sessionStorage.getItem('holostats_isAdmin') === 'true';
-        const requestsBtn = document.getElementById('requests-button');
-        if (isAdmin) {
-            requestsBtn.style.display = 'inline-block';
-        } else {
-            requestsBtn.style.display = 'none';
-        }
     }
 
     /**
