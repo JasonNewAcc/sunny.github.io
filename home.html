@@ -6,55 +6,9 @@
     <title>Holostats - Home</title>
     <style>
         /* [Der gesamte CSS-Block vom app (7).html (inkl. Snowflake, Nav- und VERBESSERTEM Login-Style) MUSS hier eingefügt werden] */
-        /* ================================================= */
-        /* === SCHNEEFLOCKEN-EFFEKT (Zum einfachen Löschen) === */
-        /* ================================================= */
-        .snowflake {
-            color: #fff;
-            font-size: 1em;
-            font-family: Arial, sans-serif;
-            text-shadow: 0 0 5px #000;
-            position: fixed;
-            top: -10%;
-            z-index: 9999;
-            user-select: none;
-            cursor: default;
-            animation-name: snowfall;
-            animation-duration: 10s;
-            animation-timing-function: linear;
-            animation-iteration-count: infinite;
-            pointer-events: none;
-        }
-        
-        @keyframes snowfall {
-            0% {
-                transform: translate3d(var(--x), 0, 0);
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                transform: translate3d(var(--x), 100vh, 0);
-                opacity: 0.5;
-            }
-        }
-
-        /* Verzögerungen und Seitenpositionen */
-        .snowflake:nth-child(1) { left: 10%; animation-delay: 0s; --x: 20px; font-size: 1.2em; }
-        .snowflake:nth-child(2) { left: 20%; animation-delay: 2s; --x: -30px; font-size: 0.8em; }
-        .snowflake:nth-child(3) { left: 30%; animation-delay: 4s; --x: 10px; font-size: 1.5em; }
-        .snowflake:nth-child(4) { left: 40%; animation-delay: 6s; --x: -50px; font-size: 0.9em; }
-        .snowflake:nth-child(5) { left: 50%; animation-delay: 8s; --x: 40px; font-size: 1.3em; }
-        .snowflake:nth-child(6) { left: 60%; animation-delay: 1s; --x: -20px; font-size: 0.7em; }
-        .snowflake:nth-child(7) { left: 70%; animation-delay: 3s; --x: 30px; font-size: 1.1em; }
-        .snowflake:nth-child(8) { left: 80%; animation-delay: 5s; --x: -10px; font-size: 1.4em; }
-        .snowflake:nth-child(9) { left: 90%; animation-delay: 7s; --x: 50px; font-size: 1.0em; }
-        .snowflake:nth-child(10) { left: 5%; animation-delay: 9s; --x: -40px; font-size: 1.6em; }
-        .snowflake:nth-child(11) { left: 15%; animation-delay: 0.5s; --x: 60px; font-size: 0.6em; }
-        /* ================================================= */
-        /* === ENDE SCHNEEFLOCKEN-EFFEKT                   === */
-        /* ================================================= */
+        /* January theme */
+        .january-banner { width:100%; background: linear-gradient(90deg,#0f2540,#16385a); color:#e6f7ff; padding:8px 0; text-align:center; font-weight:700; position:fixed; top:50px; left:0; z-index:49; }
+        body.january { background: linear-gradient(180deg,#081226 0%, #0b2a42 60%); }
 
         /* === Allgemeiner Stil und Dunkles Thema === */
         body {
@@ -230,19 +184,7 @@
         }
     </style>
 </head>
-<body>
-
-<div class="snowflake">❅</div>
-<div class="snowflake">❆</div>
-<div class="snowflake">❄</div>
-<div class="snowflake">❅</div>
-<div class="snowflake">❆</div>
-<div class="snowflake">❄</div>
-<div class="snowflake">❅</div>
-<div class="snowflake">❆</div>
-<div class="snowflake">❄</div>
-<div class="snowflake">❅</div>
-<div class="snowflake">❆</div>
+<body class="january">
 
 <nav id="main-nav" style="display: none;">
     <ul id="nav-list">
