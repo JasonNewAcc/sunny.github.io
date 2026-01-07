@@ -2,23 +2,28 @@
   "accounts": [
     {
       "username": "JasonNewAcc",
-      "password": "RGgACHMn4"
+      "password": "RGgACHMn4",
+      "admin": true
     },
     {
       "username": "Lattenrost1234",
-      "password": "1234"
+      "password": "1234",
+      "admin": false
     },
     {
       "username": "ItzZ_Popeye",
-      "password": "W8nRbBYBj"
+      "password": "W8nRbBYBj",
+      "admin": false
     },
     {
       "username": "Admin",
-      "password": "passwort_sicher"
+      "password": "passwort_sicher",
+      "admin": true
     },
     {
       "username": "TestUser",
-      "password": "test"
+      "password": "test",
+      "admin": false
     }
   ]
 }
